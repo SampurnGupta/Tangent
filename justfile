@@ -22,9 +22,9 @@ up-core:
 down:
     docker compose -f infra/compose/docker-compose.yml --profile full down
 
-# Run all tests across libs and services
+# Run all tests across libs, services, and e2e integration tests
 test:
-    uv run pytest libs/ services/ -v
+    uv run pytest libs/ services/ tests/ -v
 
 # Run tests for a specific service: just test-svc quant
 test-svc service:
@@ -32,17 +32,17 @@ test-svc service:
 
 # Lint all Python code with ruff
 lint:
-    uv run ruff check services/ libs/
-    uv run ruff format --check services/ libs/
+    uv run ruff check services/ libs/ tests/
+    uv run ruff format --check services/ libs/ tests/
 
 # Format all Python code
 fmt:
-    uv run ruff format services/ libs/
-    uv run ruff check --fix services/ libs/
+    uv run ruff format services/ libs/ tests/
+    uv run ruff check --fix services/ libs/ tests/
 
 # Type-check all Python services
 typecheck:
-    uv run mypy services/ libs/ --ignore-missing-imports
+    uv run mypy services/ libs/ tests/ --ignore-missing-imports
 
 # Run database migrations (all schemas)
 migrate:

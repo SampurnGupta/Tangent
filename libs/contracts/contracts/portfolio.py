@@ -83,6 +83,17 @@ class OptimizationResponse(BaseModel):
     as_of: str = Field(..., description="Timestamp of optimization calculation")
 
 
+class FrontierRequest(BaseModel):
+    """Parameters for sampling the efficient frontier."""
+
+    tickers: list[str] = Field(..., min_length=2, description="Candidate asset tickers")
+    risk_score: int = Field(default=6, ge=1, le=10, description="Risk tolerance score")
+    paths: int = Field(
+        default=1000, ge=10, le=10000, description="Number of Monte Carlo portfolio samples"
+    )
+    seed: int = Field(default=42, description="RNG seed")
+
+
 class EfficientFrontierPoint(BaseModel):
     """A single portfolio point on the efficient frontier cloud or curve."""
 

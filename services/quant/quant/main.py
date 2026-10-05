@@ -11,6 +11,7 @@ from contracts.backtest import BacktestRequest, BacktestResponse
 from contracts.marginal import MarginalImpactRequest, MarginalImpactResponse
 from contracts.portfolio import (
     EfficientFrontierResponse,
+    FrontierRequest,
     OptimizationRequest,
     OptimizationResponse,
 )
@@ -106,28 +107,25 @@ def create_app() -> FastAPI:
         )
 
     @app.post("/api/v1/frontier", response_model=EfficientFrontierResponse, tags=["frontier"])
-    async def frontier(
-        tickers: list[str],
-        risk_score: int = 6,
-        paths: int = 1000,
-        seed: int = 42,
-    ) -> EfficientFrontierResponse:
+    async def frontier(req: FrontierRequest) -> EfficientFrontierResponse:
         """Sample efficient frontier points via Monte Carlo."""
         months = 36
         rng = pd.date_range(end=pd.Timestamp.now("UTC"), periods=months, freq="ME")
 
-        returns_dict = {t: generate_deterministic_synthetic_returns(0.12, months) for t in tickers}
-        meta_dict = {t: {"asset_class": "equity", "sector": "General"} for t in tickers}
+        returns_dict = {
+            t: generate_deterministic_synthetic_returns(0.12, months) for t in req.tickers
+        }
+        meta_dict = {t: {"asset_class": "equity", "sector": "General"} for t in req.tickers}
         returns_df = pd.DataFrame(returns_dict, index=rng)
 
-        profile = get_risk_profile_by_score(risk_score)
+        profile = get_risk_profile_by_score(req.risk_score)
         return sample_efficient_frontier(
-            tickers=tickers,
+            tickers=req.tickers,
             returns_df=returns_df,
             asset_meta=meta_dict,
             risk_profile=profile,
-            n_samples=paths,
-            seed=seed,
+            n_samples=req.paths,
+            seed=req.seed,
         )
 
     @app.post("/api/v1/simulate", response_model=MonteCarloSimulationResponse, tags=["simulation"])

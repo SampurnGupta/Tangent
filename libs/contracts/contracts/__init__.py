@@ -26,6 +26,7 @@ from contracts.marginal import (
 from contracts.portfolio import (
     EfficientFrontierPoint,
     EfficientFrontierResponse,
+    FrontierRequest,
     OptimizationRequest,
     OptimizationResponse,
     RiskProfile,
@@ -56,6 +57,7 @@ __all__ = [
     "OptimizationResponse",
     "EfficientFrontierPoint",
     "EfficientFrontierResponse",
+    "FrontierRequest",
     "MonteCarloSimulationRequest",
     "MonteCarloSimulationResponse",
     "ProjectionYear",

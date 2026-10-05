@@ -8,7 +8,7 @@ on:
 
 jobs:
   python-checks:
-    name: Lint, Type Check & Unit Tests
+    name: Backend Lint, Type Check & Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -27,20 +27,68 @@ jobs:
         run: uv sync --all-packages
 
       - name: Check code formatting with ruff
-        run: uv run ruff format --check libs/ services/
+        run: uv run ruff format --check libs/ services/ tests/
 
       - name: Lint code with ruff
-        run: uv run ruff check libs/ services/
+        run: uv run ruff check libs/ services/ tests/
 
       - name: Type check with mypy
         run: uv run mypy libs/ services/ --ignore-missing-imports
 
-      - name: Run unit tests with pytest
-        run: uv run pytest libs/ services/ -v
+      - name: Run unit & integration tests with pytest
+        run: uv run pytest libs/ services/ tests/ -v
 
-  docker-build-test:
-    name: Build Template Docker Image
+  web-checks:
+    name: Frontend Build & Type Check
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js application
+        run: npm run build
+
+  docker-matrix-build:
+    name: Docker Image Build Test (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: gateway
+            file: services/gateway/Dockerfile
+            context: .
+          - service: market-data
+            file: services/market-data/Dockerfile
+            context: .
+          - service: quant
+            file: services/quant/Dockerfile
+            context: .
+          - service: portfolio
+            file: services/portfolio/Dockerfile
+            context: .
+          - service: sentiment
+            file: services/sentiment/Dockerfile
+            context: .
+          - service: agent
+            file: services/agent/Dockerfile
+            context: .
+          - service: web
+            file: apps/web/Dockerfile
+            context: apps/web
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,10 +96,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build template service image
+      - name: Build service image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: services/template/Dockerfile
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
           push: false
-          tags: tangent-template:test
+          tags: tangent-${{ matrix.service }}:test
