@@ -1,62 +1,65 @@
-# ── Virtual Environment ───────────────────────────────────────────────────────
-venv/
-.venv/
-env/
-
 # ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
-*.pyo
-*.pyd
+*.so
+.Python
 *.egg
 *.egg-info/
 dist/
 build/
 .eggs/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
 
-# ── Streamlit ─────────────────────────────────────────────────────────────────
-.streamlit/secrets.toml
+# uv
+.uv/
 
-# ── Project: Data Cache ───────────────────────────────────────────────────────
-data/*.pkl
-data/*.csv
-data/*.json
-# keep the directory itself
-!data/.gitkeep
+# ── Node ──────────────────────────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+.pnpm-store/
 
-# ── Project: Generated Outputs ────────────────────────────────────────────────
-outputs/
-!outputs/.gitkeep
-
-# ── Secrets / Environment ─────────────────────────────────────────────────────
+# ── Secrets ───────────────────────────────────────────────────────────────────
 .env
-.env.*
-*.pem
-*.key
-secrets.toml
+*.env.local
+*.env.production
+*.env.staging
+!.env.example
 
-# ── Jupyter ───────────────────────────────────────────────────────────────────
-.ipynb_checkpoints/
-# *.ipynb
-
-# ── IDE / Editors ─────────────────────────────────────────────────────────────
+# ── IDE ───────────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
-
-# ── OS ────────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# ── Logs ─────────────────────────────────────────────────────────────────────
+# ── Docker ────────────────────────────────────────────────────────────────────
+.dockerignore
+
+# ── Data & cache ──────────────────────────────────────────────────────────────
+data/
+*.pkl
+*.csv
+*.parquet
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
 *.log
 logs/
 
-# ── Docs ─────────────────────────────────────────────────────────────────────
-postgres_walkthrough.md
-ENGINEERING_LOG.md
-Tangent_build_prompt.md
+# ── Test artifacts ────────────────────────────────────────────────────────────
+playwright-report/
+test-results/
+
+# ── Docs build ────────────────────────────────────────────────────────────────
+docs/_build/
+site/

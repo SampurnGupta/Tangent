@@ -1,63 +1,118 @@
-# FinMaths: Portfolio Optimization
+# Tangent
 
-A premium, glassmorphism-inspired financial dashboard built with Streamlit and powered by a PostgreSQL data layer and Groq's high-speed AI. This tool performs advanced Modern Portfolio Theory (MPT) optimization using real-time market data, adjusted for multi-currency risk, taxes, and inflation.
+**Portfolio decisions you can trace.**
 
-## Key Features
+> Formerly FinMaths. Tangent is a production-grade portfolio optimization platform that builds 
+> on Modern Portfolio Theory and adds an evidence-grounded AI Decision Studio — every claim 
+> is traceable to a computed metric.
 
-### 1. Advanced Financial Engineering
-- **Log Returns**: Modeled for accurate multi-period compounding and statistical robustness.
-- **FX Modeling**: Automatic USD to INR conversion using live exchange rates to account for currency risk on international assets.
-- **Real Returns**: All projections are adjusted for **Tax (LTCG/Debt)** and **Inflation (6% p.a.)**.
-- **Synthetic Assets**: Stochastic noise and duration modeling for FDs, Bonds, and REITs to maintain data consistency.
+> ⚠️ **Educational tool only, not investment advice.** See [DISCLAIMER.md](DISCLAIMER.md).
 
-### 2. Premium Interactive UI
-- **Glassmorphism Design**: Midnight navy theme with blur effects, neon accents, and modern typography (Outfit & Inter).
-- **Dynamic Visualizations**: Neon-styled Efficient Frontier, Correlation Heatmaps, and Monte Carlo projections.
-- **Animated Transitions**: Smooth fade-in effects and interactive components.
+---
 
-### 3. AI Portfolio Concierge (Groq)
-- **Interactive Chat**: Ask follow-up questions about your specific portfolio results in a natural chat interface.
-- **Context-Aware Insights**: AI Advisor is powered by Groq's `openai/gpt-oss-120b` and is grounded in your generated metrics, risk profile, and asset allocations.
-- **Automated Briefing**: Get an immediate expert summary of your diversification benefits upon opening the chat.
+## What it does
 
-### 4. Robust PostgreSQL Data Layer
-- **Persistent Asset Metadata**: Hardcoded assumptions have been migrated into a flexible PostgreSQL `assets` table.
-- **High-Performance Caching**: Real-time Yahoo Finance data is cached into a `prices` table using a 24-hour Time-To-Live (TTL) architecture via fast bulk upserts (`execute_values`), significantly optimizing dashboard load speeds.
-- **Auditable Portfolio History**: Every finalized Monte Carlo optimization strategy is securely logged in JSON format into a `portfolio_runs` table, empowering the "Recent Runs" Streamlit sidebar UI and long-term portfolio tracking.
+1. **Risk-profile wizard** — Age, horizon, and preferences generate asset-class bounds.
+2. **Portfolio optimizer** — Max-Sharpe via SciPy SLSQP with sector caps, asset caps, and tax/inflation-adjusted real returns.
+3. **Efficient Frontier** — 10,000-point Monte Carlo cloud + solved frontier curve.
+4. **Wealth projections** — SIP future value, 1,000-path Monte Carlo with 95% CI and goal-probability.
+5. **Decision Studio** — Pick any asset; get marginal impact on your portfolio, a re-optimized allocation, and a multi-agent brief (bull, bear, synthesizer, critic) with claim-level citations.
+6. **Backtest Lab** — Walk-forward comparison of 4 strategies.
+7. **Agent trace** — Per-run timeline, tokens, cost, and groundedness score.
 
-## Installation
+---
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd FinMaths
-    ```
+## Architecture
 
-2.  **Set Up Environment**:
-    ```bash
-    python -m venv venv
-    .\venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
+```
+web (Next.js) → gateway (FastAPI + JWT) → {
+  market-data  (prices, FX, regime, screener)
+  quant        (optimizer, frontier, Monte Carlo, backtest)
+  sentiment    (news, LLM scoring)
+  agent        (evidence pack, specialists, critic, SSE)
+  portfolio    (users, saved portfolios, history)
+}
+PostgreSQL (schema-per-service) + Redis (cache + rate limit)
+```
 
-3.  **Configure API Key**:
-    Create a `.env` file in the root directory:
-    ```env
-    GROQ_API_KEY=your_key_here
-    ```
+See [docs/adr/0001-architecture-decisions.md](docs/adr/0001-architecture-decisions.md) for all architecture decisions.
 
-4.  **Run the App**:
-    ```bash
-    streamlit run app.py
-    ```
+---
 
-5. **Run the schema.sql Script**
-    ```bash
-    psql -U postgres -d finmaths -f "d:\#PROPER_PROJECTS\FinMaths\schema.sql"
-    ```
+## Quickstart (Windows)
 
-## Methodology
-- **Optimization**: Uses Scipy's `SLSQP` optimizer to maximize the Sharpe Ratio.
-- **Simulation**: 10,000-point Monte Carlo for Efficient Frontier discovery.
-- **Constraints**: Sector caps (25%), asset caps (15%), and risk-profile specific class bounds.
-- **Projections**: 1,000-path Monte Carlo wealth simulations with 95% confidence intervals and worst-case drawdown analysis.
+### Prerequisites
+Run the doctor script to check your environment:
+```powershell
+just doctor
+```
+
+Required tools: Docker Desktop (WSL2), Git, Python 3.12+, `uv`, Node 20+, `pnpm`, `just`.
+
+### Setup
+```powershell
+# 1. Clone
+git clone https://github.com/your-org/tangent.git
+cd tangent
+
+# 2. Configure environment
+Copy-Item .env.example .env
+# Edit .env and add your GROQ_API_KEY and DATABASE_URL
+
+# 3. Start infrastructure
+just up-core
+
+# 4. Run migrations
+just migrate
+
+# 5. Start all services
+just up
+
+# 6. Start frontend
+just web-dev
+```
+
+Open http://localhost:3000.
+
+---
+
+## Environment Variables
+
+See [`.env.example`](.env.example) for the full list. Critical ones:
+
+| Variable | Purpose |
+|---|---|
+| `GROQ_API_KEY` | Primary LLM (agents, chat, sentiment) |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `REDIS_URL` | Redis for cache and rate limiting |
+| `JWT_SECRET` | Auth token signing |
+| `MC_PATHS` / `MC_SEED` | Monte Carlo config (default 10,000 / 42) |
+| `DEMO_MODE` | `true` to use fixtures, no external APIs needed |
+
+---
+
+## Development
+
+```powershell
+just lint        # Ruff linting
+just fmt         # Auto-format
+just typecheck   # mypy
+just test        # All unit tests
+just ci          # Full CI pipeline
+```
+
+---
+
+## Limitations
+
+- Market data is from Yahoo Finance (unofficial API) with 24h cache — not real-time.
+- Synthetic assets (FDs, bonds) use a deterministic yield model — not actual market prices.
+- Tax rates (LTCG 12.5%, Debt 30%, Inflation 6%) are model assumptions — verify with a CA.
+- AI briefs are grounded in computed evidence but can still make reasoning errors — always check citations.
+- Overseas investment limits (RBI LRS) apply — consult a registered advisor. `TODO(verify)` current rules.
+
+---
+
+## License
+
+MIT. See [LICENSE](LICENSE).
