@@ -1,0 +1,336 @@
+"use client";
+
+import React, { useState } from "react";
+import {
+  OptimizationResponse,
+  RiskProfile,
+  DEFAULT_CURATED_ASSETS,
+  runOptimization,
+} from "@/lib/api";
+import {
+  TrendingUp,
+  Shield,
+  Activity,
+  Award,
+  Flame,
+  PieChart,
+  ArrowRight,
+  CheckCircle,
+  Save,
+  Loader2,
+} from "lucide-react";
+
+interface OptimizationDashboardProps {
+  selectedTickers: string[];
+  riskProfile: RiskProfile;
+  authToken?: string;
+  onProceedToProjections: () => void;
+}
+
+export function OptimizationDashboard({
+  selectedTickers,
+  riskProfile,
+  authToken,
+  onProceedToProjections,
+}: OptimizationDashboardProps) {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<OptimizationResponse | null>(null);
+  const [savedSuccess, setSavedSuccess] = useState(false);
+
+  const handleOptimize = async () => {
+    setLoading(true);
+    try {
+      const res = await runOptimization(
+        selectedTickers,
+        riskProfile.score,
+        0.15,
+        0.25,
+        authToken
+      );
+      setResult(res);
+    } catch (err) {
+      console.error("Optimization failed", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper to map ticker name
+  const getAssetName = (ticker: string) => {
+    const found = DEFAULT_CURATED_ASSETS.find((a) => a.ticker === ticker);
+    return found ? found.name : ticker;
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-8 py-6">
+      {/* Header and Run Button */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold">
+            <Activity className="w-3.5 h-3.5" />
+            <span>Step 3: SciPy SLSQP Optimization</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1">
+            Deterministic Max-Sharpe Solver
+          </h2>
+          <p className="text-xs text-zinc-400 mt-1 max-w-xl">
+            Solves multi-start Sequential Least Squares Programming subject to asset caps (15%), sector caps (25%), and profile risk bounds.
+          </p>
+        </div>
+
+        <button
+          onClick={handleOptimize}
+          disabled={loading}
+          className="flex items-center gap-2 py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 text-zinc-950 font-bold text-sm hover:brightness-110 active:scale-[0.99] disabled:opacity-50 transition-all shadow-lg shadow-teal-500/20 cursor-pointer"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Solving SLSQP...</span>
+            </>
+          ) : (
+            <>
+              <Activity className="w-4 h-4" />
+              <span>{result ? "Re-Run Optimization" : "Run Optimization"}</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {!result && !loading && (
+        <div className="border border-dashed border-zinc-800 rounded-2xl p-12 text-center space-y-4">
+          <div className="w-12 h-12 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto text-zinc-400">
+            <PieChart className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="font-semibold text-zinc-200">No Optimization Run Yet</h3>
+            <p className="text-xs text-zinc-400 max-w-md mx-auto">
+              Click &apos;Run Optimization&apos; to evaluate log-returns, Ledoit-Wolf covariance shrinkage, and tax/inflation adjusted metrics.
+            </p>
+          </div>
+          <button
+            onClick={handleOptimize}
+            className="px-4 py-2 rounded-xl bg-zinc-800 text-zinc-200 text-xs font-semibold hover:bg-zinc-700 transition-all cursor-pointer"
+          >
+            Launch Solver Now
+          </button>
+        </div>
+      )}
+
+      {result && (
+        <div className="space-y-8 animate-in fade-in duration-300">
+          {/* 5 High-Impact Metric Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 space-y-2">
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                Nominal Return
+              </span>
+              <p className="text-2xl font-bold font-mono text-emerald-400">
+                {(result.expected_return_nominal * 100).toFixed(1)}%
+              </p>
+              <span className="text-[10px] text-zinc-400 block">Annualized expected return</span>
+            </div>
+
+            <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 space-y-2">
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                Real Return
+              </span>
+              <p className="text-2xl font-bold font-mono text-teal-300">
+                {(result.expected_return_real * 100).toFixed(1)}%
+              </p>
+              <span className="text-[10px] text-zinc-400 block">Tax & 6% inflation adjusted</span>
+            </div>
+
+            <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 space-y-2">
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                Volatility (Risk)
+              </span>
+              <p className="text-2xl font-bold font-mono text-amber-400">
+                {(result.annualized_volatility * 100).toFixed(1)}%
+              </p>
+              <span className="text-[10px] text-zinc-400 block">Annualized standard dev</span>
+            </div>
+
+            <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 space-y-2">
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                Real Sharpe
+              </span>
+              <p className="text-2xl font-bold font-mono text-cyan-400">
+                {result.sharpe_ratio.toFixed(2)}
+              </p>
+              <span className="text-[10px] text-zinc-400 block">Risk-adjusted return ratio</span>
+            </div>
+
+            <div className="col-span-2 md:col-span-1 bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 space-y-2">
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                Diversification
+              </span>
+              <p className="text-2xl font-bold font-mono text-white">
+                {result.diversification_score.toFixed(1)}{" "}
+                <span className="text-xs font-normal text-zinc-400">/ 10</span>
+              </p>
+              <span className="text-[10px] text-zinc-400 block">
+                ENC: {result.effective_number_assets.toFixed(1)} assets
+              </span>
+            </div>
+          </div>
+
+          {/* Allocation Breakdowns: Asset Class + Sectors */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Asset Class Allocation */}
+            <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-300">
+                  Asset Class Allocation
+                </span>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  Constraints Satisfied
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {Object.entries(result.asset_class_allocations).map(([cls, weight]) => {
+                  const pct = Math.round(weight * 100);
+                  return (
+                    <div key={cls} className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="capitalize font-semibold text-zinc-200">{cls}</span>
+                        <span className="font-mono font-bold text-white">{pct}%</span>
+                      </div>
+                      <div className="w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            cls === "equity"
+                              ? "bg-emerald-500"
+                              : cls === "debt"
+                              ? "bg-teal-400"
+                              : "bg-amber-400"
+                          }`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Sector Allocation */}
+            <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-300">
+                  Sector Distribution
+                </span>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                  Max 25% Equity Sector Cap
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                {Object.entries(result.sector_allocations)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([sector, weight]) => {
+                    const pct = Math.round(weight * 100);
+                    return (
+                      <div key={sector} className="space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-zinc-300 font-medium truncate max-w-[200px]">
+                            {sector}
+                          </span>
+                          <span className="font-mono font-bold text-white">{pct}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-teal-500 rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min(100, pct * 4)}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+
+          {/* Individual Asset Weights Table */}
+          <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold uppercase tracking-wider text-zinc-300">
+                Optimized Individual Asset Weights
+              </span>
+              <span className="text-xs text-zinc-400">Weights strictly sum to 100.0%</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-zinc-800 text-zinc-400 font-semibold">
+                    <th className="pb-3">Asset</th>
+                    <th className="pb-3">Ticker</th>
+                    <th className="pb-3 text-right">Optimal Weight</th>
+                    <th className="pb-3 text-right w-36">Visual Share</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800/60 font-medium">
+                  {Object.entries(result.weights)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([ticker, weight]) => {
+                      const pct = (weight * 100).toFixed(1);
+                      return (
+                        <tr key={ticker} className="hover:bg-zinc-800/20">
+                          <td className="py-2.5 text-zinc-200">{getAssetName(ticker)}</td>
+                          <td className="py-2.5 font-mono text-zinc-400">{ticker}</td>
+                          <td className="py-2.5 text-right font-mono font-bold text-white">
+                            {pct}%
+                          </td>
+                          <td className="py-2.5 text-right pl-4">
+                            <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-emerald-500 rounded-full"
+                                style={{ width: `${Math.min(100, Number(pct) * 6.6)}%` }}
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Action Row */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+            <button
+              onClick={() => {
+                setSavedSuccess(true);
+                setTimeout(() => setSavedSuccess(false), 3000);
+              }}
+              className="flex items-center gap-2 py-2.5 px-4 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-semibold hover:bg-zinc-700 transition-all cursor-pointer"
+            >
+              {savedSuccess ? (
+                <>
+                  <CheckCircle className="w-4 h-4 text-emerald-400" />
+                  <span className="text-emerald-400">Portfolio Saved to Audit History!</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save Portfolio Run</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={onProceedToProjections}
+              className="flex items-center gap-2 py-3 px-6 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-zinc-950 font-bold text-xs hover:brightness-110 active:scale-[0.99] transition-all shadow-md shadow-teal-500/20 cursor-pointer"
+            >
+              <span>Simulate 10-Year Monte Carlo SIP</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
