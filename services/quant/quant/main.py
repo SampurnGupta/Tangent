@@ -7,6 +7,7 @@ import pandas as pd
 from common.config import BaseAppSettings
 from common.logging import get_logger, setup_logging
 from common.middleware import RequestIdMiddleware
+from contracts.backtest import BacktestRequest, BacktestResponse
 from contracts.marginal import MarginalImpactRequest, MarginalImpactResponse
 from contracts.portfolio import (
     EfficientFrontierResponse,
@@ -19,8 +20,10 @@ from contracts.projections import (
 )
 from fastapi import FastAPI, HTTPException, status
 
+from quant.backtest import run_walk_forward_backtest
 from quant.engine import (
     compute_marginal_impact,
+    generate_deterministic_synthetic_returns,
     optimize_max_sharpe,
     sample_efficient_frontier,
     simulate_monte_carlo_projections,
@@ -71,8 +74,6 @@ def create_app() -> FastAPI:
 
         # Fetch returns via market-data provider or synthetic fallback
         # In isolated service test or benchmark, synthesize/fetch return series
-        from app.engine import generate_deterministic_synthetic_returns
-
         months = 36
         rng = pd.date_range(end=pd.Timestamp.now("UTC"), periods=months, freq="ME")
 
@@ -112,8 +113,6 @@ def create_app() -> FastAPI:
         seed: int = 42,
     ) -> EfficientFrontierResponse:
         """Sample efficient frontier points via Monte Carlo."""
-        from app.engine import generate_deterministic_synthetic_returns
-
         months = 36
         rng = pd.date_range(end=pd.Timestamp.now("UTC"), periods=months, freq="ME")
 
@@ -139,8 +138,6 @@ def create_app() -> FastAPI:
     @app.post("/api/v1/marginal-impact", response_model=MarginalImpactResponse, tags=["marginal"])
     async def marginal_impact(req: MarginalImpactRequest) -> MarginalImpactResponse:
         """Measure marginal impact of candidate asset on current portfolio."""
-        from app.engine import generate_deterministic_synthetic_returns
-
         all_tickers = list(req.current_weights.keys()) + [req.candidate_ticker]
         months = 36
         rng = pd.date_range(end=pd.Timestamp.now("UTC"), periods=months, freq="ME")
@@ -160,6 +157,27 @@ def create_app() -> FastAPI:
             risk_profile=profile,
             fixed_weight=req.fixed_weight,
         )
+
+    @app.post("/api/v1/backtest", response_model=BacktestResponse, tags=["backtest"])
+    async def backtest(req: BacktestRequest) -> BacktestResponse:
+        """Run rolling out-of-sample walk-forward backtest across 4 strategies."""
+        import numpy as np
+
+        months = max(36, req.train_window_months + req.test_window_months + 12)
+        rng = pd.date_range(end=pd.Timestamp.now("UTC"), periods=months, freq="ME")
+        np.random.seed(42)
+
+        data = {}
+        for idx, t in enumerate(req.tickers):
+            # Deterministic pseudo-historical series based on ticker
+            mean_ret = 0.08 + (idx * 0.02)
+            noise = np.sin(np.linspace(0, 10, months) + idx) * 0.03
+            monthly_rets = np.full(months, mean_ret / 12.0) + noise
+            prices = 100.0 * np.exp(np.cumsum(monthly_rets))
+            data[t] = prices
+
+        prices_df = pd.DataFrame(data, index=rng)
+        return run_walk_forward_backtest(prices_df, req)
 
     return app
 

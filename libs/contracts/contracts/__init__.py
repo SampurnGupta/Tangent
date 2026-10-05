@@ -2,6 +2,14 @@
 
 from contracts.agent import AgentRunSummary, AgentTraceStep
 from contracts.assets import Asset, AssetCategory, AssetClass, AssetListResponse
+from contracts.backtest import (
+    BacktestRequest,
+    BacktestResponse,
+    BacktestWindow,
+    GroundednessEvalItem,
+    GroundednessEvalReport,
+    StrategyBacktestResult,
+)
 from contracts.brief import (
     Claim,
     ConfidenceRating,
@@ -64,4 +72,10 @@ __all__ = [
     "CriticReview",
     "AgentTraceStep",
     "AgentRunSummary",
+    "BacktestWindow",
+    "StrategyBacktestResult",
+    "BacktestRequest",
+    "BacktestResponse",
+    "GroundednessEvalItem",
+    "GroundednessEvalReport",
 ]

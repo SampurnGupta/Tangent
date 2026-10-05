@@ -174,6 +174,11 @@ def create_app() -> FastAPI:
         target = f"{settings.quant_url}/api/v1/marginal-impact"
         return await forward_request(http_client, target, request)
 
+    @app.post("/api/v1/backtest", tags=["quant"])
+    async def proxy_backtest(request: Request) -> Response:
+        target = f"{settings.quant_url}/api/v1/backtest"
+        return await forward_request(http_client, target, request)
+
     # Proxy: Portfolio (Authenticated with user_id header propagation)
     @app.get("/api/v1/portfolios", tags=["portfolio"])
     async def proxy_list_portfolios(
