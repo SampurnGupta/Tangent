@@ -23,9 +23,9 @@ Transforming **FinMaths** (a Streamlit MPT optimizer) into **Tangent** — a pro
 | **2** | Foundation (libs, compose, CI) | M | ✅ **DONE** |
 | **3** | Port Core Services | L | ✅ **DONE** |
 | **4** | Gateway + Frontend MVP | L | ✅ **DONE** |
-| **5** | Sentiment + Agent Service | L | ✅ **DONE** |
-| **6** | Decision Studio UI + Chat | M | 🔄 **NEXT** |
-| **7** | Evaluation Harness | M | ⏳ Pending |
+| **5** | Sentiment + Agent Service | L | ✅ **DONE** (commit 5a08ccb) |
+| **6** | Decision Studio UI + Chat | M | ✅ **DONE** (commit 882918f) |
+| **7** | Evaluation Harness | M | 🔄 **NEXT** |
 | **8** | Hardening | M | ⏳ Pending |
 | **9** | Testing & CI/CD | M | ⏳ Pending |
 | **10** | Cloud Deployment | M | ⏳ Pending |
