@@ -1,9 +1,8 @@
 """Unit tests for template service health and ready endpoints."""
 
 import pytest
-from httpx import ASGITransport, AsyncClient
-
 from app.main import app
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.mark.asyncio
