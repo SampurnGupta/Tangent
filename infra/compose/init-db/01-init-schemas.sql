@@ -1,0 +1,6 @@
+-- Tangent: Initialize per-service PostgreSQL schemas
+CREATE SCHEMA IF NOT EXISTS market;
+CREATE SCHEMA IF NOT EXISTS sentiment;
+CREATE SCHEMA IF NOT EXISTS agent;
+CREATE SCHEMA IF NOT EXISTS portfolio;
+CREATE SCHEMA IF NOT EXISTS config;

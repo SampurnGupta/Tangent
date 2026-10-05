@@ -22,9 +22,9 @@ up-core:
 down:
     docker compose -f infra/compose/docker-compose.yml --profile full down
 
-# Run all tests across all services
+# Run all tests across libs and services
 test:
-    pwsh -Command "Get-ChildItem services -Directory | ForEach-Object { Write-Host \"Testing $($_.Name)...\"; uv run pytest services/$($_.Name)/tests -v }"
+    uv run pytest libs/ services/ -v
 
 # Run tests for a specific service: just test-svc quant
 test-svc service:

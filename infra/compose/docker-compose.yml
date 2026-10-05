@@ -1,0 +1,55 @@
+name: tangent
+
+networks:
+  tangent-net:
+    driver: bridge
+
+volumes:
+  tangent_pgdata:
+  tangent_redisdata:
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tangent-postgres
+    restart: unless-stopped
+    profiles:
+      - core
+      - full
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-tangent}
+    ports:
+      - "5432:5432"
+    volumes:
+      - tangent_pgdata:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tangent"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - tangent-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: tangent-redis
+    restart: unless-stopped
+    profiles:
+      - core
+      - full
+    ports:
+      - "6379:6379"
+    volumes:
+      - tangent_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - tangent-net

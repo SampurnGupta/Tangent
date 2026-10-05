@@ -20,8 +20,8 @@ Transforming **FinMaths** (a Streamlit MPT optimizer) into **Tangent** — a pro
 |-------|------|------|--------|
 | **0** | Decisions & Scope Freeze | S | ✅ **DONE** (commit 1d5ea28) |
 | **1** | Environment Setup | S | ✅ **DONE** |
-| **2** | Foundation (libs, compose, CI) | M | 🔄 **NEXT** |
-| **3** | Port Core Services | L | ⏳ Pending |
+| **2** | Foundation (libs, compose, CI) | M | ✅ **DONE** |
+| **3** | Port Core Services | L | 🔄 **NEXT** |
 | **4** | Gateway + Frontend MVP | L | ⏳ Pending |
 | **5** | Sentiment + Agent Service | L | ⏳ Pending |
 | **6** | Decision Studio UI + Chat | M | ⏳ Pending |
