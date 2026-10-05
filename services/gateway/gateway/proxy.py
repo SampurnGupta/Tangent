@@ -24,12 +24,18 @@ HOP_BY_HOP_HEADERS = {
 
 
 async def forward_request(
-    client: httpx.AsyncClient,
+    client: httpx.AsyncClient | None,
     target_url: str,
     request: Request,
     extra_headers: Mapping[str, str] | None = None,
 ) -> Response:
     """Forward incoming request to target microservice and return Response."""
+    if client is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Downstream service unavailable at {target_url}",
+        )
+
     # Build filtered headers
     headers = {k: v for k, v in request.headers.items() if k.lower() not in HOP_BY_HOP_HEADERS}
     if extra_headers:

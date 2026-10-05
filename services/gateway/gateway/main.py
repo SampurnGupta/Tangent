@@ -140,44 +140,37 @@ def create_app() -> FastAPI:
     # Proxy: Market Data
     @app.get("/api/v1/assets", tags=["market-data"])
     async def proxy_assets(request: Request) -> Response:
-        assert http_client is not None
         target = f"{settings.market_data_url}/api/v1/assets"
         return await forward_request(http_client, target, request)
 
     @app.post("/api/v1/prices", tags=["market-data"])
     async def proxy_prices(request: Request) -> Response:
-        assert http_client is not None
         target = f"{settings.market_data_url}/api/v1/prices"
         return await forward_request(http_client, target, request)
 
     @app.get("/api/v1/fx", tags=["market-data"])
     async def proxy_fx(request: Request) -> Response:
-        assert http_client is not None
         target = f"{settings.market_data_url}/api/v1/fx"
         return await forward_request(http_client, target, request)
 
     # Proxy: Quant
     @app.post("/api/v1/optimize", tags=["quant"])
     async def proxy_optimize(request: Request) -> Response:
-        assert http_client is not None
         target = f"{settings.quant_url}/api/v1/optimize"
         return await forward_request(http_client, target, request)
 
     @app.post("/api/v1/frontier", tags=["quant"])
     async def proxy_frontier(request: Request) -> Response:
-        assert http_client is not None
         target = f"{settings.quant_url}/api/v1/frontier"
         return await forward_request(http_client, target, request)
 
     @app.post("/api/v1/projections", tags=["quant"])
     async def proxy_projections(request: Request) -> Response:
-        assert http_client is not None
         target = f"{settings.quant_url}/api/v1/projections"
         return await forward_request(http_client, target, request)
 
     @app.post("/api/v1/marginal-impact", tags=["quant"])
     async def proxy_marginal_impact(request: Request) -> Response:
-        assert http_client is not None
         target = f"{settings.quant_url}/api/v1/marginal-impact"
         return await forward_request(http_client, target, request)
 
@@ -187,7 +180,6 @@ def create_app() -> FastAPI:
         request: Request,
         user_id: str = Depends(get_current_user_id),
     ) -> Response:
-        assert http_client is not None
         target = f"{settings.portfolio_url}/api/v1/portfolios"
         return await forward_request(
             http_client,
@@ -201,7 +193,6 @@ def create_app() -> FastAPI:
         request: Request,
         user_id: str = Depends(get_current_user_id),
     ) -> Response:
-        assert http_client is not None
         target = f"{settings.portfolio_url}/api/v1/portfolios"
         return await forward_request(
             http_client,
@@ -209,6 +200,33 @@ def create_app() -> FastAPI:
             request,
             extra_headers={"X-User-Id": user_id},
         )
+
+    # Proxy: Sentiment
+    @app.post("/api/v1/sentiment/analyze", tags=["sentiment"])
+    async def proxy_sentiment_analyze(request: Request) -> Response:
+        target = f"{settings.sentiment_url}/api/v1/sentiment/analyze"
+        return await forward_request(http_client, target, request)
+
+    @app.get("/api/v1/sentiment/{ticker}", tags=["sentiment"])
+    async def proxy_ticker_sentiment(request: Request, ticker: str) -> Response:
+        target = f"{settings.sentiment_url}/api/v1/sentiment/{ticker}"
+        return await forward_request(http_client, target, request)
+
+    # Proxy: Agent (Decision Studio & SSE)
+    @app.post("/api/v1/agent/runs", tags=["agent"])
+    async def proxy_agent_run(request: Request) -> Response:
+        target = f"{settings.agent_url}/api/v1/agent/runs"
+        return await forward_request(http_client, target, request)
+
+    @app.get("/api/v1/agent/runs/{run_id}", tags=["agent"])
+    async def proxy_get_agent_run(request: Request, run_id: str) -> Response:
+        target = f"{settings.agent_url}/api/v1/agent/runs/{run_id}"
+        return await forward_request(http_client, target, request)
+
+    @app.get("/api/v1/agent/runs/stream/{ticker}", tags=["agent"])
+    async def proxy_stream_agent_run(request: Request, ticker: str) -> Response:
+        target = f"{settings.agent_url}/api/v1/agent/runs/stream/{ticker}"
+        return await forward_request(http_client, target, request)
 
     return app
 

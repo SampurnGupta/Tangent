@@ -7,6 +7,8 @@ import { RiskProfilerWizard } from "@/components/RiskProfilerWizard";
 import { AssetSelector } from "@/components/AssetSelector";
 import { OptimizationDashboard } from "@/components/OptimizationDashboard";
 import { MonteCarloProjection } from "@/components/MonteCarloProjection";
+import { DecisionStudio } from "@/components/DecisionStudio";
+import { AIChatConcierge } from "@/components/AIChatConcierge";
 import { fetchGuestSession, getRiskProfile } from "@/lib/api";
 import { ShieldCheck, Database, Cpu } from "lucide-react";
 
@@ -85,9 +87,28 @@ export default function Home() {
             volatility={0.122}
             horizonYears={horizon}
             authToken={authToken}
+            onProceedToStudio={() => setActiveTab("studio")}
+          />
+        )}
+
+        {activeTab === "studio" && (
+          <DecisionStudio
+            selectedTickers={selectedTickers}
+            authToken={authToken}
+            currentSharpe={0.475}
+            currentReturn={0.134}
+            currentVol={0.122}
           />
         )}
       </main>
+
+      {/* Grounded AI Concierge Chat Drawer */}
+      <AIChatConcierge
+        selectedTickers={selectedTickers}
+        currentSharpe={0.475}
+        currentReturn={0.134}
+        currentVol={0.122}
+      />
 
       {/* Footer */}
       <footer className="border-t border-zinc-900 bg-zinc-950 py-8 px-4 sm:px-6 lg:px-8 mt-12 text-xs text-zinc-500">

@@ -9,6 +9,7 @@ interface MonteCarloProjectionProps {
   volatility?: number;
   horizonYears?: number;
   authToken?: string;
+  onProceedToStudio?: () => void;
 }
 
 export function MonteCarloProjection({
@@ -16,6 +17,7 @@ export function MonteCarloProjection({
   volatility = 0.14,
   horizonYears = 10,
   authToken,
+  onProceedToStudio,
 }: MonteCarloProjectionProps) {
   const [initialInvestment, setInitialInvestment] = useState<number>(500000);
   const [monthlySip, setMonthlySip] = useState<number>(25000);
@@ -194,6 +196,18 @@ export function MonteCarloProjection({
               </table>
             </div>
           </div>
+
+          {onProceedToStudio && (
+            <div className="flex justify-end pt-4">
+              <button
+                onClick={onProceedToStudio}
+                className="py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-zinc-950 font-bold text-sm shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-400 transition-all cursor-pointer flex items-center gap-2"
+              >
+                <span>Proceed to Decision Studio</span>
+                <span className="text-base">→</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

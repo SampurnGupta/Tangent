@@ -94,3 +94,15 @@ def test_token_codec_roundtrip():
     assert decoded["sub"] == uid
     assert decoded["is_guest"] is False
     assert "exp" in decoded
+
+
+@pytest.mark.asyncio
+async def test_gateway_proxy_routing():
+    """Verify proxy routes for sentiment and agent handle downstream unreachable cleanly."""
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        # Downstream services aren't running in unit test, should gracefully 503
+        s_resp = await ac.get("/api/v1/sentiment/RELIANCE.NS")
+        assert s_resp.status_code == 503
+
+        a_resp = await ac.post("/api/v1/agent/runs", json={"ticker": "RELIANCE.NS"})
+        assert a_resp.status_code == 503
