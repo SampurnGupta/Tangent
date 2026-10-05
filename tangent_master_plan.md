@@ -27,9 +27,9 @@ Transforming **FinMaths** (a Streamlit MPT optimizer) into **Tangent** — a pro
 | **6** | Decision Studio UI + Chat | M | ✅ **DONE** (commit 882918f) |
 | **7** | Evaluation Harness | M | ✅ **DONE** (commit cf6f6b4) |
 | **8** | Hardening | M | ✅ **DONE** (commit 5b14f3c) |
-| **9** | Testing & CI/CD | M | 🔄 **NEXT** |
-| **10** | Cloud Deployment | M | ⏳ Pending |
-| **11** | Docs, Lock & Release | S-M | ⏳ Pending |
+| **9** | Testing & CI/CD | M | ✅ **DONE** (commit 284766a) |
+| **10** | Cloud Deployment | M | ✅ **DONE** (commit a9589f5) |
+| **11** | Docs, Lock & Release | S-M | ✅ **DONE** |
 
 ---
 
