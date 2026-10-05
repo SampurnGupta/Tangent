@@ -2,6 +2,9 @@
 # Verifies all required tools are installed and operational.
 # Run with: pwsh -File scripts/doctor.ps1
 
+# Refresh PATH from registry so newly installed tools are visible
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
 $errors = 0
 
 function Check-Tool {

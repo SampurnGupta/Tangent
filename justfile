@@ -71,11 +71,11 @@ logs service:
 
 # Install pre-commit hooks
 hooks:
-    uv run pre-commit install
+    uvx pre-commit install
 
 # Run pre-commit on all files
 pre-commit:
-    uv run pre-commit run --all-files
+    uvx pre-commit run --all-files
 
 # Frontend dev server
 web-dev:
