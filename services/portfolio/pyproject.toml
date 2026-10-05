@@ -1,0 +1,22 @@
+[project]
+name = "tangent-portfolio"
+version = "0.1.0"
+description = "Portfolio, user, and audit log management service for Tangent"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "tangent-common",
+    "tangent-contracts",
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.29.0",
+    "sqlalchemy>=2.0.0",
+    "psycopg[binary]>=3.1.0",
+    "pydantic>=2.7.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["portfolio"]

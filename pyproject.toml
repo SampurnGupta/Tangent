@@ -8,6 +8,9 @@ dependencies = [
     "tangent-common",
     "tangent-contracts",
     "tangent-template-service",
+    "tangent-market-data",
+    "tangent-quant",
+    "tangent-portfolio",
 ]
 
 [tool.uv.workspace]
@@ -17,6 +20,9 @@ members = ["libs/*", "services/*"]
 tangent-common = { workspace = true }
 tangent-contracts = { workspace = true }
 tangent-template-service = { workspace = true }
+tangent-market-data = { workspace = true }
+tangent-quant = { workspace = true }
+tangent-portfolio = { workspace = true }
 
 [dependency-groups]
 dev = [

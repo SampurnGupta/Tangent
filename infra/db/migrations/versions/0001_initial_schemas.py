@@ -5,9 +5,11 @@ Revises:
 Create Date: 2026-10-05 20:00:00.000000
 
 """
+
 from typing import Sequence, Union
-from alembic import op
+
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
@@ -179,7 +181,9 @@ def upgrade() -> None:
         sa.Column("brief", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.Column("groundedness_score", sa.Numeric(precision=4, scale=3), nullable=True),
         sa.Column("total_tokens", sa.Integer(), server_default="0", nullable=False),
-        sa.Column("total_cost_usd", sa.Numeric(precision=8, scale=4), server_default="0.0", nullable=False),
+        sa.Column(
+            "total_cost_usd", sa.Numeric(precision=8, scale=4), server_default="0.0", nullable=False
+        ),
         sa.Column("started_at", sa.DateTime(timezone=True), server_default=sa.text("now()")),
         sa.Column("ended_at", sa.DateTime(timezone=True), nullable=True),
         schema="agent",
@@ -197,10 +201,17 @@ def upgrade() -> None:
         sa.Column("agent_name", sa.String(length=64), nullable=False),
         sa.Column("model", sa.String(length=64), nullable=False),
         sa.Column("prompt_version", sa.String(length=32), nullable=False),
-        sa.Column("temperature", sa.Numeric(precision=3, scale=2), server_default="0.2", nullable=False),
+        sa.Column(
+            "temperature", sa.Numeric(precision=3, scale=2), server_default="0.2", nullable=False
+        ),
         sa.Column("tokens_in", sa.Integer(), server_default="0", nullable=False),
         sa.Column("tokens_out", sa.Integer(), server_default="0", nullable=False),
-        sa.Column("cost_estimate_usd", sa.Numeric(precision=8, scale=4), server_default="0.0", nullable=False),
+        sa.Column(
+            "cost_estimate_usd",
+            sa.Numeric(precision=8, scale=4),
+            server_default="0.0",
+            nullable=False,
+        ),
         sa.Column("tool_calls", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.Column("error", sa.Text(), nullable=True),
         sa.Column("started_at", sa.DateTime(timezone=True), nullable=False),
