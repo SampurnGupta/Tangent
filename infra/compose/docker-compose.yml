@@ -53,3 +53,146 @@ services:
       start_period: 5s
     networks:
       - tangent-net
+
+  market-data:
+    build:
+      context: ../..
+      dockerfile: services/market-data/Dockerfile
+    container_name: tangent-market-data
+    restart: unless-stopped
+    profiles:
+      - core
+      - full
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-tangent}
+      REDIS_URL: redis://redis:6379/0
+      DEMO_MODE: ${DEMO_MODE:-false}
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - tangent-net
+
+  quant:
+    build:
+      context: ../..
+      dockerfile: services/quant/Dockerfile
+    container_name: tangent-quant
+    restart: unless-stopped
+    profiles:
+      - core
+      - full
+    environment:
+      DEMO_MODE: ${DEMO_MODE:-false}
+    ports:
+      - "8002:8002"
+    networks:
+      - tangent-net
+
+  portfolio:
+    build:
+      context: ../..
+      dockerfile: services/portfolio/Dockerfile
+    container_name: tangent-portfolio
+    restart: unless-stopped
+    profiles:
+      - core
+      - full
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-tangent}
+      DEMO_MODE: ${DEMO_MODE:-false}
+    ports:
+      - "8003:8003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tangent-net
+
+  sentiment:
+    build:
+      context: ../..
+      dockerfile: services/sentiment/Dockerfile
+    container_name: tangent-sentiment
+    restart: unless-stopped
+    profiles:
+      - full
+    environment:
+      DEMO_MODE: ${DEMO_MODE:-false}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    ports:
+      - "8004:8004"
+    networks:
+      - tangent-net
+
+  agent:
+    build:
+      context: ../..
+      dockerfile: services/agent/Dockerfile
+    container_name: tangent-agent
+    restart: unless-stopped
+    profiles:
+      - full
+    environment:
+      DEMO_MODE: ${DEMO_MODE:-false}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      MARKET_DATA_URL: http://market-data:8001
+      QUANT_URL: http://quant:8002
+      SENTIMENT_URL: http://sentiment:8004
+    ports:
+      - "8005:8005"
+    depends_on:
+      - market-data
+      - quant
+      - sentiment
+    networks:
+      - tangent-net
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: services/gateway/Dockerfile
+    container_name: tangent-gateway
+    restart: unless-stopped
+    profiles:
+      - core
+      - full
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-tangent-production-super-secret-key-change-me}
+      JWT_EXPIRY_MINUTES: ${JWT_EXPIRY_MINUTES:-1440}
+      MARKET_DATA_URL: http://market-data:8001
+      QUANT_URL: http://quant:8002
+      PORTFOLIO_URL: http://portfolio:8003
+      SENTIMENT_URL: http://sentiment:8004
+      AGENT_URL: http://agent:8005
+    ports:
+      - "8000:8000"
+    depends_on:
+      - market-data
+      - quant
+      - portfolio
+    networks:
+      - tangent-net
+
+  web:
+    build:
+      context: ../../apps/web
+      dockerfile: Dockerfile
+    container_name: tangent-web
+    restart: unless-stopped
+    profiles:
+      - full
+    environment:
+      NEXT_PUBLIC_GATEWAY_URL: http://gateway:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - gateway
+    networks:
+      - tangent-net
