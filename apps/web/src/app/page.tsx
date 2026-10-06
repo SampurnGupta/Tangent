@@ -12,13 +12,15 @@ import { AIChatConcierge } from "@/components/AIChatConcierge";
 import { CandidateSuitability } from "@/components/CandidateSuitability";
 import { BacktestStressTesting } from "@/components/BacktestStressTesting";
 import { ArenaView } from "@/components/ArenaView";
+import { HeroHomepage } from "@/components/HeroHomepage";
 import { CandidatePortfolio, fetchGuestSession, getRiskProfile, OptimizationResponse } from "@/lib/api";
 import { ShieldCheck, Database, Cpu } from "lucide-react";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<string>("profile");
+  const [activeTab, setActiveTab] = useState<string>("home");
   const [userId, setUserId] = useState<string>("");
   const [authToken, setAuthToken] = useState<string>("");
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
 
   // Profiler state (Stage 1 & 3)
   const [age, setAge] = useState<number>(32);
@@ -97,6 +99,15 @@ export default function Home() {
       <Header userId={userId} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 relative z-10">
+        {/* Tab 0: Modern Professional Homepage */}
+        {activeTab === "home" && (
+          <HeroHomepage
+            onNavigate={(tabId) => setActiveTab(tabId)}
+            onOpenChat={() => setIsChatOpen(true)}
+            investorProfileName={riskProfile.name}
+          />
+        )}
+
         {/* Tab 1: Stage 1 (Profile) + Stage 3 (Constraints) */}
         {activeTab === "profile" && (
           <RiskProfilerWizard
@@ -212,6 +223,8 @@ export default function Home() {
         riskProfileName={riskProfile.name}
         initialCapital={initialCapital}
         authToken={authToken}
+        externalIsOpen={isChatOpen}
+        onToggleOpen={() => setIsChatOpen((prev) => !prev)}
       />
 
       {/* Bottom Legal Disclaimer (Visible only when scrolled down) */}

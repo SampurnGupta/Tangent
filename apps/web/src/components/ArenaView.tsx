@@ -155,6 +155,11 @@ export function ArenaView({
   const bottomRef = useRef<HTMLDivElement>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
+  // Initialize consultation chat on mount so it's always ready
+  useEffect(() => {
+    initPersonaChatGreeting(consultPersonaId, query);
+  }, []);
+
   useEffect(() => {
     if (bottomRef.current && turns.length > 0) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
@@ -537,12 +542,15 @@ export function ArenaView({
   const initPersonaChatGreeting = (personaId: string, currentQuery: string) => {
     const persona =
       ARENA_PERSONAS.find((p) => p.id === personaId) || ARENA_PERSONAS[0];
+    const greetingContext = currentQuery || query;
     const initialMsg: PersonaChatMessage = {
       sender: "persona",
       personaId: persona.id,
       speakerTitle: persona.ideologyTitle,
       avatar: persona.avatar,
-      text: `Greetings. I am strictly bound to the **${persona.ideologyTitle}**. We just concluded the committee debate on: *"${currentQuery || query}"*.\n\nAsk me any follow-up question or challenge my assumptions. I will analyze your thesis strictly through my guiding doctrine with empirical data.`,
+      text: greetingContext
+        ? `Greetings. I am strictly bound to the **${persona.ideologyTitle}**. We just concluded our committee debate on: *"${greetingContext}"*.\n\nAsk me any follow-up question or challenge my thesis. I will evaluate your points strictly through my guiding doctrine with empirical facts.`
+        : `Greetings. I am strictly bound to the **${persona.ideologyTitle}**.\n\nOperational Focus: *${persona.coreIdeology}*\n\nAsk me any financial question or consult me on an asset allocation thesis. I will answer strictly through my doctrine with real-world financial data.`,
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -887,12 +895,6 @@ STRICT RULES:
                         <span className="text-[10px] text-zinc-400 font-mono">Turn #{idx + 1} of Debate</span>
                       </div>
                     </div>
-
-                    <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${persona.badgeColor}`}
-                    >
-                      {isArbiter ? "Consensus Synthesis" : "Ideology Doctrine"}
-                    </span>
                   </div>
 
                   {/* Headline & Core Argument */}
@@ -977,43 +979,42 @@ STRICT RULES:
         </div>
       )}
 
-      {/* ── SECTION 5: 1-ON-1 INTERACTIVE CONSULTATION WITH SPECIFIED PERSONA ── */}
-      {turns.length > 0 && (
-        <div className="p-6 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-5 animate-fade-in">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-zinc-800 pb-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-teal-400" />
-                <h3 className="font-bold text-white text-base">
-                  Direct 1-on-1 Consultation With An Expert Persona
-                </h3>
-              </div>
-              <p className="text-xs text-zinc-400 mt-0.5">
-                Continue the discussion under the same chat. The selected persona strictly maintains its intellectual boundaries and memory.
-              </p>
+      {/* ── SECTION 5: 1-ON-1 INTERACTIVE CONSULTATION WITH SPECIFIED PERSONA (ALWAYS ACCESSIBLE) ── */}
+      <div className="p-6 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-5 animate-fade-in">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-zinc-800 pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-teal-400" />
+              <h3 className="font-bold text-white text-base">
+                Direct 1-on-1 Consultation With An Expert Persona
+              </h3>
             </div>
-
-            {/* Persona Switcher Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto py-1">
-              {ARENA_PERSONAS.map((p) => {
-                const isActive = consultPersonaId === p.id;
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => handleSwitchConsultPersona(p.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
-                      isActive
-                        ? "bg-zinc-800 text-white border border-zinc-600 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
-                    }`}
-                  >
-                    <span>{p.avatar}</span>
-                    <span className="hidden md:inline">{p.ideologyTitle.split(" ")[0]}</span>
-                  </button>
-                );
-              })}
-            </div>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Engage directly with any persona. The selected expert strictly maintains its guiding doctrine and evaluates your questions with empirical facts.
+            </p>
           </div>
+
+          {/* Persona Switcher Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+            {ARENA_PERSONAS.map((p) => {
+              const isActive = consultPersonaId === p.id;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => handleSwitchConsultPersona(p.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
+                    isActive
+                      ? "bg-zinc-800 text-white border border-zinc-600 shadow-sm"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+                  }`}
+                >
+                  <span>{p.avatar}</span>
+                  <span className="hidden md:inline">{p.ideologyTitle.split(" ")[0]}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
           {/* Active Persona Banner */}
           {(() => {
@@ -1106,7 +1107,6 @@ STRICT RULES:
             </button>
           </div>
         </div>
-      )}
 
       <div ref={bottomRef} />
     </div>

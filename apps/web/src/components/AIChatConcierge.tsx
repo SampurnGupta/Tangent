@@ -71,8 +71,18 @@ export function AIChatConcierge({
   monteCarlo95th = 14531350,
   initialCapital = 1000000,
   authToken,
-}: AIChatConciergeProps) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  externalIsOpen,
+  onToggleOpen,
+}: AIChatConciergeProps & { externalIsOpen?: boolean; onToggleOpen?: () => void }) {
+  const [internalIsOpen, setInternalIsOpen] = useState<boolean>(false);
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = (open: boolean | ((prev: boolean) => boolean)) => {
+    if (onToggleOpen) {
+      onToggleOpen();
+    } else {
+      setInternalIsOpen(open);
+    }
+  };
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);

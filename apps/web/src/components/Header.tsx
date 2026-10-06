@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { ShieldCheck, UserCheck, Sparkles } from "lucide-react";
 
 interface HeaderProps {
   userId?: string;
@@ -21,9 +20,6 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-xl tracking-tight text-white">Tangent</span>
-              <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                v1.0 Core
-              </span>
             </div>
             <p className="text-xs text-zinc-400 font-medium">Portfolio decisions you can trace.</p>
           </div>
@@ -32,6 +28,7 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
         {/* Navigation Tabs */}
         <nav className="hidden lg:flex items-center gap-1 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800/80">
           {[
+            { id: "home", label: "Overview" },
             { id: "profile", label: "1. Profile" },
             { id: "universe", label: "2. Universe" },
             { id: "frontier", label: "3. Solver" },
@@ -55,12 +52,8 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
           ))}
         </nav>
 
-        {/* Header Right */}
+        {/* Header Right (Cleaned up, no interactive session or text) */}
         <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs font-mono">
-            <UserCheck className="w-3.5 h-3.5 text-teal-400" />
-            <span>Interactive Session</span>
-          </div>
         </div>
       </div>
     </header>
