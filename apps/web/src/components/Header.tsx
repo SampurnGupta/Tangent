@@ -55,11 +55,11 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
           ))}
         </nav>
 
-        {/* User Session & Status (Cleaned up, deterministic math removed) */}
+        {/* Header Right */}
         <div className="flex items-center gap-2.5">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs font-mono">
             <UserCheck className="w-3.5 h-3.5 text-teal-400" />
-            <span className="truncate max-w-[110px]">{userId ? userId.substring(0, 10) : "Guest Session"}</span>
+            <span>Interactive Session</span>
           </div>
         </div>
       </div>
