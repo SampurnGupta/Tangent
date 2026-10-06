@@ -37,7 +37,9 @@ See [docs/architecture.md](docs/architecture.md) and [docs/adr/0001-architecture
 ```
 Tangent/
 ├── apps/
-│   └── web/                   # Next.js 16 App Router UI (TypeScript, Tailwind, Radix UI, Turbopack)
+│   └── web/                   # Next.js 16 App Router UI (React 19, TypeScript, Vanilla CSS, Turbopack)
+│       ├── src/app/           # App routes & /api/groq live LLM proxy
+│       └── src/components/    # HeroHomepage, ArenaView, AIChatConcierge (Draww), OptimizationDashboard, etc.
 │
 ├── services/                  # 6 Standalone FastAPI Microservices
 │   ├── gateway/               # Port 8000 — Unified entrypoint, guest JWT issuance, reverse proxy
@@ -70,9 +72,9 @@ Tangent/
 
 | Service | Port | Responsibilities | Core Stack |
 |---|---|---|---|
-| **apps/web** | 3000 | Next.js 16 App Router UI, Vanilla CSS design system, Interactive Decision Studio | React 19, TypeScript, Vanilla CSS |
+| **apps/web** | 3000 | Next.js 16 App Router UI, Vanilla CSS design system, Interactive Homepage, Arena, Draww AI | React 19, TypeScript, Vanilla CSS, Turbopack |
 | **gateway** | 8000 | Unified entrypoint, guest JWT issuance, sliding-window rate limiter, reverse proxy | FastAPI, PyJWT, HTTPX |
-| **market-data** | 8001 | 73 curated assets, yfinance integration, 24h Postgres cache, synthetic bond accrual | FastAPI, SQLAlchemy, Pandas |
+| **market-data** | 8001 | 74 curated assets across 8 classes, yfinance integration, 24h Postgres cache, synthetic bond accrual | FastAPI, SQLAlchemy, Pandas |
 | **quant** | 8002 | SciPy SLSQP Max-Sharpe, Ledoit-Wolf covariance shrinkage, Monte Carlo projections, Walk-Forward Backtest | NumPy, SciPy, Scikit-learn |
 | **portfolio** | 8003 | Guest profiles, saved allocations, execution audit trails | FastAPI, SQLAlchemy, PostgreSQL |
 | **sentiment** | 8004 | Zero-key RSS ingest (Google News, Economic Times), content-hash cache, lexicon scoring | FastAPI, Feedparser, HTTPX |
@@ -82,15 +84,17 @@ Tangent/
 
 ## Core Features
 
-1. **Risk Profiler Wizard**: Calculates risk tolerance scores (1–10) and establishes asset-class allocation bounds (equity, debt, commodities, cash).
-2. **Curated Multi-Asset Universe**: 73 assets spanning Indian Equities, US ETFs, Global Commodities, Sovereign Bonds, and Synthetic Fixed Income.
-3. **Max-Sharpe Optimization**: SciPy SLSQP solver incorporating Ledoit-Wolf covariance shrinkage, asset caps (15%), sector caps (25%), Indian LTCG tax drag (12.5%), and 6.0% inflation adjustments.
-4. **Monte Carlo Wealth Projections**: 1,000 to 10,000 path geometric Brownian motion simulation displaying median wealth trajectories, 95% confidence intervals, and drawdown profiles.
-5. **Decision Studio & Marginal Impact**: Evaluates candidate asset inclusions by calculating real Sharpe delta, return delta, and volatility delta.
-6. **Traceable Multi-Agent Briefs**: Multi-perspective synthesis (Bull, Bear, Synthesizer) backed by deterministic `EvidencePack` citations (`[E1]`–`[E9]`).
-7. **Automated Critic Agent**: Enforces 100% numerical claim verification within ±0.5% tolerance and strictly rejects directive financial advice.
-8. **Walk-Forward Backtest Lab**: Rolling out-of-sample comparison of 4 classic MPT strategies without lookahead bias.
-9. **Traceable AI Concierge**: Grounded chatbot with citation popups explaining portfolio metrics and diversification benefits.
+1. **Interactive Professional Homepage**: Institutional showcase displaying platform metrics (74 assets, 5k Monte Carlo paths, SciPy SLSQP, 5 ideologies), animated feature spotlight, and rapid decision redirects.
+2. **Expert Committee Arena**: Multi-agent deliberative debate stream featuring 5 strictly bounded expert personas (Macro, Deep Value, Quant Momentum, Austrian Sound Money, ESG) powered by Groq Llama 3.3 70B with real-world live market reasoning.
+3. **Direct 1-on-1 Persona Consultation**: Always-accessible conversational consultation allowing users to interact directly with any expert persona at any time.
+4. **Draww Institutional Portfolio Co-pilot**: Grounded conversational assistant with real-time access to the user's optimized portfolio weights, expected returns, volatility, Sharpe ratio, and backtest results.
+5. **Curated Multi-Asset Universe (74 Securities)**: Complete coverage across Indian Nifty 50 large caps, US ETFs, global commodities, Indian REITs, sovereign debt, bank FDs, and crypto — featuring an *Unbiased All-Asset Mode*.
+6. **Crisis Stress Testing Engine**: Historical crisis simulation replaying portfolio drawdowns through the 2008 GFC, 2020 COVID Crash, 2022 Fed Rate Spikes, 1970s Stagflation, and 2000 Dot-com Bubble.
+7. **Max-Sharpe Optimization**: SciPy SLSQP solver incorporating Ledoit-Wolf covariance shrinkage, asset caps (15%), sector caps (25%), Indian LTCG tax drag (12.5%), and 6.0% inflation adjustments.
+8. **Decision Studio & Marginal Impact**: Evaluates candidate asset inclusions by calculating real Sharpe delta, return delta, and volatility delta with single-click CSV/JSON export for investors.
+9. **Monte Carlo Wealth Projections**: 1,000 to 10,000 path geometric Brownian motion simulation displaying median wealth trajectories, 95% confidence intervals, and drawdown profiles.
+10. **Traceable Multi-Agent Briefs & Critic**: Multi-perspective synthesis backed by deterministic `EvidencePack` citations (`[E1]`–`[E9]`), enforced by an automated Critic rejecting non-grounded claims.
+11. **Walk-Forward Backtest Lab**: Rolling out-of-sample comparison of 4 classic MPT strategies without lookahead bias.
 
 ---
 

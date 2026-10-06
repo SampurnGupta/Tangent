@@ -1,0 +1,16 @@
+.git
+.gitignore
+.gitattributes
+.env
+.venv
+venv
+legacy
+apps/web
+node_modules
+.pytest_cache
+.ruff_cache
+.mypy_cache
+__pycache__
+*.pyc
+*.md
+docs

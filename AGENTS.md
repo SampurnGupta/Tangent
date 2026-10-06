@@ -18,20 +18,22 @@ This file is project context for AI coding assistants. Read it at the start of e
 
 ## Architecture Summary (see `docs/adr/0001-architecture-decisions.md` for full ADRs)
 - **6 backend services:** gateway, market-data, quant, sentiment, agent, portfolio (all FastAPI + Python)
-- **1 frontend:** apps/web (Next.js 14, TypeScript, Tailwind, shadcn/ui)
+- **1 frontend:** apps/web (Next.js 16 App Router, React 19, TypeScript, Vanilla CSS, Turbopack)
 - **Shared libs:** libs/contracts (Pydantic models), libs/common (logging, config, http), libs/llm (LiteLLM wrapper)
 - **Data:** Single PostgreSQL (schema-per-service) + Redis (cache + rate limit)
-- **LLM:** Groq primary, Gemini secondary, via LiteLLM — model names in config, never hardcoded
+- **LLM:** Dual-tier — Groq primary (Llama 3.3 70B), Gemini secondary, via LiteLLM & Next.js streaming API
 - **Auth:** Own JWT (gateway), guest-first (no mandatory signup)
 - **No task queue in v1** — Monte Carlo in thread pool, agent runs via SSE
 
 ## Phase Status
-See `docs/scope.md` for must-have vs stretch vs out-of-scope.
+- **v1.0 Core**: Completed (SLSQP solver, 24h cache, Ledoit-Wolf, walk-forward backtest, multi-agent briefs with Critic).
+- **v1.1 Advanced Suite**: Completed (Animated Hero Homepage, 5-persona Expert Arena + always-on 1-on-1 consultation, Draww co-pilot, 74-asset universe, unbiased all-asset mode, crisis stress testing, CSV/JSON investor export).
+See `docs/scope.md` and `CHANGELOG.md` for full detail.
 
 ## Repo Layout
 ```
 tangent/
-  apps/web/                    # Next.js frontend
+  apps/web/                    # Next.js 16 frontend (HeroHomepage, ArenaView, Draww, Decision Studio)
   services/{gateway,market-data,quant,sentiment,agent,portfolio}/
   libs/{contracts,common,llm}/
   infra/{compose,db/migrations,deploy}/
@@ -39,7 +41,7 @@ tangent/
   legacy/finmaths/             # read-only reference
   docs/{adr/,api/,architecture.md,scope.md,runbook.md,evaluation.md}
   .github/workflows/
-  .env.example  justfile  AGENTS.md  README.md  DISCLAIMER.md
+  .env.example  justfile  AGENTS.md  README.md  CHANGELOG.md  DISCLAIMER.md
 ```
 
 ## Key Design Decisions
