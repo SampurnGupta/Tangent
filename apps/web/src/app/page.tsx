@@ -191,15 +191,6 @@ export default function Home() {
             investorProfileName={riskProfile.name}
             horizon={horizon}
             capital={initialCapital}
-            onAdoptAllocation={(weights) => {
-              if (optimizationResult) {
-                setOptimizationResult({
-                  ...optimizationResult,
-                  weights,
-                });
-              }
-              setActiveTab("decision");
-            }}
           />
         )}
       </main>
