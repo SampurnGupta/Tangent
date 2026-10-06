@@ -9,20 +9,25 @@ import { OptimizationDashboard } from "@/components/OptimizationDashboard";
 import { MonteCarloProjection } from "@/components/MonteCarloProjection";
 import { DecisionStudio } from "@/components/DecisionStudio";
 import { AIChatConcierge } from "@/components/AIChatConcierge";
-import { fetchGuestSession, getRiskProfile, OptimizationResponse } from "@/lib/api";
+import { CandidateSuitability } from "@/components/CandidateSuitability";
+import { BacktestStressTesting } from "@/components/BacktestStressTesting";
+import { CandidatePortfolio, fetchGuestSession, getRiskProfile, OptimizationResponse } from "@/lib/api";
 import { ShieldCheck, Database, Cpu } from "lucide-react";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<string>("wizard");
+  const [activeTab, setActiveTab] = useState<string>("profile");
   const [userId, setUserId] = useState<string>("");
   const [authToken, setAuthToken] = useState<string>("");
 
-  // Profiler state
+  // Profiler state (Stage 1 & 3)
   const [age, setAge] = useState<number>(32);
   const [horizon, setHorizon] = useState<number>(10);
   const [riskScore, setRiskScore] = useState<number>(6);
+  const [initialCapital, setInitialCapital] = useState<number>(1000000);
+  const [monthlySip, setMonthlySip] = useState<number>(25000);
+  const [liquidityTier, setLiquidityTier] = useState<string>("medium");
 
-  // Asset state (default curated multi-asset universe)
+  // Asset state (default curated multi-asset universe - Stage 2)
   const [selectedTickers, setSelectedTickers] = useState<string[]>([
     "RELIANCE.NS",
     "TCS.NS",
@@ -37,6 +42,9 @@ export default function Home() {
   // Solver optimization result state (bubbled from Optimizer step)
   const [optimizationResult, setOptimizationResult] = useState<OptimizationResponse | null>(null);
 
+  // Selected candidate portfolio (bubbled from Stage 8 & 9)
+  const [selectedCandidate, setSelectedCandidate] = useState<CandidatePortfolio | null>(null);
+
   // Authenticate guest on mount
   useEffect(() => {
     async function initGuest() {
@@ -49,19 +57,32 @@ export default function Home() {
 
   const riskProfile = getRiskProfile(riskScore, horizon);
 
-  const activeSharpe = optimizationResult?.sharpe_ratio ?? 0.475;
-  const activeNominalReturn = optimizationResult?.expected_return_nominal ?? 0.134;
-  const activeRealReturn = optimizationResult?.expected_return_real ?? 0.058;
-  const activeVol = optimizationResult?.annualized_volatility ?? 0.122;
-  const activeWeights = optimizationResult?.weights ?? {
-    "RELIANCE.NS": 0.15,
-    "TCS.NS": 0.15,
-    "HDFCBANK.NS": 0.15,
-    "SBI_FD": 0.20,
-    "INDIA_GOVT_10Y": 0.15,
-    "GOLDBEES.NS": 0.10,
-    "EMBASSY_REIT": 0.10,
-  };
+  const activeSharpe =
+    selectedCandidate?.sharpeRatio ?? optimizationResult?.sharpe_ratio ?? 0.52;
+  const activeNominalReturn =
+    selectedCandidate?.expectedReturnNominal ??
+    optimizationResult?.expected_return_nominal ??
+    0.134;
+  const activeRealReturn =
+    selectedCandidate?.expectedReturnReal ??
+    optimizationResult?.expected_return_real ??
+    0.058;
+  const activeVol =
+    selectedCandidate?.annualVolatility ??
+    optimizationResult?.annualized_volatility ??
+    0.122;
+  const activeWeights =
+    selectedCandidate?.weights ??
+    optimizationResult?.weights ?? {
+      "RELIANCE.NS": 0.14,
+      "TCS.NS": 0.12,
+      "HDFCBANK.NS": 0.12,
+      "INDIA_GOVT_10Y": 0.18,
+      "SBI_FD": 0.16,
+      "GOLDBEES.NS": 0.10,
+      "SPY": 0.10,
+      "EMBASSY_REIT": 0.08,
+    };
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/30 selection:text-emerald-300">
@@ -69,7 +90,8 @@ export default function Home() {
       <Header userId={userId} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4">
-        {activeTab === "wizard" && (
+        {/* Tab 1: Stage 1 (Profile) + Stage 3 (Constraints) */}
+        {activeTab === "profile" && (
           <RiskProfilerWizard
             age={age}
             setAge={setAge}
@@ -77,39 +99,71 @@ export default function Home() {
             setHorizon={setHorizon}
             riskScore={riskScore}
             setRiskScore={setRiskScore}
-            onProceed={() => setActiveTab("assets")}
+            initialCapital={initialCapital}
+            setInitialCapital={setInitialCapital}
+            monthlySip={monthlySip}
+            setMonthlySip={setMonthlySip}
+            liquidityTier={liquidityTier}
+            setLiquidityTier={setLiquidityTier}
+            onProceed={() => setActiveTab("universe")}
           />
         )}
 
-        {activeTab === "assets" && (
+        {/* Tab 2: Stage 2 (Universe) + Stage 4 (Market Data Stats) */}
+        {activeTab === "universe" && (
           <AssetSelector
             selectedTickers={selectedTickers}
             setSelectedTickers={setSelectedTickers}
-            onProceed={() => setActiveTab("optimizer")}
+            onProceed={() => setActiveTab("frontier")}
           />
         )}
 
-        {activeTab === "optimizer" && (
+        {/* Tab 3: Stage 5 (Frontier) + Stage 6 (SLSQP) + Stage 7A (MC Exploration) */}
+        {activeTab === "frontier" && (
           <OptimizationDashboard
             selectedTickers={selectedTickers}
             riskProfile={riskProfile}
             authToken={authToken}
             onOptimizationDone={(res) => setOptimizationResult(res)}
-            onProceedToProjections={() => setActiveTab("projections")}
+            onProceedToProjections={() => setActiveTab("candidates")}
           />
         )}
 
+        {/* Tab 4: Stage 8 (Candidates) + Stage 9 (Suitability Layer) */}
+        {activeTab === "candidates" && (
+          <CandidateSuitability
+            selectedTickers={selectedTickers}
+            riskProfile={riskProfile}
+            horizon={horizon}
+            initialCapital={initialCapital}
+            onSelectPortfolio={(cand) => setSelectedCandidate(cand)}
+            onProceed={() => setActiveTab("projections")}
+          />
+        )}
+
+        {/* Tab 5: Stage 7B (Future Projections 5,000 Paths) */}
         {activeTab === "projections" && (
           <MonteCarloProjection
             expectedReturn={activeNominalReturn}
             volatility={activeVol}
             horizonYears={horizon}
             authToken={authToken}
-            onProceedToStudio={() => setActiveTab("studio")}
+            onProceedToStudio={() => setActiveTab("backtest")}
           />
         )}
 
-        {activeTab === "studio" && (
+        {/* Tab 6: Stage 10 (Backtesting) + Stage 11 (Crisis Stress Testing) */}
+        {activeTab === "backtest" && (
+          <BacktestStressTesting
+            weights={activeWeights}
+            horizon={horizon}
+            initialCapital={initialCapital}
+            onProceed={() => setActiveTab("decision")}
+          />
+        )}
+
+        {/* Tab 7: Stage 12 (Final Recommendation, Multi-Agent & Export) */}
+        {activeTab === "decision" && (
           <DecisionStudio
             selectedTickers={selectedTickers}
             authToken={authToken}
@@ -125,7 +179,7 @@ export default function Home() {
         )}
       </main>
 
-      {/* Grounded Interactive AI Concierge Chat Drawer with Full Context */}
+      {/* Grounded Interactive Draww AI Copilot Drawer with Full Context */}
       <AIChatConcierge
         selectedTickers={selectedTickers}
         currentSharpe={activeSharpe}
@@ -135,11 +189,12 @@ export default function Home() {
         nominalReturn={activeNominalReturn}
         realReturn={activeRealReturn}
         taxDrag={optimizationResult?.tax_drag ?? 0.015}
-        diversificationScore={optimizationResult?.diversification_score ?? 7.2}
+        diversificationScore={optimizationResult?.diversification_score ?? 7.8}
         horizon={horizon}
         age={age}
         riskScore={riskScore}
         riskProfileName={riskProfile.name}
+        initialCapital={initialCapital}
         authToken={authToken}
       />
 

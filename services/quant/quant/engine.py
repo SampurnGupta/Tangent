@@ -177,12 +177,21 @@ def optimize_max_sharpe(
     best_weights = np.ones(n) / n
     best_sharpe = -1e9
 
-    # Generate initial guesses: uniform first, then randomized
+    # Generate initial guesses: uniform first, then randomized sparse subsets
     initial_guesses = [np.ones(n) / n]
-    for seed in range(4):
+    for seed in range(5):
         rng = np.random.default_rng(seed)
-        raw = rng.uniform(0.01, min(1.0, asset_cap), size=n)
-        initial_guesses.append(raw / raw.sum())
+        if n > 15:
+            # Pick a subset of 8-12 candidate assets to encourage sparsity
+            k = int(rng.integers(8, 13))
+            indices = rng.choice(n, size=k, replace=False)
+            w_init = np.zeros(n)
+            raw = rng.uniform(0.04, min(1.0, asset_cap), size=k)
+            w_init[indices] = raw / raw.sum()
+            initial_guesses.append(w_init)
+        else:
+            raw = rng.uniform(0.01, min(1.0, asset_cap), size=n)
+            initial_guesses.append(raw / raw.sum())
 
     for w0 in initial_guesses:
         res = minimize(
@@ -201,9 +210,16 @@ def optimize_max_sharpe(
                 best_sharpe = sh
                 best_weights = res.x
 
-    # Normalize weights cleanly
-    best_weights = np.maximum(0.0, best_weights)
-    best_weights = best_weights / best_weights.sum()
+    # For large universes (n > 15), zero out insignificant dust weights (< 2.5%) and re-normalize
+    if n > 15:
+        best_weights = np.where(best_weights < 0.025, 0.0, best_weights)
+        if best_weights.sum() > 0:
+            best_weights = best_weights / best_weights.sum()
+        else:
+            best_weights = np.ones(n) / n
+    else:
+        best_weights = np.maximum(0.0, best_weights)
+        best_weights = best_weights / best_weights.sum()
 
     nom_ret, real_ret, vol, sharpe, tax_drag = compute_portfolio_stats(
         best_weights, mu, cov, classes, equity_tax_rate, debt_tax_rate, inflation_rate
@@ -260,13 +276,22 @@ def sample_efficient_frontier(
     max_sharpe = -1e9
 
     for _ in range(n_samples):
-        w = rng.dirichlet(np.ones(n) * 0.5)
-        # Apply 15% cap clipping
-        w = np.clip(w, 0.0, 0.15)
-        w_sum = w.sum()
-        if w_sum == 0:
-            continue
-        w = w / w_sum
+        # For large universes (e.g. 74 assets), sample a realistic subset of 6 to 14 assets
+        if n > 15:
+            k = int(rng.integers(6, 15))
+            chosen_indices = rng.choice(n, size=k, replace=False)
+            sub_w = rng.dirichlet(np.ones(k) * 1.2)
+            sub_w = np.clip(sub_w, 0.02, 0.15)
+            sub_w = sub_w / sub_w.sum()
+            w = np.zeros(n)
+            w[chosen_indices] = sub_w
+        else:
+            w = rng.dirichlet(np.ones(n) * 0.8)
+            w = np.clip(w, 0.0, 0.25)
+            w_sum = w.sum()
+            if w_sum == 0:
+                continue
+            w = w / w_sum
 
         _, real_ret, vol, sharpe, _ = compute_portfolio_stats(w, mu, cov, classes)
 

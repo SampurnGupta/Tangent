@@ -30,13 +30,15 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="hidden md:flex items-center gap-1 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800/80">
+        <nav className="hidden lg:flex items-center gap-1 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800/80">
           {[
-            { id: "wizard", label: "1. Risk Profile" },
-            { id: "assets", label: "2. Universe" },
-            { id: "optimizer", label: "3. Optimize" },
-            { id: "projections", label: "4. Projections" },
-            { id: "studio", label: "5. Decision Studio" },
+            { id: "profile", label: "1. Profile & Bounds" },
+            { id: "universe", label: "2. Universe & Stats" },
+            { id: "frontier", label: "3. Frontier & Solver" },
+            { id: "candidates", label: "4. Suitability" },
+            { id: "projections", label: "5. Projections" },
+            { id: "backtest", label: "6. Stress Testing" },
+            { id: "decision", label: "7. Recommendation" },
           ].map((tab) => (
             <button
               key={tab.id}

@@ -59,13 +59,13 @@ export function MonteCarloProjection({
       <div className="space-y-1">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
           <BarChart2 className="w-3.5 h-3.5" />
-          <span>Step 4: Seeded Monte Carlo Simulation</span>
+          <span>Stage 7B: Future Portfolio Outcome Simulation (5,000 Paths)</span>
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-white mt-1">
-          Wealth Projections & SIP Goal Planning
+          Wealth Trajectory & Probability-of-Success Simulation
         </h2>
         <p className="text-xs text-zinc-400 max-w-xl">
-          Simulates 5,000 geometric Brownian motion paths under your optimized expected return and volatility to derive 95% confidence intervals and worst-case drawdowns.
+          Simulates 5,000 geometric Brownian motion paths under your expected return and volatility to derive 95% confidence intervals, probability of reaching target, and worst-case drawdowns.
         </p>
       </div>
 
@@ -201,10 +201,10 @@ export function MonteCarloProjection({
             <div className="flex justify-end pt-4">
               <button
                 onClick={onProceedToStudio}
-                className="py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-zinc-950 font-bold text-sm shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-400 transition-all cursor-pointer flex items-center gap-2"
+                className="py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 text-zinc-950 font-bold text-xs shadow-lg shadow-emerald-500/20 hover:brightness-110 active:scale-[0.99] transition-all cursor-pointer flex items-center gap-2"
               >
-                <span>Proceed to Decision Studio</span>
-                <span className="text-base">→</span>
+                <span>Proceed to Backtesting & Crisis Stress Testing</span>
+                <span className="text-sm font-bold">→</span>
               </button>
             </div>
           )}

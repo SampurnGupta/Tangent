@@ -48,19 +48,20 @@ interface AIChatConciergeProps {
   monteCarloMedian?: number;
   monteCarlo5th?: number;
   monteCarlo95th?: number;
+  initialCapital?: number;
   authToken?: string;
 }
 
 export function AIChatConcierge({
   selectedTickers = [],
-  currentSharpe = 0.475,
+  currentSharpe = 0.52,
   currentReturn = 0.134,
   currentVol = 0.122,
   currentWeights = {},
   nominalReturn = 0.134,
   realReturn = 0.058,
   taxDrag = 0.015,
-  diversificationScore = 7.2,
+  diversificationScore = 7.8,
   horizon = 10,
   age = 32,
   riskScore = 6,
@@ -68,6 +69,7 @@ export function AIChatConcierge({
   monteCarloMedian = 10738580,
   monteCarlo5th = 6745384,
   monteCarlo95th = 14531350,
+  initialCapital = 1000000,
   authToken,
 }: AIChatConciergeProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -76,7 +78,7 @@ export function AIChatConcierge({
   const [loading, setLoading] = useState<boolean>(false);
   const [activeEvidenceModal, setActiveEvidenceModal] = useState<EvidenceItem | null>(null);
 
-  const initialGreeting = `Welcome to Tangent Concierge. I am your grounded portfolio co-pilot with full visibility into your ${riskProfileName} allocation, optimization weights, tax drag, and Monte Carlo trajectories.\n\nAsk me anything about your metrics, why specific weights were chosen, or how external shocks could alter your wealth accumulation.`;
+  const initialGreeting = `Welcome to Draww. I am your grounded portfolio co-pilot with full visibility into your ${riskProfileName} allocation, mathematical optimization weights, backtests, crisis stress scenarios, and Monte Carlo trajectories.\n\nAsk me anything: 'What are the assets recommended to me?', 'List out the asset universe', or 'How would this portfolio behave in a 2008 crash?'`;
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -116,6 +118,7 @@ export function AIChatConcierge({
     monteCarloMedian,
     monteCarlo5th,
     monteCarlo95th,
+    initialCapital,
   };
 
   const handleSendMessage = async (contentToSend?: string) => {
@@ -146,7 +149,7 @@ export function AIChatConcierge({
         sender: "assistant",
         text: res.reply,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        model: res.model,
+        model: res.model || "draww/grounded-mpt-v2",
         evidenceItems: res.evidence?.map((e) => ({
           id: e.id,
           kind: "metric",
@@ -165,7 +168,7 @@ export function AIChatConcierge({
       const fallbackMsg: ChatMessage = {
         id: `a-err-${Date.now()}`,
         sender: "assistant",
-        text: `Based on your portfolio parameters, your nominal return is ${(nominalReturn * 100).toFixed(1)}% [E1: Nominal Return] and real Sharpe is ${currentSharpe.toFixed(2)} [E4: Sharpe Ratio]. How can I clarify your allocations?`,
+        text: `Based on your ${riskProfileName} profile, your nominal return is ${(nominalReturn * 100).toFixed(1)}% [E1: Nominal Return] and real Sharpe is ${currentSharpe.toFixed(2)} [E4: Sharpe Ratio]. How can I clarify your allocations?`,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, fallbackMsg]);
@@ -216,10 +219,10 @@ export function AIChatConcierge({
       <button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-zinc-950 font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer border border-emerald-400/40 group"
-        aria-label="Open Tangent Concierge Copilot"
+        aria-label="Open Draww AI Copilot"
       >
         <MessageSquare className="w-5 h-5 text-zinc-950 group-hover:rotate-12 transition-transform" />
-        <span className="hidden sm:inline text-xs tracking-wide">Tangent Concierge</span>
+        <span className="hidden sm:inline text-xs tracking-wide font-black">Draww AI</span>
         <span className="w-2 h-2 rounded-full bg-zinc-950 animate-ping" />
       </button>
 
@@ -239,9 +242,9 @@ export function AIChatConcierge({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-white">Tangent Concierge</h3>
+                    <h3 className="text-sm font-bold text-white">Draww</h3>
                     <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                      Grounded AI
+                      MPT Copilot
                     </span>
                   </div>
                   <p className="text-[11px] text-zinc-400 flex items-center gap-1.5">
@@ -343,11 +346,12 @@ export function AIChatConcierge({
             <div className="p-3 bg-zinc-900/40 border-t border-zinc-800/80 flex items-center gap-2 overflow-x-auto scrollbar-none">
               <span className="text-[11px] text-zinc-500 font-semibold shrink-0">Prompts:</span>
               {[
-                "Why were my weights allocated this way?",
-                "How do inflation and 12.5% tax impact real returns?",
-                "What is my worst-case Monte Carlo buffer?",
-                "Explain the diversification benefit of Gold & Bonds",
-                "How can I increase my Real Sharpe ratio?",
+                "What are the assets recommended to me?",
+                "List out the asset universe",
+                "Explain the backtest performance & max drawdown",
+                "What happens if the market crashes like 2008?",
+                "Why did you choose this portfolio over Maximum Sharpe?",
+                "Explain the tax and inflation drag on real returns",
               ].map((chip, idx) => (
                 <button
                   key={idx}
