@@ -39,6 +39,7 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
             { id: "projections", label: "5. Projections" },
             { id: "backtest", label: "6. Stress Test" },
             { id: "decision", label: "7. Studio" },
+            { id: "arena", label: "8. Arena" },
           ].map((tab) => (
             <button
               key={tab.id}

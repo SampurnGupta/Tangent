@@ -11,6 +11,7 @@ import { DecisionStudio } from "@/components/DecisionStudio";
 import { AIChatConcierge } from "@/components/AIChatConcierge";
 import { CandidateSuitability } from "@/components/CandidateSuitability";
 import { BacktestStressTesting } from "@/components/BacktestStressTesting";
+import { ArenaView } from "@/components/ArenaView";
 import { CandidatePortfolio, fetchGuestSession, getRiskProfile, OptimizationResponse } from "@/lib/api";
 import { ShieldCheck, Database, Cpu } from "lucide-react";
 
@@ -181,6 +182,24 @@ export default function Home() {
             realReturn={activeRealReturn}
             horizon={horizon}
             riskScore={riskScore}
+          />
+        )}
+
+        {/* Tab 8: Feature 8 (The Arena: Multi-Agent Cross-Fire Deliberation) */}
+        {activeTab === "arena" && (
+          <ArenaView
+            investorProfileName={riskProfile.name}
+            horizon={horizon}
+            capital={initialCapital}
+            onAdoptAllocation={(weights) => {
+              if (optimizationResult) {
+                setOptimizationResult({
+                  ...optimizationResult,
+                  weights,
+                });
+              }
+              setActiveTab("decision");
+            }}
           />
         )}
       </main>
