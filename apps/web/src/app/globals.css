@@ -150,6 +150,51 @@ input[type="range"]::-webkit-slider-thumb:hover {
   animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -40px) scale(1.08);
+  }
+  66% {
+    transform: translate(-25px, 20px) scale(0.95);
+  }
+}
+
+@keyframes floatReverse {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(-35px, 30px) scale(0.96);
+  }
+  66% {
+    transform: translate(25px, -25px) scale(1.06);
+  }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.28;
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 18s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: floatReverse 22s ease-in-out infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 8s ease-in-out infinite;
+}
+
 /* Glassmorphism scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

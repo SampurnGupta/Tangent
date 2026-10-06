@@ -85,11 +85,17 @@ export default function Home() {
     };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/30 selection:text-emerald-300">
-      <DisclaimerBanner />
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/30 selection:text-emerald-300 relative overflow-x-hidden">
+      {/* Dynamic Animated Ambient Mesh Backdrop */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-32 left-1/4 w-[550px] h-[550px] rounded-full bg-emerald-500/10 blur-[130px] animate-float-slow" />
+        <div className="absolute top-1/3 -right-32 w-[600px] h-[600px] rounded-full bg-cyan-500/8 blur-[140px] animate-float-reverse" />
+        <div className="absolute -bottom-32 left-1/3 w-[500px] h-[500px] rounded-full bg-teal-500/8 blur-[120px] animate-pulse-subtle" />
+      </div>
+
       <Header userId={userId} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 relative z-10">
         {/* Tab 1: Stage 1 (Profile) + Stage 3 (Constraints) */}
         {activeTab === "profile" && (
           <RiskProfilerWizard
@@ -198,8 +204,13 @@ export default function Home() {
         authToken={authToken}
       />
 
+      {/* Bottom Legal Disclaimer (Visible only when scrolled down) */}
+      <div className="relative z-10 mt-16">
+        <DisclaimerBanner />
+      </div>
+
       {/* Footer */}
-      <footer className="border-t border-zinc-900 bg-zinc-950 py-8 px-4 sm:px-6 lg:px-8 mt-12 text-xs text-zinc-500">
+      <footer className="border-t border-zinc-900 bg-zinc-950 py-8 px-4 sm:px-6 lg:px-8 text-xs text-zinc-500 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="font-bold text-zinc-300">Tangent</span>

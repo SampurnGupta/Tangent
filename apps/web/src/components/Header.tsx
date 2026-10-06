@@ -32,20 +32,20 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
         {/* Navigation Tabs */}
         <nav className="hidden lg:flex items-center gap-1 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800/80">
           {[
-            { id: "profile", label: "1. Profile & Bounds" },
-            { id: "universe", label: "2. Universe & Stats" },
-            { id: "frontier", label: "3. Frontier & Solver" },
+            { id: "profile", label: "1. Profile" },
+            { id: "universe", label: "2. Universe" },
+            { id: "frontier", label: "3. Solver" },
             { id: "candidates", label: "4. Suitability" },
             { id: "projections", label: "5. Projections" },
-            { id: "backtest", label: "6. Stress Testing" },
-            { id: "decision", label: "7. Recommendation" },
+            { id: "backtest", label: "6. Stress Test" },
+            { id: "decision", label: "7. Studio" },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 activeTab === tab.id
-                  ? "bg-zinc-800 text-white shadow-sm border border-zinc-700/50"
+                  ? "bg-zinc-800 text-white font-semibold shadow-sm border border-zinc-700/60"
                   : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
               }`}
             >
@@ -54,16 +54,11 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
           ))}
         </nav>
 
-        {/* User Session & Status */}
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span className="font-medium">Deterministic Math</span>
-          </div>
-
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-mono">
+        {/* User Session & Status (Cleaned up, deterministic math removed) */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs font-mono">
             <UserCheck className="w-3.5 h-3.5 text-teal-400" />
-            <span className="truncate max-w-[100px]">{userId ? userId.substring(0, 10) : "Guest"}</span>
+            <span className="truncate max-w-[110px]">{userId ? userId.substring(0, 10) : "Guest Session"}</span>
           </div>
         </div>
       </div>

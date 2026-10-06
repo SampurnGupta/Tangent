@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   OptimizationResponse,
   RiskProfile,
   DEFAULT_CURATED_ASSETS,
   runOptimization,
-  getEfficientFrontier,
-  EfficientFrontierData,
 } from "@/lib/api";
 import {
   TrendingUp,
@@ -40,14 +38,6 @@ export function OptimizationDashboard({
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<OptimizationResponse | null>(null);
   const [savedSuccess, setSavedSuccess] = useState(false);
-  const [frontierData, setFrontierData] = useState<EfficientFrontierData | null>(null);
-  const [hoveredPoint, setHoveredPoint] = useState<{ return: number; vol: number; sharpe: number; label?: string } | null>(null);
-
-  useEffect(() => {
-    // Generate Markowitz Efficient Frontier and Monte Carlo exploration cloud
-    const data = getEfficientFrontier(selectedTickers, riskProfile.score);
-    setFrontierData(data);
-  }, [selectedTickers, riskProfile.score]);
 
   const handleOptimize = async () => {
     setLoading(true);
@@ -110,139 +100,7 @@ export function OptimizationDashboard({
         </button>
       </div>
 
-      {/* Visual Efficient Frontier & Monte Carlo Exploration Canvas (Stage 5 & 7A) */}
-      {frontierData && (
-        <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-zinc-800 pb-3">
-            <div>
-              <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold block">
-                Stage 5 & 7A: Visual Markowitz Frontier & Permutation Cloud
-              </span>
-              <p className="text-xs text-zinc-300 font-medium">
-                1,200 Random Monte Carlo Portfolio Permutations plotted against the Minimum-Variance Frontier
-              </p>
-            </div>
-            <div className="flex items-center gap-4 text-xs font-mono">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                <span className="text-zinc-300">Max Sharpe Point</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
-                <span className="text-zinc-300">Min Volatility Point</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-zinc-600" />
-                <span className="text-zinc-500">MC Cloud</span>
-              </div>
-            </div>
-          </div>
 
-          {/* SVG Scatter Plot */}
-          <div className="relative w-full h-72 sm:h-80 bg-zinc-950 rounded-xl border border-zinc-800/80 p-4 overflow-hidden flex items-end">
-            <svg className="w-full h-full overflow-visible" viewBox="0 0 700 240" preserveAspectRatio="none">
-              {/* Grid Lines */}
-              <line x1="40" y1="20" x2="680" y2="20" stroke="#27272a" strokeDasharray="3 3" />
-              <line x1="40" y1="80" x2="680" y2="80" stroke="#27272a" strokeDasharray="3 3" />
-              <line x1="40" y1="140" x2="680" y2="140" stroke="#27272a" strokeDasharray="3 3" />
-              <line x1="40" y1="200" x2="680" y2="200" stroke="#27272a" strokeDasharray="3 3" />
-
-              {/* Monte Carlo Exploration Scatter Cloud (Stage 7A) */}
-              {frontierData.explorationCloud.map((pt, i) => {
-                // Map vol (0.04 to 0.22) to x (50 to 670), return (0.06 to 0.18) to y (200 to 30)
-                const cx = 50 + ((pt.volatility - 0.04) / 0.18) * 620;
-                const cy = 200 - ((pt.return - 0.06) / 0.12) * 170;
-                return (
-                  <circle
-                    key={i}
-                    cx={Math.max(45, Math.min(675, cx))}
-                    cy={Math.max(25, Math.min(210, cy))}
-                    r="2.5"
-                    fill="#3f3f46"
-                    opacity="0.45"
-                    className="hover:fill-emerald-400 hover:opacity-100 transition-all cursor-pointer"
-                    onMouseEnter={() => setHoveredPoint({ return: pt.return, vol: pt.volatility, sharpe: pt.sharpe, label: "MC Permutation" })}
-                  />
-                );
-              })}
-
-              {/* Markowitz Efficient Frontier Curve (Stage 5) */}
-              <polyline
-                fill="none"
-                stroke="#10b981"
-                strokeWidth="2.5"
-                strokeDasharray="0"
-                points={frontierData.frontierCurve
-                  .map((p) => {
-                    const px = 50 + ((p.volatility - 0.04) / 0.18) * 620;
-                    const py = 200 - ((p.return - 0.06) / 0.12) * 170;
-                    return `${Math.max(45, Math.min(675, px))},${Math.max(25, Math.min(210, py))}`;
-                  })
-                  .join(" ")}
-              />
-
-              {/* Min Volatility Point */}
-              {frontierData.minVolPoint && (
-                <g
-                  transform={`translate(${50 + ((frontierData.minVolPoint.volatility - 0.04) / 0.18) * 620}, ${
-                    200 - ((frontierData.minVolPoint.return - 0.06) / 0.12) * 170
-                  })`}
-                  className="cursor-pointer"
-                  onMouseEnter={() =>
-                    setHoveredPoint({
-                      return: frontierData.minVolPoint.return,
-                      vol: frontierData.minVolPoint.volatility,
-                      sharpe: frontierData.minVolPoint.sharpe,
-                      label: "Minimum Volatility",
-                    })
-                  }
-                >
-                  <circle r="7" fill="#06b6d4" />
-                  <circle r="12" fill="#06b6d4" opacity="0.25" />
-                </g>
-              )}
-
-              {/* Max Sharpe Optimal Point */}
-              {frontierData.maxSharpePoint && (
-                <g
-                  transform={`translate(${50 + ((frontierData.maxSharpePoint.volatility - 0.04) / 0.18) * 620}, ${
-                    200 - ((frontierData.maxSharpePoint.return - 0.06) / 0.12) * 170
-                  })`}
-                  className="cursor-pointer"
-                  onMouseEnter={() =>
-                    setHoveredPoint({
-                      return: frontierData.maxSharpePoint.return,
-                      vol: frontierData.maxSharpePoint.volatility,
-                      sharpe: frontierData.maxSharpePoint.sharpe,
-                      label: "Maximum Sharpe Ratio",
-                    })
-                  }
-                >
-                  <circle r="8" fill="#10b981" />
-                  <circle r="15" fill="#10b981" opacity="0.3" className="animate-pulse" />
-                </g>
-              )}
-            </svg>
-
-            {/* Hover Tooltip Overlay */}
-            {hoveredPoint && (
-              <div className="absolute top-4 left-6 bg-zinc-900/95 border border-zinc-700 rounded-xl p-3 shadow-xl backdrop-blur-md text-xs space-y-1">
-                <span className="font-bold text-white block">{hoveredPoint.label || "Inspected Portfolio"}</span>
-                <div className="flex gap-3 text-zinc-300 font-mono text-[11px]">
-                  <span>Return: <strong className="text-emerald-400">{(hoveredPoint.return * 100).toFixed(1)}%</strong></span>
-                  <span>Vol: <strong className="text-teal-400">{(hoveredPoint.vol * 100).toFixed(1)}%</strong></span>
-                  <span>Sharpe: <strong className="text-cyan-400">{hoveredPoint.sharpe.toFixed(2)}</strong></span>
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="flex justify-between text-[11px] text-zinc-400 font-mono px-2">
-            <span>← Lower Volatility (Capital Protection)</span>
-            <span>Annualized Risk / Volatility (σ)</span>
-            <span>Higher Return (Equity Compounding) →</span>
-          </div>
-        </div>
-      )}
 
       {!result && !loading && (
         <div className="border border-dashed border-zinc-800 rounded-2xl p-12 text-center space-y-4">
