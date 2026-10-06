@@ -233,6 +233,11 @@ def create_app() -> FastAPI:
         target = f"{settings.agent_url}/api/v1/agent/runs/stream/{ticker}"
         return await forward_request(http_client, target, request)
 
+    @app.post("/api/v1/agent/chat", tags=["agent"])
+    async def proxy_agent_chat(request: Request) -> Response:
+        target = f"{settings.agent_url}/api/v1/agent/chat"
+        return await forward_request(http_client, target, request)
+
     return app
 
 

@@ -9,7 +9,7 @@ import { OptimizationDashboard } from "@/components/OptimizationDashboard";
 import { MonteCarloProjection } from "@/components/MonteCarloProjection";
 import { DecisionStudio } from "@/components/DecisionStudio";
 import { AIChatConcierge } from "@/components/AIChatConcierge";
-import { fetchGuestSession, getRiskProfile } from "@/lib/api";
+import { fetchGuestSession, getRiskProfile, OptimizationResponse } from "@/lib/api";
 import { ShieldCheck, Database, Cpu } from "lucide-react";
 
 export default function Home() {
@@ -22,7 +22,7 @@ export default function Home() {
   const [horizon, setHorizon] = useState<number>(10);
   const [riskScore, setRiskScore] = useState<number>(6);
 
-  // Asset state (default curated 8-asset universe)
+  // Asset state (default curated multi-asset universe)
   const [selectedTickers, setSelectedTickers] = useState<string[]>([
     "RELIANCE.NS",
     "TCS.NS",
@@ -30,9 +30,12 @@ export default function Home() {
     "INFY.NS",
     "SBI_FD",
     "INDIA_GOVT_10Y",
-    "INDIA_CORP_AAA",
     "GOLDBEES.NS",
+    "EMBASSY_REIT",
   ]);
+
+  // Solver optimization result state (bubbled from Optimizer step)
+  const [optimizationResult, setOptimizationResult] = useState<OptimizationResponse | null>(null);
 
   // Authenticate guest on mount
   useEffect(() => {
@@ -45,6 +48,20 @@ export default function Home() {
   }, []);
 
   const riskProfile = getRiskProfile(riskScore, horizon);
+
+  const activeSharpe = optimizationResult?.sharpe_ratio ?? 0.475;
+  const activeNominalReturn = optimizationResult?.expected_return_nominal ?? 0.134;
+  const activeRealReturn = optimizationResult?.expected_return_real ?? 0.058;
+  const activeVol = optimizationResult?.annualized_volatility ?? 0.122;
+  const activeWeights = optimizationResult?.weights ?? {
+    "RELIANCE.NS": 0.15,
+    "TCS.NS": 0.15,
+    "HDFCBANK.NS": 0.15,
+    "SBI_FD": 0.20,
+    "INDIA_GOVT_10Y": 0.15,
+    "GOLDBEES.NS": 0.10,
+    "EMBASSY_REIT": 0.10,
+  };
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/30 selection:text-emerald-300">
@@ -77,14 +94,15 @@ export default function Home() {
             selectedTickers={selectedTickers}
             riskProfile={riskProfile}
             authToken={authToken}
+            onOptimizationDone={(res) => setOptimizationResult(res)}
             onProceedToProjections={() => setActiveTab("projections")}
           />
         )}
 
         {activeTab === "projections" && (
           <MonteCarloProjection
-            expectedReturn={0.128}
-            volatility={0.122}
+            expectedReturn={activeNominalReturn}
+            volatility={activeVol}
             horizonYears={horizon}
             authToken={authToken}
             onProceedToStudio={() => setActiveTab("studio")}
@@ -95,19 +113,34 @@ export default function Home() {
           <DecisionStudio
             selectedTickers={selectedTickers}
             authToken={authToken}
-            currentSharpe={0.475}
-            currentReturn={0.134}
-            currentVol={0.122}
+            currentSharpe={activeSharpe}
+            currentReturn={activeNominalReturn}
+            currentVol={activeVol}
+            currentWeights={activeWeights}
+            nominalReturn={activeNominalReturn}
+            realReturn={activeRealReturn}
+            horizon={horizon}
+            riskScore={riskScore}
           />
         )}
       </main>
 
-      {/* Grounded AI Concierge Chat Drawer */}
+      {/* Grounded Interactive AI Concierge Chat Drawer with Full Context */}
       <AIChatConcierge
         selectedTickers={selectedTickers}
-        currentSharpe={0.475}
-        currentReturn={0.134}
-        currentVol={0.122}
+        currentSharpe={activeSharpe}
+        currentReturn={activeNominalReturn}
+        currentVol={activeVol}
+        currentWeights={activeWeights}
+        nominalReturn={activeNominalReturn}
+        realReturn={activeRealReturn}
+        taxDrag={optimizationResult?.tax_drag ?? 0.015}
+        diversificationScore={optimizationResult?.diversification_score ?? 7.2}
+        horizon={horizon}
+        age={age}
+        riskScore={riskScore}
+        riskProfileName={riskProfile.name}
+        authToken={authToken}
       />
 
       {/* Footer */}

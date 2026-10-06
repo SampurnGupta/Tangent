@@ -103,6 +103,20 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found")
         return completed_runs[run_id]
 
+    class ChatRequest(BaseModel):
+        message: str
+        history: list[dict[str, str]] = []
+        context: dict[str, Any] = {}
+
+    @app.post("/api/v1/agent/chat", tags=["agent"])
+    async def chat_concierge(payload: ChatRequest) -> dict[str, Any]:
+        """Interactive conversational financial assistant with full portfolio context."""
+        return await orchestrator.chat_concierge(
+            message=payload.message,
+            history=payload.history,
+            context=payload.context,
+        )
+
     @app.get("/api/v1/agent/runs/stream/{ticker}", tags=["agent"])
     async def stream_run(ticker: str = Path(...)) -> StreamingResponse:
         """Stream real-time SSE progress events for Decision Studio."""

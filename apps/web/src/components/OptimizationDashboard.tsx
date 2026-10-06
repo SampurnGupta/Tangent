@@ -25,6 +25,7 @@ interface OptimizationDashboardProps {
   riskProfile: RiskProfile;
   authToken?: string;
   onProceedToProjections: () => void;
+  onOptimizationDone?: (result: OptimizationResponse) => void;
 }
 
 export function OptimizationDashboard({
@@ -32,6 +33,7 @@ export function OptimizationDashboard({
   riskProfile,
   authToken,
   onProceedToProjections,
+  onOptimizationDone,
 }: OptimizationDashboardProps) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<OptimizationResponse | null>(null);
@@ -48,6 +50,7 @@ export function OptimizationDashboard({
         authToken
       );
       setResult(res);
+      onOptimizationDone?.(res);
     } catch (err) {
       console.error("Optimization failed", err);
     } finally {
