@@ -8,6 +8,7 @@ import sqlalchemy as sa
 from common.config import BaseAppSettings
 from common.logging import get_logger, setup_logging
 from common.middleware import RequestIdMiddleware
+from common.redis_client import get_redis_client
 from contracts.assets import AssetListResponse
 from contracts.prices import (
     FXRateResponse,
@@ -108,18 +109,33 @@ def create_app() -> FastAPI:
         """Fetch historical prices with 24h cache and optional USD->INR FX conversion."""
         now_iso = datetime.now(timezone.utc).isoformat()
         active_provider = provider or CompositeMarketDataProvider(demo_mode=settings.demo_mode)
+        redis_c = get_redis_client()
+        period_key = (
+            f"{req.start_date or 'default'}_{req.end_date or 'latest'}_{req.convert_to_inr}"
+        )
 
-        # 1. Check which tickers need fetching from external provider
-        stale_tickers = req.tickers
-        cached_series: dict[str, list[PricePoint]] = {t: [] for t in req.tickers}
+        # 1. Fast Redis cache check
+        cached_series: dict[str, list[PricePoint]] = {}
+        missing_tickers: list[str] = []
 
-        if repo:
+        for t in req.tickers:
+            redis_cached = await redis_c.get_cached_prices(t, period_key)
+            if redis_cached:
+                cached_series[t] = [PricePoint(**p) for p in redis_cached]
+            else:
+                missing_tickers.append(t)
+
+        stale_tickers = missing_tickers
+        if repo and missing_tickers:
             try:
-                stale_tickers = repo.get_stale_or_missing_tickers(req.tickers, max_age_hours=24)
-                cached_series = repo.load_cached_prices(req.tickers, req.start_date, req.end_date)
+                stale_tickers = repo.get_stale_or_missing_tickers(missing_tickers, max_age_hours=24)
+                db_cached = repo.load_cached_prices(missing_tickers, req.start_date, req.end_date)
+                for t, pts in db_cached.items():
+                    if pts:
+                        cached_series[t] = pts
             except Exception as e:
-                logger.warning("Cache lookup failed (%s); fetching all from provider", e)
-                stale_tickers = req.tickers
+                logger.warning("DB cache lookup failed (%s); fetching from provider", e)
+                stale_tickers = missing_tickers
 
         # 2. Fetch missing or stale tickers
         if stale_tickers:
@@ -152,6 +168,16 @@ def create_app() -> FastAPI:
                     pts = converted
 
                 cached_series[ticker] = pts
+
+                # Save to 24h Redis cache
+                if pts:
+                    await redis_c.set_cached_prices(
+                        ticker,
+                        period_key,
+                        [p.model_dump() for p in pts],
+                        ttl_seconds=86400,
+                    )
+
                 if repo and pts:
                     try:
                         repo.save_prices_bulk(ticker, pts, currency="INR")

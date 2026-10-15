@@ -10,6 +10,7 @@ from common.logging import (
     setup_logging,
 )
 from common.middleware import RequestIdMiddleware
+from common.redis_client import TangentRedisClient, get_redis_client
 
 __all__ = [
     "JSONLogFormatter",
@@ -20,4 +21,6 @@ __all__ = [
     "BaseAppSettings",
     "RequestIdMiddleware",
     "ResilientAsyncClient",
+    "TangentRedisClient",
+    "get_redis_client",
 ]

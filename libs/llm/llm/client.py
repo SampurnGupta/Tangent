@@ -1,10 +1,13 @@
 """Resilient, provider-agnostic LLM client using LiteLLM."""
 
 import os
+import time
+import uuid
 from typing import Any, Optional
 
 import litellm
 from common.logging import get_logger
+from common.redis_client import get_redis_client
 from pydantic import BaseModel, Field
 
 logger = get_logger("tangent-llm")
@@ -69,6 +72,7 @@ class LLMResponse(BaseModel):
     tokens_in: int = 0
     tokens_out: int = 0
     cost_estimate_usd: float = 0.0
+    latency_ms: float = 0.0
     is_fallback: bool = False
     is_fixture: bool = False
 
@@ -86,13 +90,19 @@ class ResilientLLMClient:
         model_override: Optional[str] = None,
         temperature: Optional[float] = None,
         max_tokens: Optional[float] = None,
+        persona: str = "generic",
     ) -> LLMResponse:
-        """Execute chat completion with automatic failover and fixture support."""
+        """Execute chat completion with automatic failover, fixture support, and telemetry."""
+        t0 = time.time()
+
         # 1. Deterministic Fixture Mode (for offline testing & zero-key smoke tests)
         if self.config.demo_mode or (
             not os.getenv("GROQ_API_KEY") and not os.getenv("GEMINI_API_KEY")
         ):
-            return self._generate_fixture_response(prompt, system_prompt)
+            res = self._generate_fixture_response(prompt, system_prompt)
+            res.latency_ms = round((time.time() - t0) * 1000.0, 2)
+            await self._record_telemetry(res, persona)
+            return res
 
         primary = model_override or self.config.primary_model
         secondary = self.config.secondary_model
@@ -113,7 +123,10 @@ class ResilientLLMClient:
                 max_tokens=max_tok,
                 timeout=25.0,
             )
-            return self._parse_litellm_response(resp, primary, is_fallback=False)
+            res = self._parse_litellm_response(resp, primary, is_fallback=False)
+            res.latency_ms = round((time.time() - t0) * 1000.0, 2)
+            await self._record_telemetry(res, persona)
+            return res
         except Exception as primary_err:
             logger.warning(
                 "Primary LLM (%s) failed: %s. Attempting secondary failover to %s",
@@ -131,13 +144,36 @@ class ResilientLLMClient:
                 max_tokens=max_tok,
                 timeout=25.0,
             )
-            return self._parse_litellm_response(resp, secondary, is_fallback=True)
+            res = self._parse_litellm_response(resp, secondary, is_fallback=True)
+            res.latency_ms = round((time.time() - t0) * 1000.0, 2)
+            await self._record_telemetry(res, persona)
+            return res
         except Exception as secondary_err:
             logger.error("Secondary LLM (%s) also failed: %s", secondary, secondary_err)
 
         # 4. Fallback to offline deterministic fixture if both providers fail
         logger.info("Falling back to deterministic fixture response.")
-        return self._generate_fixture_response(prompt, system_prompt, is_fallback=True)
+        res = self._generate_fixture_response(prompt, system_prompt, is_fallback=True)
+        res.latency_ms = round((time.time() - t0) * 1000.0, 2)
+        await self._record_telemetry(res, persona)
+        return res
+
+    async def _record_telemetry(self, res: LLMResponse, persona: str) -> None:
+        """Record invocation metrics in Redis telemetry."""
+        try:
+            call_id = f"call_{uuid.uuid4().hex[:12]}"
+            redis_c = get_redis_client()
+            await redis_c.record_llm_metric(
+                call_id=call_id,
+                model=res.model,
+                persona=persona,
+                latency_ms=res.latency_ms,
+                tokens_in=res.tokens_in,
+                tokens_out=res.tokens_out,
+                cost_usd=res.cost_estimate_usd,
+            )
+        except Exception as ex:
+            logger.debug("Failed recording LLM telemetry: %s", ex)
 
     def _parse_litellm_response(
         self,
