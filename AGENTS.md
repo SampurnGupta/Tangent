@@ -28,7 +28,7 @@ This file is project context for AI coding assistants. Read it at the start of e
 ## Phase Status
 - **v1.0 Core**: Completed (SLSQP solver, 24h cache, Ledoit-Wolf, walk-forward backtest, multi-agent briefs with Critic).
 - **v1.1 Advanced Suite**: Completed (Animated Hero Homepage, 5-persona Expert Arena + always-on 1-on-1 consultation, Draww co-pilot, 74-asset universe, unbiased all-asset mode, crisis stress testing, CSV/JSON investor export).
-- **v2.0 DevOps, Multi-LLM & Cloud Deployment**: In Progress (Phase A: Critical Math Fixes; Phase B: Scoped Redis; Phase C: Independent Persona Chatbots; Phase D: LLM Observatory & MetaBot; Phase E: Free-Tier Cloud Deployment).
+- **v2.0 DevOps, Multi-LLM & Cloud Deployment**: Completed (Phase A: Critical Math Fixes; Phase B: Scoped Redis; Phase C: Independent Persona Chatbots; Phase D: LLM Observatory & MetaBot; Phase E: Free-Tier Cloud Deployment).
 See `docs/v2-implementation-plan.md`, `docs/scope.md`, and `CHANGELOG.md` for full detail.
 
 ## Repo Layout
