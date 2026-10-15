@@ -238,6 +238,44 @@ def create_app() -> FastAPI:
         target = f"{settings.agent_url}/api/v1/agent/chat"
         return await forward_request(http_client, target, request)
 
+    # Proxy: Independent Personas (MacroBot, GrowthBot, RiskBot)
+    @app.api_route(
+        "/api/v1/personas/macro/{path:path}",
+        methods=["GET", "POST", "DELETE"],
+        tags=["personas"],
+    )
+    async def proxy_persona_macro(request: Request, path: str) -> Response:
+        target = f"{settings.persona_macro_url}/{path}"
+        return await forward_request(http_client, target, request)
+
+    @app.api_route(
+        "/api/v1/personas/growth/{path:path}",
+        methods=["GET", "POST", "DELETE"],
+        tags=["personas"],
+    )
+    async def proxy_persona_growth(request: Request, path: str) -> Response:
+        target = f"{settings.persona_growth_url}/{path}"
+        return await forward_request(http_client, target, request)
+
+    @app.api_route(
+        "/api/v1/personas/risk/{path:path}",
+        methods=["GET", "POST", "DELETE"],
+        tags=["personas"],
+    )
+    async def proxy_persona_risk(request: Request, path: str) -> Response:
+        target = f"{settings.persona_risk_url}/{path}"
+        return await forward_request(http_client, target, request)
+
+    # Proxy: LLM Observatory & MetaBot
+    @app.api_route(
+        "/api/v1/observatory/{path:path}",
+        methods=["GET", "POST"],
+        tags=["observatory"],
+    )
+    async def proxy_observatory(request: Request, path: str) -> Response:
+        target = f"{settings.observatory_url}/api/v1/observatory/{path}"
+        return await forward_request(http_client, target, request)
+
     return app
 
 

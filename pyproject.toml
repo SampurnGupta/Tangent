@@ -18,6 +18,7 @@ dependencies = [
     "tangent-persona-macro",
     "tangent-persona-growth",
     "tangent-persona-risk",
+    "tangent-observatory",
     "litellm>=1.104.0",
 ]
 
@@ -38,6 +39,7 @@ tangent-agent = { workspace = true }
 tangent-persona-macro = { workspace = true }
 tangent-persona-growth = { workspace = true }
 tangent-persona-risk = { workspace = true }
+tangent-observatory = { workspace = true }
 
 [dependency-groups]
 dev = [

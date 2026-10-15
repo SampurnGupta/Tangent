@@ -19,6 +19,10 @@ class GatewaySettings(BaseAppSettings):
     portfolio_url: str = "http://localhost:8003"
     sentiment_url: str = "http://localhost:8004"
     agent_url: str = "http://localhost:8005"
+    persona_macro_url: str = "http://localhost:8011"
+    persona_growth_url: str = "http://localhost:8012"
+    persona_risk_url: str = "http://localhost:8013"
+    observatory_url: str = "http://localhost:8014"
 
     cors_origins: list[str] = [
         "http://localhost:3000",

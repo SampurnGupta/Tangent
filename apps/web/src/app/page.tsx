@@ -13,6 +13,7 @@ import { CandidateSuitability } from "@/components/CandidateSuitability";
 import { BacktestStressTesting } from "@/components/BacktestStressTesting";
 import { ArenaView } from "@/components/ArenaView";
 import { HeroHomepage } from "@/components/HeroHomepage";
+import { ModelObservatory } from "@/components/ModelObservatory";
 import { CandidatePortfolio, fetchGuestSession, getRiskProfile, OptimizationResponse } from "@/lib/api";
 import { ShieldCheck, Database, Cpu } from "lucide-react";
 
@@ -204,6 +205,9 @@ export default function Home() {
             capital={initialCapital}
           />
         )}
+
+        {/* Tab 9: Feature 9 (LLM Observatory & MetaBot DevOps Intelligence) */}
+        {activeTab === "observatory" && <ModelObservatory />}
       </main>
 
       {/* Grounded Interactive Draww AI Copilot Drawer with Full Context */}
