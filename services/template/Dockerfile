@@ -13,7 +13,7 @@ COPY libs/ ./libs/
 COPY services/ ./services/
 
 # Build locked virtual environment
-RUN uv sync --package tangent-template-service --no-dev
+RUN uv sync --package tangent-template-service --no-dev --no-editable
 
 # ── Stage 2: Runtime image (non-root) ─────────────────────────────────────────
 FROM python:3.12-slim-bookworm AS runner
@@ -26,10 +26,12 @@ WORKDIR /app
 
 # Copy virtualenv and code from builder
 COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
+COPY --from=builder --chown=appuser:appuser /app/libs /app/libs
 COPY --from=builder --chown=appuser:appuser /app/services/template/app /app/app
 
 # Set environment paths
 ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app:/app/libs/common:/app/libs/contracts:/app/libs/llm"
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 

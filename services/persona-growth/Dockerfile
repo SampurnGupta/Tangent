@@ -10,7 +10,7 @@ COPY pyproject.toml uv.lock ./
 COPY libs/ ./libs/
 COPY services/ ./services/
 
-RUN uv sync --package tangent-persona-growth --no-dev
+RUN uv sync --package tangent-persona-growth --no-dev --no-editable
 
 # ── Stage 2: Runtime image (non-root) ─────────────────────────────────────────
 FROM python:3.12-slim-bookworm AS runner
@@ -21,9 +21,11 @@ RUN groupadd -g 10001 appuser && \
 WORKDIR /app
 
 COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
+COPY --from=builder --chown=appuser:appuser /app/libs /app/libs
 COPY --from=builder --chown=appuser:appuser /app/services/persona-growth/growth /app/growth
 
 ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app:/app/libs/common:/app/libs/contracts:/app/libs/llm"
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
