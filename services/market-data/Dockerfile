@@ -7,9 +7,8 @@ ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
 COPY pyproject.toml uv.lock ./
-COPY libs/common/ ./libs/common/
-COPY libs/contracts/ ./libs/contracts/
-COPY services/market-data/ ./services/market-data/
+COPY libs/ ./libs/
+COPY services/ ./services/
 
 RUN uv sync --package tangent-market-data --no-dev
 

@@ -9,9 +9,8 @@ ENV UV_LINK_MODE=copy
 
 # Copy root workspace and library definitions
 COPY pyproject.toml uv.lock ./
-COPY libs/common/ ./libs/common/
-COPY libs/contracts/ ./libs/contracts/
-COPY services/template/ ./services/template/
+COPY libs/ ./libs/
+COPY services/ ./services/
 
 # Build locked virtual environment
 RUN uv sync --package tangent-template-service --no-dev

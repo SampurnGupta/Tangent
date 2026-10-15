@@ -171,12 +171,85 @@ services:
       PORTFOLIO_URL: http://portfolio:8003
       SENTIMENT_URL: http://sentiment:8004
       AGENT_URL: http://agent:8005
+      PERSONA_MACRO_URL: http://persona-macro:8011
+      PERSONA_GROWTH_URL: http://persona-growth:8012
+      PERSONA_RISK_URL: http://persona-risk:8013
+      OBSERVATORY_URL: http://observatory:8014
     ports:
       - "8000:8000"
     depends_on:
       - market-data
       - quant
       - portfolio
+    networks:
+      - tangent-net
+
+  persona-macro:
+    build:
+      context: ../..
+      dockerfile: services/persona-macro/Dockerfile
+    container_name: tangent-persona-macro
+    restart: unless-stopped
+    profiles:
+      - full
+    environment:
+      DEMO_MODE: ${DEMO_MODE:-false}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8011:8011"
+    networks:
+      - tangent-net
+
+  persona-growth:
+    build:
+      context: ../..
+      dockerfile: services/persona-growth/Dockerfile
+    container_name: tangent-persona-growth
+    restart: unless-stopped
+    profiles:
+      - full
+    environment:
+      DEMO_MODE: ${DEMO_MODE:-false}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8012:8012"
+    networks:
+      - tangent-net
+
+  persona-risk:
+    build:
+      context: ../..
+      dockerfile: services/persona-risk/Dockerfile
+    container_name: tangent-persona-risk
+    restart: unless-stopped
+    profiles:
+      - full
+    environment:
+      DEMO_MODE: ${DEMO_MODE:-false}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8013:8013"
+    networks:
+      - tangent-net
+
+  observatory:
+    build:
+      context: ../..
+      dockerfile: services/observatory/Dockerfile
+    container_name: tangent-observatory
+    restart: unless-stopped
+    profiles:
+      - full
+    environment:
+      DEMO_MODE: ${DEMO_MODE:-false}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8014:8014"
     networks:
       - tangent-net
 

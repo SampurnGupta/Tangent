@@ -7,10 +7,8 @@ ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
 COPY pyproject.toml uv.lock ./
-COPY libs/common/ ./libs/common/
-COPY libs/contracts/ ./libs/contracts/
-COPY libs/llm/ ./libs/llm/
-COPY services/observatory/ ./services/observatory/
+COPY libs/ ./libs/
+COPY services/ ./services/
 
 RUN uv sync --package tangent-observatory --no-dev
 
