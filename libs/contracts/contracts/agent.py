@@ -1,6 +1,6 @@
 """Agent execution traces and observability contracts."""
 
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -33,3 +33,30 @@ class AgentRunSummary(BaseModel):
     groundedness_score: Optional[float] = None
     started_at: str
     ended_at: Optional[str] = None
+
+
+class PersonaChatRequest(BaseModel):
+    """Input payload for independent persona chatbot conversation."""
+
+    session_id: str = Field(..., description="Unique user or guest session identifier")
+    message: str = Field(..., min_length=1, description="User prompt or query")
+    context: Optional[dict[str, Any]] = Field(
+        default=None, description="Optional portfolio context (weights, returns, horizon)"
+    )
+
+
+class PersonaChatResponse(BaseModel):
+    """Output payload from independent persona chatbot invocation."""
+
+    reply: str = Field(..., description="Persona generated response text")
+    persona: str = Field(..., description="Persona identity label (e.g. macro, growth, risk)")
+    model: str = Field(..., description="Underlying LLM model invoked")
+    tokens_in: int = Field(default=0, description="Input prompt tokens consumed")
+    tokens_out: int = Field(default=0, description="Output completion tokens generated")
+    latency_ms: float = Field(
+        default=0.0, description="End-to-end response latency in milliseconds"
+    )
+    cost_usd: float = Field(default=0.0, description="Estimated USD cost for the call")
+    session_message_count: int = Field(
+        default=1, description="Total messages in active session window"
+    )

@@ -1,6 +1,11 @@
 """Shared Pydantic data contracts across Tangent."""
 
-from contracts.agent import AgentRunSummary, AgentTraceStep
+from contracts.agent import (
+    AgentRunSummary,
+    AgentTraceStep,
+    PersonaChatRequest,
+    PersonaChatResponse,
+)
 from contracts.assets import Asset, AssetCategory, AssetClass, AssetListResponse
 from contracts.backtest import (
     BacktestRequest,
@@ -78,6 +83,8 @@ __all__ = [
     "CriticReview",
     "AgentTraceStep",
     "AgentRunSummary",
+    "PersonaChatRequest",
+    "PersonaChatResponse",
     "BacktestWindow",
     "StrategyBacktestResult",
     "BacktestRequest",

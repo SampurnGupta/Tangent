@@ -15,6 +15,9 @@ dependencies = [
     "tangent-llm",
     "tangent-sentiment",
     "tangent-agent",
+    "tangent-persona-macro",
+    "tangent-persona-growth",
+    "tangent-persona-risk",
     "litellm>=1.104.0",
 ]
 
@@ -32,6 +35,9 @@ tangent-gateway = { workspace = true }
 tangent-llm = { workspace = true }
 tangent-sentiment = { workspace = true }
 tangent-agent = { workspace = true }
+tangent-persona-macro = { workspace = true }
+tangent-persona-growth = { workspace = true }
+tangent-persona-risk = { workspace = true }
 
 [dependency-groups]
 dev = [

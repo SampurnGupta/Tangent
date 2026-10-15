@@ -1,0 +1,22 @@
+[project]
+name = "tangent-persona-macro"
+version = "0.1.0"
+description = "MacroBot independent expert persona microservice (Gemini 2.0 Flash)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "tangent-common",
+    "tangent-contracts",
+    "tangent-llm",
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.29.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["macro"]

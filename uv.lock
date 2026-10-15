@@ -21,6 +21,9 @@ members = [
     "tangent-gateway",
     "tangent-llm",
     "tangent-market-data",
+    "tangent-persona-growth",
+    "tangent-persona-macro",
+    "tangent-persona-risk",
     "tangent-portfolio",
     "tangent-quant",
     "tangent-root",
@@ -3103,6 +3106,81 @@ requires-dist = [
 ]
 
 [[package]]
+name = "tangent-persona-growth"
+version = "0.1.0"
+source = { editable = "services/persona-growth" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "tangent-common" },
+    { name = "tangent-contracts" },
+    { name = "tangent-llm" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.111.0" },
+    { name = "httpx", specifier = ">=0.27.0" },
+    { name = "pydantic", specifier = ">=2.7.0" },
+    { name = "tangent-common", editable = "libs/common" },
+    { name = "tangent-contracts", editable = "libs/contracts" },
+    { name = "tangent-llm", editable = "libs/llm" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.29.0" },
+]
+
+[[package]]
+name = "tangent-persona-macro"
+version = "0.1.0"
+source = { editable = "services/persona-macro" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "tangent-common" },
+    { name = "tangent-contracts" },
+    { name = "tangent-llm" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.111.0" },
+    { name = "httpx", specifier = ">=0.27.0" },
+    { name = "pydantic", specifier = ">=2.7.0" },
+    { name = "tangent-common", editable = "libs/common" },
+    { name = "tangent-contracts", editable = "libs/contracts" },
+    { name = "tangent-llm", editable = "libs/llm" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.29.0" },
+]
+
+[[package]]
+name = "tangent-persona-risk"
+version = "0.1.0"
+source = { editable = "services/persona-risk" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "tangent-common" },
+    { name = "tangent-contracts" },
+    { name = "tangent-llm" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.111.0" },
+    { name = "httpx", specifier = ">=0.27.0" },
+    { name = "pydantic", specifier = ">=2.7.0" },
+    { name = "tangent-common", editable = "libs/common" },
+    { name = "tangent-contracts", editable = "libs/contracts" },
+    { name = "tangent-llm", editable = "libs/llm" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.29.0" },
+]
+
+[[package]]
 name = "tangent-portfolio"
 version = "0.1.0"
 source = { editable = "services/portfolio" }
@@ -3166,6 +3244,9 @@ dependencies = [
     { name = "tangent-gateway" },
     { name = "tangent-llm" },
     { name = "tangent-market-data" },
+    { name = "tangent-persona-growth" },
+    { name = "tangent-persona-macro" },
+    { name = "tangent-persona-risk" },
     { name = "tangent-portfolio" },
     { name = "tangent-quant" },
     { name = "tangent-sentiment" },
@@ -3197,6 +3278,9 @@ requires-dist = [
     { name = "tangent-gateway", editable = "services/gateway" },
     { name = "tangent-llm", editable = "libs/llm" },
     { name = "tangent-market-data", editable = "services/market-data" },
+    { name = "tangent-persona-growth", editable = "services/persona-growth" },
+    { name = "tangent-persona-macro", editable = "services/persona-macro" },
+    { name = "tangent-persona-risk", editable = "services/persona-risk" },
     { name = "tangent-portfolio", editable = "services/portfolio" },
     { name = "tangent-quant", editable = "services/quant" },
     { name = "tangent-sentiment", editable = "services/sentiment" },

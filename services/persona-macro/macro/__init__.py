@@ -1,0 +1,1 @@
+"""MacroBot independent persona service."""
