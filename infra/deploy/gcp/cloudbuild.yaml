@@ -1,0 +1,49 @@
+# Cloud Build CI/CD Pipeline for Tangent Backend Services on Google Cloud Run
+steps:
+  # 1. Build Gateway
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/tangent-gateway:latest', '-f', 'services/gateway/Dockerfile', '.']
+
+  # 2. Build Quant
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/tangent-quant:latest', '-f', 'services/quant/Dockerfile', '.']
+
+  # 3. Build Market Data
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/tangent-market-data:latest', '-f', 'services/market-data/Dockerfile', '.']
+
+  # 4. Build Portfolio
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/tangent-portfolio:latest', '-f', 'services/portfolio/Dockerfile', '.']
+
+  # 5. Build Sentiment
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/tangent-sentiment:latest', '-f', 'services/sentiment/Dockerfile', '.']
+
+  # 6. Deploy to Cloud Run (min-instances=0 for free tier)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: ['run', 'services', 'replace', 'infra/deploy/gcp/cloudrun.gateway.yaml']
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: ['run', 'services', 'replace', 'infra/deploy/gcp/cloudrun.quant.yaml']
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: ['run', 'services', 'replace', 'infra/deploy/gcp/cloudrun.market-data.yaml']
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: ['run', 'services', 'replace', 'infra/deploy/gcp/cloudrun.portfolio.yaml']
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: ['run', 'services', 'replace', 'infra/deploy/gcp/cloudrun.sentiment.yaml']
+
+images:
+  - 'gcr.io/$PROJECT_ID/tangent-gateway:latest'
+  - 'gcr.io/$PROJECT_ID/tangent-quant:latest'
+  - 'gcr.io/$PROJECT_ID/tangent-market-data:latest'
+  - 'gcr.io/$PROJECT_ID/tangent-portfolio:latest'
+  - 'gcr.io/$PROJECT_ID/tangent-sentiment:latest'

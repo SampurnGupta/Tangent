@@ -1,0 +1,32 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: tangent-quant
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "2"
+        run.googleapis.com/cpu-throttling: "true"
+    spec:
+      containerConcurrency: 40
+      timeoutSeconds: 120
+      containers:
+        - image: gcr.io/PROJECT_ID/tangent-quant:latest
+          ports:
+            - containerPort: 8002
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 1000m
+          env:
+            - name: APP_ENV
+              value: production
+            - name: UPSTASH_REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: tangent-secrets
+                  key: upstash-redis-url

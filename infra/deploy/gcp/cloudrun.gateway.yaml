@@ -1,0 +1,50 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: tangent-gateway
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "2"
+        run.googleapis.com/cpu-throttling: "true"
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 60
+      containers:
+        - image: gcr.io/PROJECT_ID/tangent-gateway:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: 1000m
+          env:
+            - name: APP_ENV
+              value: production
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tangent-secrets
+                  key: jwt-secret
+            - name: MARKET_DATA_URL
+              value: https://tangent-market-data-PROJECT_ID.run.app
+            - name: QUANT_URL
+              value: https://tangent-quant-PROJECT_ID.run.app
+            - name: PORTFOLIO_URL
+              value: https://tangent-portfolio-PROJECT_ID.run.app
+            - name: SENTIMENT_URL
+              value: https://tangent-sentiment-PROJECT_ID.run.app
+            - name: AGENT_URL
+              value: https://tangent-agent-PROJECT_ID.run.app
+            - name: PERSONA_MACRO_URL
+              value: https://tangent-persona-macro.onrender.com
+            - name: PERSONA_GROWTH_URL
+              value: https://tangent-persona-growth.onrender.com
+            - name: PERSONA_RISK_URL
+              value: https://tangent-persona-risk.onrender.com
+            - name: OBSERVATORY_URL
+              value: https://tangent-observatory.onrender.com

@@ -1,0 +1,84 @@
+# Render Blueprint for Tangent Microservices
+# Deploys the 3 Independent Expert Personas + LLM Observatory on Render Free Tier
+# Kept warm via UptimeRobot 5-minute health checks
+
+services:
+  # 1. MacroBot Persona Service (Gemini 2.0 Flash)
+  - type: web
+    name: tangent-persona-macro
+    runtime: docker
+    dockerfilePath: services/persona-macro/Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false
+      - key: DEMO_MODE
+        value: "false"
+
+  # 2. GrowthBot Persona Service (Groq Llama 3.3 70B)
+  - type: web
+    name: tangent-persona-growth
+    runtime: docker
+    dockerfilePath: services/persona-growth/Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false
+      - key: DEMO_MODE
+        value: "false"
+
+  # 3. RiskBot Persona Service (Mistral Small / Ollama Llama 3.2 3B)
+  - type: web
+    name: tangent-persona-risk
+    runtime: docker
+    dockerfilePath: services/persona-risk/Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: MISTRAL_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false
+      - key: DEMO_MODE
+        value: "false"
+
+  # 4. LLM Observatory & MetaBot Service
+  - type: web
+    name: tangent-observatory
+    runtime: docker
+    dockerfilePath: services/observatory/Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false
+      - key: DEMO_MODE
+        value: "false"
