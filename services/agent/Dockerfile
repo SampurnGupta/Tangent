@@ -1,7 +1,7 @@
 # ── Stage 1: Build virtual environment with uv ──────────────────────────────
 FROM ghcr.io/astral-sh/uv:0.6.14-python3.12-bookworm-slim AS builder
 
-WORKDIR /workspace
+WORKDIR /app
 
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
@@ -20,8 +20,8 @@ RUN groupadd -g 10001 appuser && \
 
 WORKDIR /app
 
-COPY --from=builder --chown=appuser:appuser /workspace/.venv /app/.venv
-COPY --from=builder --chown=appuser:appuser /workspace/services/agent/agent /app/agent
+COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
+COPY --from=builder --chown=appuser:appuser /app/services/agent/agent /app/agent
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
@@ -34,4 +34,4 @@ EXPOSE 8005
 HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"
 
-CMD ["uvicorn", "agent.main:app", "--host", "0.0.0.0", "--port", "8005"]
+CMD ["python", "-m", "uvicorn", "agent.main:app", "--host", "0.0.0.0", "--port", "8005"]
