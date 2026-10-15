@@ -112,3 +112,32 @@ class EfficientFrontierResponse(BaseModel):
     optimal: EfficientFrontierPoint = Field(..., description="Max-Sharpe tangency portfolio")
     min_volatility: EfficientFrontierPoint = Field(..., description="Minimum variance portfolio")
     seed: int = Field(..., description="RNG seed used for sampling")
+
+
+class VaRRequest(BaseModel):
+    """Parameters for computing parametric VaR and CVaR (Expected Shortfall)."""
+
+    weights: dict[str, float] = Field(..., description="Ticker weights summing to 1.0")
+    confidence: float = Field(
+        default=0.95, ge=0.5, le=0.999, description="Confidence level (e.g. 0.95)"
+    )
+    horizon_days: int = Field(
+        default=252, ge=1, le=2520, description="Risk horizon in trading days"
+    )
+    portfolio_value: float = Field(
+        default=1_000_000.0, ge=1.0, description="Portfolio base capital in base currency"
+    )
+
+
+class VaRResponse(BaseModel):
+    """Computed Value at Risk (VaR) and Conditional VaR (Expected Shortfall)."""
+
+    var: float = Field(..., description="Value at Risk in portfolio currency")
+    cvar: float = Field(
+        ..., description="Conditional Value at Risk (Expected Shortfall) in portfolio currency"
+    )
+    var_pct: float = Field(..., description="Value at Risk as percentage of portfolio")
+    cvar_pct: float = Field(..., description="Conditional Value at Risk as percentage of portfolio")
+    confidence: float
+    horizon_days: int
+    portfolio_value: float

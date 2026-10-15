@@ -8,8 +8,12 @@ AssetCategory = Literal[
     "indian_equity",
     "indian_index",
     "global_etf",
+    "us_etf",
     "commodity",
+    "commodity_etf",
+    "commodity_synthetic",
     "crypto",
+    "reit",
     "fx",
     "synthetic",
 ]

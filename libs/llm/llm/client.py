@@ -14,6 +14,37 @@ litellm.telemetry = False
 litellm.drop_params = True
 
 
+MODEL_PRICING_PER_1M: dict[str, dict[str, float]] = {
+    "groq/llama-3.3-70b-versatile": {"in": 0.59, "out": 0.79},
+    "groq/llama-3.3-70b-specdec": {"in": 0.59, "out": 0.79},
+    "groq/llama3-8b-8192": {"in": 0.05, "out": 0.08},
+    "groq/llama-3.1-8b-instant": {"in": 0.05, "out": 0.08},
+    "groq/qwen-2.5-32b": {"in": 0.60, "out": 0.60},
+    "groq/qwen-qwq-32b": {"in": 0.60, "out": 0.60},
+    "gemini/gemini-2.0-flash": {"in": 0.10, "out": 0.40},
+    "gemini/gemini-1.5-flash": {"in": 0.075, "out": 0.30},
+    "gemini/gemini-1.5-pro": {"in": 1.25, "out": 5.00},
+    "mistral/mistral-small-latest": {"in": 0.10, "out": 0.30},
+    "ollama/llama3.2:3b": {"in": 0.0, "out": 0.0},
+}
+
+
+def estimate_llm_cost(model_name: str, tokens_in: int, tokens_out: int) -> float:
+    """Calculate USD cost estimate based on model-specific input/output token pricing per 1M tokens."""
+    pricing = MODEL_PRICING_PER_1M.get(model_name)
+    if not pricing:
+        base_name = model_name.split("/")[-1]
+        for k, v in MODEL_PRICING_PER_1M.items():
+            if base_name in k:
+                pricing = v
+                break
+    if not pricing:
+        pricing = {"in": 0.50, "out": 0.80}
+
+    cost = ((tokens_in * pricing["in"]) + (tokens_out * pricing["out"])) / 1_000_000.0
+    return round(cost, 6)
+
+
 class LLMConfig(BaseModel):
     """Configuration for LLM client execution and model tiers."""
 
@@ -125,15 +156,14 @@ class ResilientLLMClient:
             tokens_in = getattr(resp.usage, "prompt_tokens", 0) or 0
             tokens_out = getattr(resp.usage, "completion_tokens", 0) or 0
 
-        # Estimated cost for llama-3.3-70b / gemini-flash (~$0.05 / 1M in, $0.08 / 1M out)
-        cost = (tokens_in * 0.00000005) + (tokens_out * 0.00000008)
+        cost = estimate_llm_cost(model_name, tokens_in, tokens_out)
 
         return LLMResponse(
             text=text,
             model=model_name,
             tokens_in=tokens_in,
             tokens_out=tokens_out,
-            cost_estimate_usd=round(cost, 6),
+            cost_estimate_usd=cost,
             is_fallback=is_fallback,
             is_fixture=False,
         )

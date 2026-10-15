@@ -273,6 +273,6 @@ class DecisionStudioOrchestrator:
             {"step": 5, "status": "Synthesizing Brief & Running Critic Audit"},
         ]
         for s in steps:
-            await asyncio.sleep(0.35)
-            yield f"data: {json.dumps(s)}\n\n"
-        yield f"data: {json.dumps({'step': 6, 'status': 'completed', 'ticker': ticker})}\n\n"
+            await asyncio.sleep(0.05)
+            yield f"event: step_start\ndata: {json.dumps(s)}\n\n"
+        yield f"event: final_brief\ndata: {json.dumps({'step': 6, 'status': 'completed', 'ticker': ticker})}\n\n"

@@ -14,6 +14,8 @@ from contracts.portfolio import (
     FrontierRequest,
     OptimizationRequest,
     OptimizationResponse,
+    VaRRequest,
+    VaRResponse,
 )
 from contracts.projections import (
     MonteCarloSimulationRequest,
@@ -29,7 +31,7 @@ from quant.engine import (
     sample_efficient_frontier,
     simulate_monte_carlo_projections,
 )
-from quant.risk import get_risk_profile_by_score
+from quant.risk import compute_var_cvar, get_risk_profile_by_score
 
 settings = BaseAppSettings(service_name="tangent-quant")
 setup_logging(
@@ -176,6 +178,34 @@ def create_app() -> FastAPI:
 
         prices_df = pd.DataFrame(data, index=rng)
         return run_walk_forward_backtest(prices_df, req)
+
+    @app.post("/api/v1/quant/var", response_model=VaRResponse, tags=["risk"])
+    async def calculate_var_cvar(req: VaRRequest) -> VaRResponse:
+        """Calculate Parametric Value at Risk (VaR) and Conditional VaR (Expected Shortfall)."""
+        import numpy as np
+
+        tickers = list(req.weights.keys())
+        if not tickers:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="At least one ticker weight must be provided.",
+            )
+        months = 36
+        returns_dict = {t: generate_deterministic_synthetic_returns(0.12, months) for t in tickers}
+        df = pd.DataFrame(returns_dict)
+        mean_monthly = df.mean().to_numpy()
+        cov_monthly = df.cov().to_numpy()
+        weights_arr = np.array([req.weights[t] for t in tickers], dtype=float)
+
+        res = compute_var_cvar(
+            weights=weights_arr,
+            mean_monthly_returns=mean_monthly,
+            cov_monthly=cov_monthly,
+            confidence=req.confidence,
+            horizon_days=req.horizon_days,
+            portfolio_value=req.portfolio_value,
+        )
+        return VaRResponse(**res)
 
     return app
 

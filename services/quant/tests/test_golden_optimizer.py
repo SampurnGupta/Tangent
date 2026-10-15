@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+import pytest
 from contracts.projections import MonteCarloSimulationRequest
 from quant.engine import (
     compute_diversification_metrics,
@@ -171,3 +172,90 @@ def test_diversification_score_saturation():
     s20, enc20 = compute_diversification_metrics(np.ones(20) / 20.0)
     assert s20 == 10.0
     assert enc20 == 20.0
+
+
+def test_monte_carlo_gbm_non_negativity():
+    """Verify GBM simulation never produces negative wealth even under severe shocks."""
+    # Extreme stress case: -50% annual return, 80% annual volatility, zero SIP
+    req = MonteCarloSimulationRequest(
+        initial_investment=100000.0,
+        monthly_sip=0.0,
+        horizon_years=5,
+        expected_annual_return=-0.50,
+        annual_volatility=0.80,
+        paths=2000,
+        seed=42,
+    )
+    res = simulate_monte_carlo_projections(req)
+
+    # In geometric Brownian motion, exp(x) > 0, so terminal and 5th percentile wealth > 0
+    assert res.terminal_median > 0.0
+    assert res.terminal_worst_case_5th > 0.0
+    for pt in res.trajectory:
+        assert pt.median > 0.0
+        assert pt.ci_lower_95 > 0.0
+        assert pt.ci_lower_75 > 0.0
+
+
+def test_var_cvar_mathematics():
+    """Verify VaR and CVaR mathematical properties: CVaR >= VaR >= 0, and monotonicity in confidence."""
+    from quant.risk import compute_var_cvar
+
+    weights = np.array([0.6, 0.4])
+    mean_ret = np.array([0.012, 0.006])  # 1.2% and 0.6% monthly
+    cov = np.array([[0.0016, 0.0002], [0.0002, 0.0004]])
+
+    res_95 = compute_var_cvar(
+        weights=weights,
+        mean_monthly_returns=mean_ret,
+        cov_monthly=cov,
+        confidence=0.95,
+        horizon_days=252,
+        portfolio_value=1_000_000.0,
+    )
+    res_99 = compute_var_cvar(
+        weights=weights,
+        mean_monthly_returns=mean_ret,
+        cov_monthly=cov,
+        confidence=0.99,
+        horizon_days=252,
+        portfolio_value=1_000_000.0,
+    )
+
+    # 1. Non-negativity
+    assert res_95["var"] >= 0.0
+    assert res_95["cvar"] >= 0.0
+
+    # 2. CVaR is expected shortfall in the tail beyond VaR, so CVaR >= VaR
+    assert res_95["cvar"] >= res_95["var"]
+    assert res_99["cvar"] >= res_99["var"]
+
+    # 3. Higher confidence level strictly increases VaR and CVaR
+    assert res_99["var"] > res_95["var"]
+    assert res_99["cvar"] > res_95["cvar"]
+
+
+@pytest.mark.asyncio
+async def test_quant_var_api_endpoint():
+    """Test /api/v1/quant/var API endpoint via AsyncClient."""
+    from httpx import ASGITransport, AsyncClient
+    from quant.main import app
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        resp = await client.post(
+            "/api/v1/quant/var",
+            json={
+                "weights": {"RELIANCE.NS": 0.5, "TCS.NS": 0.5},
+                "confidence": 0.95,
+                "horizon_days": 252,
+                "portfolio_value": 1000000.0,
+            },
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "var" in data
+        assert "cvar" in data
+        assert data["cvar"] >= data["var"]
+        assert data["confidence"] == 0.95
+        assert data["portfolio_value"] == 1000000.0

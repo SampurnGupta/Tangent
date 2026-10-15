@@ -333,17 +333,19 @@ def simulate_monte_carlo_projections(
     """Run geometric wealth accumulation paths with reproducible seeded RNG."""
     rng = np.random.default_rng(req.seed)
     n_months = req.horizon_years * 12
-    monthly_mu = req.expected_annual_return / 12.0
+    # Itô-corrected drift for Geometric Brownian Motion: subtract 0.5 * sigma^2 so E[exp(X)] = exp(mu)
+    monthly_mu_gbm = (req.expected_annual_return / 12.0) - 0.5 * (req.annual_volatility**2 / 12.0)
     monthly_sigma = req.annual_volatility / np.sqrt(12.0)
 
-    # Monthly return matrix: shape (paths, n_months)
-    shocks = rng.normal(monthly_mu, monthly_sigma, size=(req.paths, n_months))
+    # Monthly log-return shocks: shape (paths, n_months)
+    log_shocks = rng.normal(monthly_mu_gbm, monthly_sigma, size=(req.paths, n_months))
 
     paths = np.zeros((req.paths, n_months + 1))
     paths[:, 0] = req.initial_investment
 
     for m in range(n_months):
-        paths[:, m + 1] = paths[:, m] * (1.0 + shocks[:, m]) + req.monthly_sip
+        # Geometric step ensures wealth never turns negative from shocks
+        paths[:, m + 1] = paths[:, m] * np.exp(log_shocks[:, m]) + req.monthly_sip
 
     # Yearly percentiles
     year_indices = list(range(0, n_months + 1, 12))

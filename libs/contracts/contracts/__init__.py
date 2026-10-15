@@ -30,6 +30,8 @@ from contracts.portfolio import (
     OptimizationRequest,
     OptimizationResponse,
     RiskProfile,
+    VaRRequest,
+    VaRResponse,
 )
 from contracts.prices import (
     FXRateResponse,
@@ -58,6 +60,8 @@ __all__ = [
     "EfficientFrontierPoint",
     "EfficientFrontierResponse",
     "FrontierRequest",
+    "VaRRequest",
+    "VaRResponse",
     "MonteCarloSimulationRequest",
     "MonteCarloSimulationResponse",
     "ProjectionYear",
