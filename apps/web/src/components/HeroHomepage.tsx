@@ -166,7 +166,7 @@ export function HeroHomepage({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-zinc-800/80 text-left">
             <div>
               <span className="text-[10px] text-zinc-500 uppercase font-mono block">Asset Universe</span>
-              <span className="text-base font-bold text-white">74 Securities</span>
+              <span className="text-base font-bold text-white">70+ Securities</span>
             </div>
             <div>
               <span className="text-[10px] text-zinc-500 uppercase font-mono block">Mathematical Engine</span>

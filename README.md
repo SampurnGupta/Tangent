@@ -84,11 +84,11 @@ Tangent/
 
 ## Core Features
 
-1. **Interactive Professional Homepage**: Institutional showcase displaying platform metrics (74 assets, 5k Monte Carlo paths, SciPy SLSQP, 5 ideologies), animated feature spotlight, and rapid decision redirects.
+1. **Interactive Professional Homepage**: Institutional showcase displaying platform metrics (70+ assets, 5k Monte Carlo paths, SciPy SLSQP, 5 ideologies), animated feature spotlight, and rapid decision redirects.
 2. **Expert Committee Arena**: Multi-agent deliberative debate stream featuring 5 strictly bounded expert personas (Macro, Deep Value, Quant Momentum, Austrian Sound Money, ESG) powered by Groq Llama 3.3 70B with real-world live market reasoning.
 3. **Direct 1-on-1 Persona Consultation**: Always-accessible conversational consultation allowing users to interact directly with any expert persona at any time.
 4. **Draww Institutional Portfolio Co-pilot**: Grounded conversational assistant with real-time access to the user's optimized portfolio weights, expected returns, volatility, Sharpe ratio, and backtest results.
-5. **Curated Multi-Asset Universe (74 Securities)**: Complete coverage across Indian Nifty 50 large caps, US ETFs, global commodities, Indian REITs, sovereign debt, bank FDs, and crypto — featuring an *Unbiased All-Asset Mode*.
+5. **Curated Multi-Asset Universe (70+ Securities)**: Complete coverage across Indian Nifty 50 large caps, US ETFs, global commodities, Indian REITs, sovereign debt, bank FDs, and crypto — featuring an *Unbiased All-Asset Mode*.
 6. **Crisis Stress Testing Engine**: Historical crisis simulation replaying portfolio drawdowns through the 2008 GFC, 2020 COVID Crash, 2022 Fed Rate Spikes, 1970s Stagflation, and 2000 Dot-com Bubble.
 7. **Max-Sharpe Optimization**: SciPy SLSQP solver incorporating Ledoit-Wolf covariance shrinkage, asset caps (15%), sector caps (25%), Indian LTCG tax drag (12.5%), and 6.0% inflation adjustments.
 8. **Decision Studio & Marginal Impact**: Evaluates candidate asset inclusions by calculating real Sharpe delta, return delta, and volatility delta with single-click CSV/JSON export for investors.
