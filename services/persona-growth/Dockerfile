@@ -5,6 +5,7 @@ WORKDIR /app
 
 ENV UV_COMPILE_BYTECODE=0
 ENV UV_LINK_MODE=copy
+ENV UV_HTTP_TIMEOUT=120
 
 COPY pyproject.toml uv.lock ./
 COPY libs/ ./libs/

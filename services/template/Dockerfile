@@ -6,6 +6,7 @@ WORKDIR /app
 # Configure uv for container builds
 ENV UV_COMPILE_BYTECODE=0
 ENV UV_LINK_MODE=copy
+ENV UV_HTTP_TIMEOUT=120
 
 # Copy root workspace and library definitions
 COPY pyproject.toml uv.lock ./
