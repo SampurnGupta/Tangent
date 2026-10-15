@@ -4,7 +4,7 @@ FROM ghcr.io/astral-sh/uv:0.6.14-python3.12-bookworm-slim AS builder
 WORKDIR /app
 
 # Configure uv for container builds
-ENV UV_COMPILE_BYTECODE=1
+ENV UV_COMPILE_BYTECODE=0
 ENV UV_LINK_MODE=copy
 
 # Copy root workspace and library definitions
