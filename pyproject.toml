@@ -7,7 +7,6 @@ requires-python = ">=3.12"
 dependencies = [
     "tangent-common",
     "tangent-contracts",
-    "tangent-template-service",
     "tangent-market-data",
     "tangent-quant",
     "tangent-portfolio",
@@ -28,7 +27,6 @@ members = ["libs/*", "services/*"]
 [tool.uv.sources]
 tangent-common = { workspace = true }
 tangent-contracts = { workspace = true }
-tangent-template-service = { workspace = true }
 tangent-market-data = { workspace = true }
 tangent-quant = { workspace = true }
 tangent-portfolio = { workspace = true }
