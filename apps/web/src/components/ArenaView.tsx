@@ -14,7 +14,9 @@ import {
   Send,
   RefreshCw,
   Info,
+  RotateCcw,
 } from "lucide-react";
+import { chatWithIndependentPersona } from "@/lib/api";
 
 export interface AgentPersona {
   id: string;
@@ -117,6 +119,8 @@ export interface PersonaChatMessage {
   avatar?: string;
   text: string;
   timestamp: string;
+  model?: string;
+  latency_ms?: number;
 }
 
 interface ArenaViewProps {
@@ -151,6 +155,16 @@ export function ArenaView({
   const [chatMessages, setChatMessages] = useState<PersonaChatMessage[]>([]);
   const [userChatInput, setUserChatInput] = useState<string>("");
   const [isPersonaReplying, setIsPersonaReplying] = useState<boolean>(false);
+  const [sessionId, setSessionId] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("tangent_arena_session_id");
+      if (saved) return saved;
+      const generated = `arena_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      sessionStorage.setItem("tangent_arena_session_id", generated);
+      return generated;
+    }
+    return `arena_${Date.now()}`;
+  });
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
@@ -564,6 +578,15 @@ export function ArenaView({
     initPersonaChatGreeting(personaId, query);
   };
 
+  const handleClearSession = () => {
+    const newId = `arena_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("tangent_arena_session_id", newId);
+    }
+    setSessionId(newId);
+    initPersonaChatGreeting(consultPersonaId, query);
+  };
+
   const handleSendPersonaChatMessage = async () => {
     if (!userChatInput.trim() || isPersonaReplying) return;
 
@@ -585,10 +608,39 @@ export function ArenaView({
     const persona =
       ARENA_PERSONAS.find((p) => p.id === consultPersonaId) || ARENA_PERSONAS[0];
 
-    // Attempt actual live Groq completion with strict persona prompt
     let responseText = "";
-    try {
-      const systemPrompt = `You are an elite institutional financial advisor strictly bound to the ${persona.ideologyTitle}.
+    let usedModel: string | undefined = undefined;
+    let latencyMs: number | undefined = undefined;
+
+    // 1. For independent persona microservices (macro, growth, risk), route to their dedicated FastAPI services via Gateway
+    if (persona.id === "macro" || persona.id === "growth" || persona.id === "risk") {
+      try {
+        const personaRes = await chatWithIndependentPersona(
+          persona.id as "macro" | "growth" | "risk",
+          userText,
+          sessionId,
+          {
+            query,
+            investor_profile: investorProfileName,
+            horizon,
+            capital,
+          }
+        );
+        if (personaRes && personaRes.reply) {
+          responseText = personaRes.reply;
+          usedModel = personaRes.model;
+          latencyMs = personaRes.latency_ms;
+          setIsLlmEnhanced(true);
+        }
+      } catch (err) {
+        console.warn(`Independent persona chat for ${persona.id} failed, falling back:`, err);
+      }
+    }
+
+    // 2. Fallback to live Groq completion with strict persona prompt if independent persona unavailable or valuation/arbiter
+    if (!responseText) {
+      try {
+        const systemPrompt = `You are an elite institutional financial advisor strictly bound to the ${persona.ideologyTitle}.
 Your Guiding Doctrine: "${persona.coreIdeology}".
 Your Strict Operational Boundaries: "${persona.strictBoundaries}".
 Original user dilemma discussed in the committee: "${query}".
@@ -599,32 +651,34 @@ STRICT RULES:
 3. If asked about a stock (e.g., TCS, Reliance, Infosys), cite actual valuations, debt, revenue, and margins.
 4. Keep your answer focused, authoritative, and concise (under 4-5 sentences).`;
 
-      const apiRes = await fetch("/api/groq", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...chatMessages.map((m) => ({
-              role: m.sender === "user" ? "user" : "assistant",
-              content: m.text,
-            })),
-            { role: "user", content: userText },
-          ],
-          temperature: 0.2,
-          max_tokens: 350,
-        }),
-      });
+        const apiRes = await fetch("/api/groq", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...chatMessages.map((m) => ({
+                role: m.sender === "user" ? "user" : "assistant",
+                content: m.text,
+              })),
+              { role: "user", content: userText },
+            ],
+            temperature: 0.2,
+            max_tokens: 350,
+          }),
+        });
 
-      if (apiRes.ok) {
-        const data = await apiRes.json();
-        if (data.reply) {
-          responseText = data.reply;
-          setIsLlmEnhanced(true);
+        if (apiRes.ok) {
+          const data = await apiRes.json();
+          if (data.reply) {
+            responseText = data.reply;
+            usedModel = "groq/llama-3.3-70b-versatile";
+            setIsLlmEnhanced(true);
+          }
         }
+      } catch (e) {
+        console.warn("Groq proxy unavailable, falling back to deterministic persona engine:", e);
       }
-    } catch (e) {
-      console.warn("Groq proxy unavailable, falling back to deterministic persona engine:", e);
     }
 
     // High-quality deterministic fallback if network/Groq rate limit hits
@@ -648,6 +702,8 @@ STRICT RULES:
       speakerTitle: persona.ideologyTitle,
       avatar: persona.avatar,
       text: responseText,
+      model: usedModel,
+      latency_ms: latencyMs,
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -1021,7 +1077,7 @@ STRICT RULES:
             const currentPersona =
               ARENA_PERSONAS.find((p) => p.id === consultPersonaId) || ARENA_PERSONAS[0];
             return (
-              <div className={`p-3 rounded-xl border ${currentPersona.borderColor} ${currentPersona.bgColor} flex items-center justify-between text-xs`}>
+              <div className={`p-3 rounded-xl border ${currentPersona.borderColor} ${currentPersona.bgColor} flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs`}>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{currentPersona.avatar}</span>
                   <div>
@@ -1029,9 +1085,19 @@ STRICT RULES:
                     <span className="text-[10px] text-zinc-400">{currentPersona.coreIdeology}</span>
                   </div>
                 </div>
-                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-zinc-950/80 border border-zinc-800 text-zinc-300 shrink-0">
-                  Bound to Doctrine
-                </span>
+                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-zinc-950/80 border border-zinc-800 text-zinc-300">
+                    Session: {sessionId.slice(0, 12)}…
+                  </span>
+                  <button
+                    onClick={handleClearSession}
+                    title="Reset session memory for this persona"
+                    className="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-950/80 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-2.5 h-2.5 text-teal-400" />
+                    <span>Clear Memory</span>
+                  </button>
+                </div>
               </div>
             );
           })()}
@@ -1058,9 +1124,17 @@ STRICT RULES:
                     }`}
                   >
                     {!isUser && msg.speakerTitle && (
-                      <div className="flex items-center justify-between text-[10px] font-mono border-b border-zinc-800/60 pb-1 mb-1">
-                        <span className="font-bold text-teal-400">{msg.speakerTitle}</span>
-                        <span className="text-zinc-400">{msg.timestamp}</span>
+                      <div className="flex items-center justify-between text-[10px] font-mono border-b border-zinc-800/60 pb-1 mb-1 gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-teal-400">{msg.speakerTitle}</span>
+                          {msg.model && (
+                            <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-mono">
+                              {msg.model.split("/").pop()}
+                              {msg.latency_ms ? ` · ${Math.round(msg.latency_ms)}ms` : ""}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-zinc-400 shrink-0">{msg.timestamp}</span>
                       </div>
                     )}
                     <p className="whitespace-pre-line">{msg.text}</p>
