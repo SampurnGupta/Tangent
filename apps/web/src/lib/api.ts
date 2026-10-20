@@ -1889,7 +1889,7 @@ export async function chatWithIndependentPersona(
   const defaultModels: Record<string, string> = {
     macro: "gemini/gemini-2.0-flash",
     growth: "groq/llama-3.3-70b-versatile",
-    risk: "mistral/mistral-small-latest",
+    risk: "cloudflare/@cf/meta/llama-3.2-3b-instruct",
   };
   return {
     reply: `[${persona.toUpperCase()} EXPERT BOT]: Real-time analysis provided with session memory context.\n\nDisclaimer: This is educational financial analysis, not personalized investment advice.`,

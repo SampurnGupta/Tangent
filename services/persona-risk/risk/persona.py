@@ -4,8 +4,8 @@ import os
 from typing import Any, Optional
 
 PERSONA_NAME = "risk"
-# Can point to Mistral Small or self-hosted Oracle VM Ollama Llama 3.2
-MODEL_NAME = os.getenv("RISK_MODEL_NAME", "mistral/mistral-small-latest")
+# Cloudflare Workers AI free-tier Llama 3.2 3B or self-hosted Ollama
+MODEL_NAME = os.getenv("RISK_MODEL_NAME", "cloudflare/@cf/meta/llama-3.2-3b-instruct")
 
 SYSTEM_PROMPT = """You are RiskBot, a quantitative portfolio risk specialist trained in
 Modern Portfolio Theory (MPT), mean-variance optimization, covariance shrinkage, and tail-risk management.

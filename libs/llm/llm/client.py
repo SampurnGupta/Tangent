@@ -28,6 +28,8 @@ MODEL_PRICING_PER_1M: dict[str, dict[str, float]] = {
     "gemini/gemini-1.5-flash": {"in": 0.075, "out": 0.30},
     "gemini/gemini-1.5-pro": {"in": 1.25, "out": 5.00},
     "mistral/mistral-small-latest": {"in": 0.10, "out": 0.30},
+    "cloudflare/@cf/meta/llama-3.2-3b-instruct": {"in": 0.0, "out": 0.0},
+    "cloudflare/@cf/meta/llama-3.1-8b-instruct": {"in": 0.0, "out": 0.0},
     "ollama/llama3.2:3b": {"in": 0.0, "out": 0.0},
 }
 
@@ -97,7 +99,9 @@ class ResilientLLMClient:
 
         # 1. Deterministic Fixture Mode (for offline testing & zero-key smoke tests)
         if self.config.demo_mode or (
-            not os.getenv("GROQ_API_KEY") and not os.getenv("GEMINI_API_KEY")
+            not os.getenv("GROQ_API_KEY")
+            and not os.getenv("GEMINI_API_KEY")
+            and not os.getenv("CLOUDFLARE_API_KEY")
         ):
             res = self._generate_fixture_response(prompt, system_prompt)
             res.latency_ms = round((time.time() - t0) * 1000.0, 2)
