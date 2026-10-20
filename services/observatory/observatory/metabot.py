@@ -22,12 +22,31 @@ class MetaBotEngine:
             )
         )
 
+    async def _select_best_model(self) -> str:
+        """Dynamically pick the best performing model from the observatory leaderboard.
+
+        Evaluates active models ranked by lowest p50/average latency and error rate.
+        Falls back to groq/llama-3.3-70b-versatile if telemetry is insufficient.
+        """
+        try:
+            leaderboard = await self.observatory.get_leaderboard()
+            active_models = [m for m in leaderboard if m.get("call_count", 0) > 0]
+            if active_models:
+                best = active_models[0].get("model")
+                if best:
+                    return str(best)
+        except Exception:
+            pass
+        return "groq/llama-3.3-70b-versatile"
+
     async def answer(self, question: str, session_id: str) -> dict[str, Any]:
         """Generate analysis citing current live metrics from the observatory."""
         leaderboard = await self.observatory.get_leaderboard()
         recent_calls = await self.observatory.redis_client.get_recent_calls(limit=10)
+        selected_model = await self._select_best_model()
 
         context_data = {
+            "selected_model_for_synthesis": selected_model,
             "leaderboard": leaderboard,
             "sample_recent_inferences": [
                 {
@@ -53,6 +72,7 @@ class MetaBotEngine:
         resp: LLMResponse = await self.llm_client.complete(
             prompt=prompt,
             system_prompt=METABOT_SYSTEM_PROMPT,
+            model_override=selected_model,
             persona="metabot",
         )
 
