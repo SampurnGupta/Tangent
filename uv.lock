@@ -29,7 +29,6 @@ members = [
     "tangent-quant",
     "tangent-root",
     "tangent-sentiment",
-    "tangent-template-service",
 ]
 
 [[package]]
@@ -3277,7 +3276,6 @@ dependencies = [
     { name = "tangent-portfolio" },
     { name = "tangent-quant" },
     { name = "tangent-sentiment" },
-    { name = "tangent-template-service" },
 ]
 
 [package.dev-dependencies]
@@ -3312,7 +3310,6 @@ requires-dist = [
     { name = "tangent-portfolio", editable = "services/portfolio" },
     { name = "tangent-quant", editable = "services/quant" },
     { name = "tangent-sentiment", editable = "services/sentiment" },
-    { name = "tangent-template-service", editable = "services/template" },
 ]
 
 [package.metadata.requires-dev]
@@ -3353,25 +3350,6 @@ requires-dist = [
     { name = "tangent-common", editable = "libs/common" },
     { name = "tangent-contracts", editable = "libs/contracts" },
     { name = "tangent-llm", editable = "libs/llm" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.29.0" },
-]
-
-[[package]]
-name = "tangent-template-service"
-version = "0.1.0"
-source = { editable = "services/template" }
-dependencies = [
-    { name = "fastapi" },
-    { name = "tangent-common" },
-    { name = "tangent-contracts" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastapi", specifier = ">=0.111.0" },
-    { name = "tangent-common", editable = "libs/common" },
-    { name = "tangent-contracts", editable = "libs/contracts" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.29.0" },
 ]
 
