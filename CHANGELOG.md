@@ -7,6 +7,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ---
 
 ## [Unreleased]
+ 
+---
+
+## [2.0.0] - 2026-10-21
+
+### Added
+- **Independent Expert Persona Microservices**:
+  - `persona-macro`: Dedicated FastAPI microservice powered by Gemini 2.0 Flash (`gemini/gemini-2.0-flash`).
+  - `persona-growth`: Dedicated FastAPI microservice powered by Groq Llama 3.3 70B (`groq/llama-3.3-70b-versatile`).
+  - `persona-risk`: Dedicated FastAPI microservice powered by Cloudflare Workers AI Llama 3.2 3B (`cloudflare/@cf/meta/llama-3.2-3b-instruct`), with automatic failover to Groq/Gemini.
+  - Dedicated Redis session memory per persona maintaining conversational context, user portfolio constraints, and message history across turns.
+- **LLM Observatory & MetaBot Dynamic Analyst**:
+  - `observatory`: Aggregates live latency (avg, p50, p95), token throughput, and estimated costs across all active LLMs into Redis.
+  - Interactive Model Leaderboard in Web UI (`/observatory`) visualizing real-time metrics across models and providers.
+  - MetaBot dynamic model router: evaluates live leaderboard performance and selects the fastest performing model for synthesis.
+- **Frontend 1-on-1 Persona Consultation Wiring (`ArenaView.tsx`)**:
+  - Wired direct 1-on-1 consultation chat to independent persona microservices via Gateway API (`/api/v1/personas/{persona}/chat`).
+  - Persistent session management via `sessionStorage` with visible session ID indicator.
+  - Real-time model source and latency telemetry badges attached to every response.
+  - "Clear Memory" button allowing users to reset Redis conversational context on demand.
+- **Two-Stage Selective Docker Build Pattern**:
+  - Implemented selective manifest copying (`pyproject.toml` + stub package directories) before dependency installation across all 10 service Dockerfiles.
+  - Eliminates Docker cache invalidation on application code edits, resolving WSL2 disk bloat from 40GB to <3GB.
+  - Comprehensive `.dockerignore` ignoring binary documents, presentations, test artifacts, and temp files.
+
+### Changed
+- Migrated RiskBot from paid Mistral API to Cloudflare Workers AI free-tier (`@cf/meta/llama-3.2-3b-instruct`), ensuring a zero-cost 3-provider architecture (Groq + Gemini + Cloudflare).
+- Cleaned monorepo architecture: deleted scaffolding `services/template/`, updated workspace manifests in `pyproject.toml`, and archived prior GCP Cloud Run and Oracle VM attempts to `docs/archive/`.
+- Configured free-tier cloud deployment across Render (Personas & Observatory), Vercel (Next.js), and Supabase/Neon + Upstash Redis.
 
 ---
 
