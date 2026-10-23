@@ -19,9 +19,11 @@ import {
 import { chatWithIndependentPersona } from "@/lib/api";
 
 export interface AgentPersona {
-  id: string;
+  id: "macro" | "growth" | "risk";
   avatar: string;
   ideologyTitle: string;
+  modelName: string;
+  modelProvider: string;
   badgeColor: string;
   bgColor: string;
   borderColor: string;
@@ -33,62 +35,44 @@ export const ARENA_PERSONAS: AgentPersona[] = [
   {
     id: "macro",
     avatar: "🏛️",
-    ideologyTitle: "Macro & Sovereign Rates Ideology",
+    ideologyTitle: "Macro & Sovereign Rates Analyst",
+    modelName: "Gemini 2.0 Flash",
+    modelProvider: "Google TPU",
     badgeColor: "text-amber-400 bg-amber-500/10 border-amber-500/30",
     bgColor: "bg-amber-950/20",
     borderColor: "border-amber-500/30",
     coreIdeology:
-      "Central bank interest rate differentials, currency depreciation (USD/INR), and sovereign liquidity flows dictate long-term purchasing power.",
+      "Central bank interest rate differentials (Fed vs RBI), sovereign yield curves, currency depreciation (USD/INR), and institutional liquidity flows dictate asset valuations.",
     strictBoundaries:
       "Constrained strictly to macro interest rates, monetary policy (Fed vs RBI), foreign institutional capital flows (FII), and currency devaluation.",
   },
   {
-    id: "valuation",
-    avatar: "⚖️",
-    ideologyTitle: "Valuation Multiples & Cycles Ideology",
-    badgeColor: "text-purple-400 bg-purple-500/10 border-purple-500/30",
-    bgColor: "bg-purple-950/20",
-    borderColor: "border-purple-500/30",
-    coreIdeology:
-      "Even an exceptional business or index becomes an awful investment at euphoric multiples. Mean reversion and margin of safety are non-negotiable.",
-    strictBoundaries:
-      "Constrained strictly to trailing/forward P/E, EV/EBITDA multiples, cyclically adjusted valuation percentiles, and market cycle timing risks.",
-  },
-  {
     id: "growth",
     avatar: "🚀",
-    ideologyTitle: "Growth Equity & Moats Ideology",
+    ideologyTitle: "Growth Equity & Moats Analyst",
+    modelName: "Llama 3.3 70B",
+    modelProvider: "Groq LPU",
     badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
     bgColor: "bg-emerald-950/20",
     borderColor: "border-emerald-500/30",
     coreIdeology:
-      "Long-term compounding is driven exclusively by business moats, capital reinvestment rates, Return on Equity (ROE > 18%), and secular market leadership.",
+      "Long-term compounding is driven exclusively by business economic moats, capital reinvestment rates, Return on Equity (ROE > 18%), and secular market leadership.",
     strictBoundaries:
       "Constrained strictly to corporate earnings growth, competitive advantages, operating margins, and secular compounding trends.",
   },
   {
     id: "risk",
     avatar: "🛡️",
-    ideologyTitle: "Quantitative Risk & Covariance Ideology",
+    ideologyTitle: "Quantitative Risk & Covariance Analyst",
+    modelName: "Llama 3.2 3B",
+    modelProvider: "Cloudflare Workers AI",
     badgeColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30",
     bgColor: "bg-cyan-950/20",
     borderColor: "border-cyan-500/30",
     coreIdeology:
-      "Emotions and market narratives deceive; the covariance matrix never lies. True safety lies in uncorrelated asset pairs and downside VaR containment.",
+      "Market narratives deceive; the Ledoit-Wolf covariance matrix and downside Value-at-Risk (VaR) never lie. True safety is mathematical non-correlation.",
     strictBoundaries:
       "Constrained strictly to pairwise asset correlation, portfolio variance, maximum historical drawdown, and Value-at-Risk (VaR) math.",
-  },
-  {
-    id: "arbiter",
-    avatar: "🎯",
-    ideologyTitle: "Chief Synthesis Arbiter",
-    badgeColor: "text-teal-400 bg-teal-500/10 border-teal-500/40",
-    bgColor: "bg-teal-950/30",
-    borderColor: "border-teal-500/40",
-    coreIdeology:
-      "Synthesizes empirical evidence across all four domain perspectives, eliminates ideological extremes, and delivers the definitive consensus conclusion.",
-    strictBoundaries:
-      "Strictly neutral arbiter. Fact-checks claims, resolves contradictions, and delivers actionable strategic consensus.",
   },
 ];
 
@@ -685,14 +669,10 @@ STRICT RULES:
     if (!responseText) {
       if (persona.id === "macro") {
         responseText = `From the **${persona.ideologyTitle}** perspective: Looking at your question on "${userText.slice(0, 40)}...", the dominant variable remains sovereign liquidity and the USD/INR currency exchange rate. Indian IT and global equities are transmission vehicles for central bank yield differentials. With US 10-year Treasury yields around 4.2%–4.5% and the RBI keeping repo rates at 6.5%, any capital reallocation must account for foreign institutional capital flows and inflation differentials.`;
-      } else if (persona.id === "valuation") {
-        responseText = `From the **${persona.ideologyTitle}** perspective: When analyzing "${userText.slice(0, 40)}...", we prioritize price discipline above all else. Multiples establish your margin of safety. If trailing P/E or EV/EBITDA is trading more than 1 standard deviation above its 5-year historical average, future capital appreciation will be severely limited by cyclical mean reversion. Never overpay for narrative momentum.`;
       } else if (persona.id === "growth") {
         responseText = `From the **${persona.ideologyTitle}** perspective: Regarding "${userText.slice(0, 40)}...", competitive moats and capital reinvestment rates are what create generational wealth. Look at return on capital employed (ROCE > 20%), free cash flow generation, and secular runway. High-quality compounders with pricing power consistently outgrow cyclical rate headwinds and market volatility.`;
-      } else if (persona.id === "risk") {
-        responseText = `From the **${persona.ideologyTitle}** perspective: Analyzing "${userText.slice(0, 40)}..." mathematically: Every additional percentage of capital concentrated into a single thesis increases portfolio Value-at-Risk (VaR) and tail drawdown exponentially. To maximize the long-term Sharpe ratio, exposure to any single security must remain capped below 12%–15%, anchored by low-covariance assets like sovereign debt and gold.`;
       } else {
-        responseText = `As the **Chief Synthesis Arbiter**: The institutional committee advises balancing capital growth with defensive solvency. Tactical tilts are permitted, but they must be governed by pre-committed rebalancing thresholds rather than impulsive reactions to short-term headlines.`;
+        responseText = `From the **${persona.ideologyTitle}** perspective: Analyzing "${userText.slice(0, 40)}..." mathematically: Every additional percentage of capital concentrated into a single thesis increases portfolio Value-at-Risk (VaR) and tail drawdown exponentially. To maximize the long-term Sharpe ratio, exposure to any single security must remain capped below 12%–15%, anchored by low-covariance assets like sovereign debt and gold.`;
       }
     }
 
@@ -779,29 +759,45 @@ STRICT RULES:
           </p>
         </div>
 
-        {/* Persona Ideology Selector Pills */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        {/* Persona Ideology Selector Pills (3 Independent Personas) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
           {ARENA_PERSONAS.map((persona) => {
             const isSelected = selectedPersonaId === persona.id;
             return (
               <button
                 key={persona.id}
                 onClick={() => setSelectedPersonaId(persona.id)}
-                className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                   isSelected
                     ? `${persona.borderColor} ${persona.bgColor} shadow-lg ring-1 ring-zinc-500/40`
                     : "border-zinc-800/80 bg-zinc-950/40 hover:border-zinc-700 hover:bg-zinc-900/40"
                 }`}
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">{persona.avatar}</span>
-                  <span className="text-xs font-bold text-white leading-tight">
-                    {persona.ideologyTitle}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{persona.avatar}</span>
+                      <div>
+                        <span className="text-xs font-bold text-white block leading-tight">
+                          {persona.ideologyTitle}
+                        </span>
+                        <span className="text-[10px] text-zinc-400 font-mono">
+                          {persona.id.toUpperCase()}BOT
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">
+                    {persona.coreIdeology}
                   </span>
                 </div>
-                <span className="text-[10px] text-zinc-400 line-clamp-2">
-                  {persona.coreIdeology}
-                </span>
+
+                <div className="pt-3 mt-3 border-t border-zinc-800/60 flex items-center justify-between text-[10px] font-mono">
+                  <span className={`px-2 py-0.5 rounded-full border ${persona.badgeColor}`}>
+                    {persona.modelName}
+                  </span>
+                  <span className="text-zinc-500">{persona.modelProvider}</span>
+                </div>
               </button>
             );
           })}
@@ -817,7 +813,12 @@ STRICT RULES:
                   <div className="flex items-center justify-between border-b border-zinc-800/60 pb-2">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{active.avatar}</span>
-                      <span className="font-bold text-white text-sm">{active.ideologyTitle}</span>
+                      <div>
+                        <span className="font-bold text-white text-sm">{active.ideologyTitle}</span>
+                        <span className="text-[10px] text-zinc-400 font-mono ml-2">
+                          Powered by {active.modelName} ({active.modelProvider})
+                        </span>
+                      </div>
                     </div>
                     <span className="text-[10px] font-mono text-zinc-400 uppercase">
                       Operational Guardrails
@@ -1050,22 +1051,25 @@ STRICT RULES:
             </p>
           </div>
 
-          {/* Persona Switcher Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+          {/* Persona Switcher Tabs (3 Independent Multi-LLM Chatbots) */}
+          <div className="flex items-center gap-2 overflow-x-auto py-1">
             {ARENA_PERSONAS.map((p) => {
               const isActive = consultPersonaId === p.id;
               return (
                 <button
                   key={p.id}
                   onClick={() => handleSwitchConsultPersona(p.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-2 transition-all cursor-pointer shrink-0 ${
                     isActive
-                      ? "bg-zinc-800 text-white border border-zinc-600 shadow-sm"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+                      ? "bg-zinc-800 text-white border border-zinc-600 shadow-md ring-1 ring-zinc-500/40"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 border border-zinc-800"
                   }`}
                 >
-                  <span>{p.avatar}</span>
-                  <span className="hidden md:inline">{p.ideologyTitle.split(" ")[0]}</span>
+                  <span className="text-base">{p.avatar}</span>
+                  <span className="font-bold">{p.id.toUpperCase()}BOT</span>
+                  <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${isActive ? "bg-zinc-900 text-emerald-400" : "text-zinc-500"}`}>
+                    {p.modelName}
+                  </span>
                 </button>
               );
             })}
@@ -1077,25 +1081,30 @@ STRICT RULES:
             const currentPersona =
               ARENA_PERSONAS.find((p) => p.id === consultPersonaId) || ARENA_PERSONAS[0];
             return (
-              <div className={`p-3 rounded-xl border ${currentPersona.borderColor} ${currentPersona.bgColor} flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs`}>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{currentPersona.avatar}</span>
+              <div className={`p-4 rounded-xl border ${currentPersona.borderColor} ${currentPersona.bgColor} flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs`}>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{currentPersona.avatar}</span>
                   <div>
-                    <span className="font-bold text-white block">{currentPersona.ideologyTitle}</span>
-                    <span className="text-[10px] text-zinc-400">{currentPersona.coreIdeology}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-white text-sm">{currentPersona.ideologyTitle}</span>
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${currentPersona.badgeColor}`}>
+                        {currentPersona.modelName} • {currentPersona.modelProvider}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-zinc-300 mt-0.5 block">{currentPersona.coreIdeology}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-zinc-950/80 border border-zinc-800 text-zinc-300">
+                  <span className="text-[10px] font-mono font-semibold px-2 py-1 rounded bg-zinc-950/80 border border-zinc-800 text-zinc-300">
                     Session: {sessionId.slice(0, 12)}…
                   </span>
                   <button
                     onClick={handleClearSession}
                     title="Reset session memory for this persona"
-                    className="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-950/80 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors cursor-pointer"
+                    className="flex items-center gap-1 text-[10px] font-mono px-2.5 py-1 rounded bg-zinc-950/80 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors cursor-pointer"
                   >
                     <RotateCcw className="w-2.5 h-2.5 text-teal-400" />
-                    <span>Clear Memory</span>
+                    <span>Reset Memory</span>
                   </button>
                 </div>
               </div>

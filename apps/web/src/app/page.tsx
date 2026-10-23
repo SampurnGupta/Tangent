@@ -100,12 +100,17 @@ export default function Home() {
       <Header userId={userId} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 relative z-10">
-        {/* Tab 0: Modern Professional Homepage */}
+        {/* Tab 0: Modern Swiss Grid Fintech Dashboard */}
         {activeTab === "home" && (
           <HeroHomepage
             onNavigate={(tabId) => setActiveTab(tabId)}
             onOpenChat={() => setIsChatOpen(true)}
             investorProfileName={riskProfile.name}
+            capital={initialCapital}
+            nominalReturn={activeNominalReturn}
+            realReturn={activeRealReturn}
+            sharpeRatio={activeSharpe}
+            weights={activeWeights}
           />
         )}
 

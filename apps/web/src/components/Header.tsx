@@ -25,8 +25,8 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <nav className="hidden lg:flex items-center gap-1 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800/80">
+        {/* Navigation Tabs (Responsive Swiss Rail) */}
+        <nav className="flex items-center gap-1 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800/80 overflow-x-auto max-w-[65vw] sm:max-w-none no-scrollbar">
           {[
             { id: "home", label: "Overview" },
             { id: "profile", label: "1. Profile" },
@@ -42,7 +42,7 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 cursor-pointer ${
                 activeTab === tab.id
                   ? "bg-zinc-800 text-white font-semibold shadow-sm border border-zinc-700/60"
                   : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"

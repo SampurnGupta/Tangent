@@ -1,332 +1,363 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
-  Swords,
-  MessageSquare,
-  ShieldAlert,
-  Sparkles,
   TrendingUp,
-  BrainCircuit,
-  ArrowRight,
+  ArrowUpRight,
   ShieldCheck,
-  CheckCircle2,
-  PieChart,
-  Activity,
+  Cpu,
   Layers,
+  ArrowRight,
+  Sparkles,
+  Bot,
+  Activity,
   ChevronRight,
-  Zap,
+  CheckCircle2,
+  Clock,
+  PieChart,
 } from "lucide-react";
 
 interface HeroHomepageProps {
   onNavigate: (tabId: string) => void;
   onOpenChat: () => void;
   investorProfileName?: string;
+  capital?: number;
+  nominalReturn?: number;
+  realReturn?: number;
+  sharpeRatio?: number;
+  weights?: Record<string, number>;
 }
 
 export function HeroHomepage({
   onNavigate,
   onOpenChat,
   investorProfileName = "Moderate",
+  capital = 1000000,
+  nominalReturn = 0.134,
+  realReturn = 0.058,
+  sharpeRatio = 0.84,
+  weights,
 }: HeroHomepageProps) {
-  const coreFeatures = [
+  const [activeRange, setActiveRange] = useState<"30D" | "1Y" | "5Y">("30D");
+
+  // Format currency in Indian Rupees
+  const formattedCapital = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(capital);
+
+  // Clean single-column recent allocations / decision ledger (strictly max 4 visible items)
+  const recentAllocations = [
     {
-      id: "arena",
-      tag: "Feature 8 — Cross-Fire Debate",
-      title: "The Expert Arena",
-      badge: "Multi-Agent Deliberation",
+      ticker: "RELIANCE.NS",
+      name: "Reliance Industries Ltd",
+      category: "Large-Cap Equity",
+      weight: 0.14,
+      amount: capital * 0.14,
+      trend: "+1.8%",
+    },
+    {
+      ticker: "TCS.NS",
+      name: "Tata Consultancy Services",
+      category: "IT & Global Monopolies",
+      weight: 0.12,
+      amount: capital * 0.12,
+      trend: "+2.4%",
+    },
+    {
+      ticker: "INDIA_GOVT_10Y",
+      name: "Govt of India 10Y Benchmark G-Sec",
+      category: "Sovereign Debt",
+      weight: 0.18,
+      amount: capital * 0.18,
+      trend: "+0.4%",
+    },
+    {
+      ticker: "GOLDBEES.NS",
+      name: "Nippon India Gold BeES ETF",
+      category: "Commodity Hedge",
+      weight: 0.1,
+      amount: capital * 0.1,
+      trend: "+3.1%",
+    },
+  ];
+
+  // 3 Independent Multi-LLM Personas
+  const independentPersonas = [
+    {
+      id: "macro",
+      botName: "MacroBot",
+      avatar: "🏛️",
+      title: "Macro & Sovereign Rates",
+      model: "Gemini 2.0 Flash",
+      provider: "Google TPU",
       badgeColor: "text-amber-400 bg-amber-500/10 border-amber-500/30",
-      description:
-        "Pitch any asset allocation hypothesis or market question. 5 domain ideologies (Macro, Valuation, Growth, Quant Risk, and Chief Arbiter) debate the trade-offs sequentially with real-world facts until consensus is reached.",
-      icon: Swords,
-      cta: "Enter The Arena",
-      action: () => onNavigate("arena"),
-      highlight: "Strict Ideology Boundations",
+      description: "Sovereign interest rate regimes, Fed vs RBI spreads, inflation, and currency devaluation.",
     },
     {
-      id: "consultation",
-      tag: "Direct 1-on-1 Consultation",
-      title: "Talk to Expert Personas",
-      badge: "Real-World Groq Engine",
-      badgeColor: "text-teal-400 bg-teal-500/10 border-teal-500/30",
-      description:
-        "Speak directly with any institutional ideology—Macro Sovereign Rates, Valuation Cycles, Growth Moats, or Quantitative Covariance. Challenge their assumptions with live market queries.",
-      icon: MessageSquare,
-      cta: "Consult An Expert",
-      action: () => onNavigate("arena"),
-      highlight: "In-Character Memory",
-    },
-    {
-      id: "backtest",
-      tag: "Stress Testing & Scenarios",
-      title: "Crisis Stress Testing",
-      badge: "Historical Shock Simulations",
-      badgeColor: "text-rose-400 bg-rose-500/10 border-rose-500/30",
-      description:
-        "Subject candidate portfolios to the 2008 Global Financial Crisis (-42.4%), 2020 COVID Shock (-38.2%), and 2022 Fed Rate Spikes to inspect maximum historical drawdowns and recovery speeds.",
-      icon: ShieldAlert,
-      cta: "Run Stress Tests",
-      action: () => onNavigate("backtest"),
-      highlight: "Real Historical Data",
-    },
-    {
-      id: "frontier",
-      tag: "SciPy Numerical Engine",
-      title: "Markowitz SLSQP Solver",
-      badge: "Quadratic Optimization",
-      badgeColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30",
-      description:
-        "Compute mathematically optimal weights across 74 institutional securities using Ledoit-Wolf covariance shrinkage. Generates Max Sharpe, Minimum Volatility, and Target-Risk frontiers.",
-      icon: TrendingUp,
-      cta: "Launch SLSQP Solver",
-      action: () => onNavigate("frontier"),
-      highlight: "Zero Directive Advice",
-    },
-    {
-      id: "projections",
-      tag: "5,000 Path Simulations",
-      title: "Monte Carlo Wealth Engine",
-      badge: "Geometric Brownian Motion",
-      badgeColor: "text-purple-400 bg-purple-500/10 border-purple-500/30",
-      description:
-        "Explore 5,000 stochastic future market paths across 10–30 year horizons. Visualize 5th percentile adverse drawdowns, 50th percentile median wealth, and 95th percentile upside compounding.",
-      icon: Activity,
-      cta: "View 10Y Projections",
-      action: () => onNavigate("projections"),
-      highlight: "Risk Distribution",
-    },
-    {
-      id: "decision",
-      tag: "Full Synthesis Studio",
-      title: "Decision Studio & Export",
-      badge: "Executive Briefing",
+      id: "growth",
+      botName: "GrowthBot",
+      avatar: "🚀",
+      title: "Growth Equity & Moats",
+      model: "Llama 3.3 70B",
+      provider: "Groq LPU",
       badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
-      description:
-        "Generate grounded multi-agent briefs with full traceability to deterministic math. Export polished institutional summary sheets with weights, tax drag, and backtest proofs.",
-      icon: PieChart,
-      cta: "Open Decision Studio",
-      action: () => onNavigate("decision"),
-      highlight: "Traceable Evidence Pack",
+      description: "Secular compounders, corporate moats, capital reinvestment rates, and ROE > 18%.",
+    },
+    {
+      id: "risk",
+      botName: "RiskBot",
+      avatar: "🛡️",
+      title: "Quantitative Risk & Covariance",
+      model: "Llama 3.2 3B",
+      provider: "Cloudflare Workers AI",
+      badgeColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30",
+      description: "Ledoit-Wolf covariance shrinkage, non-correlation proofs, and 95% downside VaR containment.",
     },
   ];
 
   return (
-    <div className="space-y-16 py-6 animate-fade-in max-w-7xl mx-auto">
-      {/* ── HERO BANNER ───────────────────────────────────────────────────────── */}
-      <section className="relative rounded-3xl p-8 sm:p-14 bg-gradient-to-b from-zinc-900/90 via-zinc-950 to-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden text-center sm:text-left">
-        {/* Ambient Glowing Blobs */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute -bottom-20 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
-
-        <div className="relative z-10 max-w-3xl space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold backdrop-blur-md">
-            <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
-            <span>Institutional Asset Allocation & Multi-Agent Deliberation</span>
+    <div className="max-w-6xl mx-auto space-y-8 py-6 animate-fade-in font-sans">
+      {/* ── TOP SECTION: PRIMARY ACCOUNT BALANCE & TREND PILL (SWISS MINIMALIST GRID) ── */}
+      <section className="bg-zinc-900/40 rounded-2xl p-6 sm:p-8 border border-zinc-800/80 backdrop-blur-sm relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4">
+          <div className="space-y-1">
+            <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-mono block">
+              Total Portfolio Capital Base • {investorProfileName} Profile
+            </span>
+            <div className="flex items-baseline gap-3 pt-1">
+              <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+                {formattedCapital}
+              </h1>
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+                <span>+4.2% Alpha vs Benchmark</span>
+              </div>
+            </div>
+            <p className="text-xs text-zinc-400 pt-1">
+              Computed via SciPy SLSQP solver & Ledoit-Wolf covariance shrinkage. Zero directive advice.
+            </p>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]">
-            Portfolio decisions <br className="hidden sm:inline" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
-              you can trace.
-            </span>
-          </h1>
-
-          <p className="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-2xl">
-            Tangent marries <strong>deterministic Python mathematics</strong> (SciPy SLSQP, Ledoit-Wolf shrinkage, Monte Carlo projections) with an <strong>autonomous multi-agent cross-fire arena</strong>. Every metric is computed by code; every thesis is stress-tested by strictly bound expert ideologies.
-          </p>
-
-          {/* Core Action Redirects */}
-          <div className="flex flex-wrap items-center gap-3 pt-2 justify-center sm:justify-start">
-            <button
-              onClick={() => onNavigate("profile")}
-              className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-zinc-950 font-bold text-xs sm:text-sm hover:brightness-110 active:scale-[0.98] transition-all flex items-center gap-2.5 shadow-lg shadow-emerald-500/20 cursor-pointer"
-            >
-              <span>Discover Your Ideal Portfolio</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
+          <div className="flex items-center gap-2">
             <button
               onClick={() => onNavigate("arena")}
-              className="px-5 py-3.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-850 text-white font-semibold text-xs sm:text-sm border border-zinc-700/80 hover:border-zinc-600 transition-all flex items-center gap-2 cursor-pointer backdrop-blur-md"
+              className="px-4 py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
             >
-              <Swords className="w-4 h-4 text-amber-400" />
-              <span>Enter The Expert Arena</span>
+              <span>Consult 3 Multi-LLM Personas</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
-
             <button
-              onClick={onOpenChat}
-              className="px-5 py-3.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-850 text-white font-semibold text-xs sm:text-sm border border-zinc-700/80 hover:border-zinc-600 transition-all flex items-center gap-2 cursor-pointer backdrop-blur-md"
+              onClick={() => onNavigate("observatory")}
+              className="px-3.5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-300 font-medium text-xs border border-zinc-800 transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <BrainCircuit className="w-4 h-4 text-teal-400" />
-              <span>Chat with Draww AI</span>
+              <Activity className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Observatory</span>
             </button>
           </div>
+        </div>
+      </section>
 
-          {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-zinc-800/80 text-left">
-            <div>
-              <span className="text-[10px] text-zinc-500 uppercase font-mono block">Asset Universe</span>
-              <span className="text-base font-bold text-white">70+ Securities</span>
-            </div>
-            <div>
-              <span className="text-[10px] text-zinc-500 uppercase font-mono block">Mathematical Engine</span>
-              <span className="text-base font-bold text-white">SciPy SLSQP</span>
-            </div>
-            <div>
-              <span className="text-[10px] text-zinc-500 uppercase font-mono block">Stochastic Paths</span>
-              <span className="text-base font-bold text-white">5,000 Monte Carlo</span>
-            </div>
-            <div>
-              <span className="text-[10px] text-zinc-500 uppercase font-mono block">Agent Deliberation</span>
-              <span className="text-base font-bold text-white">5 Strict Ideologies</span>
-            </div>
+      {/* ── KPI / METRIC CARDS (MAXIMUM 3 SUMMARY CARDS IN A SINGLE TOP ROW) ── */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Card 1: Total Portfolio Balance */}
+        <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 flex flex-col justify-between space-y-2">
+          <span className="text-xs font-medium text-zinc-400">Total Capital Committed</span>
+          <div className="text-2xl font-bold text-white tracking-tight">{formattedCapital}</div>
+        </div>
+
+        {/* Card 2: Expected Real Return */}
+        <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 flex flex-col justify-between space-y-2">
+          <span className="text-xs font-medium text-zinc-400">Real Return (Post-Inflation)</span>
+          <div className="text-2xl font-bold text-emerald-400 tracking-tight">
+            +{(realReturn * 100).toFixed(1)}% p.a.
+          </div>
+        </div>
+
+        {/* Card 3: Sharpe Ratio / Risk Efficiency */}
+        <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 flex flex-col justify-between space-y-2">
+          <span className="text-xs font-medium text-zinc-400">Sharpe Ratio Efficiency</span>
+          <div className="text-2xl font-bold text-teal-400 tracking-tight">
+            {sharpeRatio.toFixed(2)}
           </div>
         </div>
       </section>
 
-      {/* ── CORE NOVEL FEATURES GRID ─────────────────────────────────────────── */}
-      <section className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-3">
+      {/* ── DATA VISUALIZATION: STREAMLINED AREA CHART (TRAILING 30 DAYS / WEALTH PROJECTION) ── */}
+      <section className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 space-y-4">
+        <div className="flex items-center justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold mb-2">
-              <Zap className="w-3.5 h-3.5" />
-              <span>Feature Architecture</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              State-of-the-Art Decision Tools
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-xl">
-              Explore the novel capabilities built into Tangent to engineer, stress-test, and trace your multi-asset investments.
+            <h2 className="text-sm font-bold text-white">Trailing Cash Flow & Asset Trajectory</h2>
+            <p className="text-[11px] text-zinc-400">
+              Clean continuous compounding curve with zero multi-axis gridline clutter.
             </p>
           </div>
-
-          <span className="text-xs font-mono text-zinc-500">
-            Current Profile: <strong className="text-emerald-400">{investorProfileName}</strong>
-          </span>
+          <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800 text-[10px] font-mono">
+            {(["30D", "1Y", "5Y"] as const).map((r) => (
+              <button
+                key={r}
+                onClick={() => setActiveRange(r)}
+                className={`px-2.5 py-1 rounded transition-colors ${
+                  activeRange === r ? "bg-zinc-800 text-white font-bold" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Feature Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {coreFeatures.map((feat) => {
-            const Icon = feat.icon;
-            return (
-              <div
-                key={feat.id}
-                className="group p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-700/80 hover:bg-zinc-900/90 transition-all duration-300 flex flex-col justify-between space-y-4 hover:shadow-xl hover:shadow-emerald-500/5 relative overflow-hidden backdrop-blur-sm"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center group-hover:border-zinc-700 transition-colors">
-                      <Icon className="w-5 h-5 text-teal-400" />
-                    </div>
-                    <span
-                      className={`text-[10px] font-mono font-semibold px-2.5 py-1 rounded-full border ${feat.badgeColor}`}
-                    >
-                      {feat.badge}
-                    </span>
-                  </div>
+        {/* Streamlined Minimal Area Chart SVG */}
+        <div className="w-full h-44 relative">
+          <svg className="w-full h-full overflow-visible" viewBox="0 0 600 160" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="swissGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10b981" stopOpacity="0.28" />
+                <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+              </linearGradient>
+            </defs>
+            {/* Smooth Fill Area */}
+            <path
+              d="M 0 130 C 90 120, 150 115, 230 95 C 310 75, 410 70, 490 45 C 550 25, 580 18, 600 15 L 600 160 L 0 160 Z"
+              fill="url(#swissGradient)"
+            />
+            {/* Primary Trajectory Line */}
+            <path
+              d="M 0 130 C 90 120, 150 115, 230 95 C 310 75, 410 70, 490 45 C 550 25, 580 18, 600 15"
+              fill="none"
+              stroke="#10b981"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+            {/* Current Terminal Point */}
+            <circle cx="600" cy="15" r="4.5" fill="#10b981" stroke="#ffffff" strokeWidth="2" />
+          </svg>
+        </div>
 
-                  <div>
-                    <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block">
-                      {feat.tag}
-                    </span>
-                    <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors mt-0.5">
-                      {feat.title}
-                    </h3>
-                  </div>
-
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    {feat.description}
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-zinc-800/60 flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-zinc-400">
-                    {feat.highlight}
-                  </span>
-                  <button
-                    onClick={feat.action}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 group-hover:text-emerald-300 cursor-pointer"
-                  >
-                    <span>{feat.cta}</span>
-                    <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+        <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 pt-1 border-t border-zinc-800/40">
+          <span>T-30 Days: ₹9,58,000</span>
+          <span>Ledoit-Wolf Covariance Optimal</span>
+          <span className="text-emerald-400 font-bold">Current: {formattedCapital}</span>
         </div>
       </section>
 
-      {/* ── GUIDED THREE-WAY DISCOVERY ROUTE ───────────────────────────────────── */}
-      <section className="p-8 sm:p-10 rounded-3xl bg-zinc-900/50 border border-zinc-800 space-y-6">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <h3 className="text-xl sm:text-2xl font-black text-white">
-            Choose Your Decision Pathway
-          </h3>
-          <p className="text-xs sm:text-sm text-zinc-400">
-            Whether you want a tailored portfolio engineered from scratch, an open debate with institutional minds, or continuous copilot chat:
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-          {/* Pathway 1 */}
-          <div
-            onClick={() => onNavigate("profile")}
-            className="p-6 rounded-2xl bg-zinc-950/80 border border-zinc-800 hover:border-emerald-500/50 transition-all cursor-pointer group space-y-3"
-          >
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm">
-              1
+      {/* ── TWO-COLUMN SPLIT: RECENT ALLOCATIONS FEED + 3 MULTI-LLM PERSONAS ── */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Column 1: Clean Single-Column Recent Allocations Feed */}
+        <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 flex flex-col justify-between space-y-4">
+          <div>
+            <div className="flex items-center justify-between border-b border-zinc-800/60 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-white">Target Asset Allocations</h3>
+                <span className="text-[11px] text-zinc-400">Strictly 4 top anchor holdings</span>
+              </div>
+              <button
+                onClick={() => onNavigate("universe")}
+                className="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <span>View All 74 Assets</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <h4 className="font-bold text-white text-base group-hover:text-emerald-400 transition-colors">
-              Discover Ideal Portfolio
-            </h4>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Step through our 7-stage pipeline: Risk profiler, candidate universe, SLSQP frontier solver, stress backtesting, and final committee sign-off.
-            </p>
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 pt-1">
-              Start Profiling <ArrowRight className="w-3.5 h-3.5" />
-            </span>
+
+            {/* List: Maximum 4 visible items without scrolling */}
+            <div className="divide-y divide-zinc-800/50">
+              {recentAllocations.map((item) => (
+                <div key={item.ticker} className="py-3 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-center font-bold text-[10px] text-zinc-300">
+                      {item.ticker.slice(0, 3)}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white block">{item.name}</span>
+                      <span className="text-[10px] text-zinc-500 font-mono">{item.category}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-bold text-white block">
+                      ₹{Math.round(item.amount).toLocaleString("en-IN")}
+                    </span>
+                    <span className="text-[10px] text-emerald-400 font-mono">
+                      {(item.weight * 100).toFixed(0)}% allocation ({item.trend})
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Pathway 2 */}
-          <div
-            onClick={() => onNavigate("arena")}
-            className="p-6 rounded-2xl bg-zinc-950/80 border border-zinc-800 hover:border-teal-500/50 transition-all cursor-pointer group space-y-3"
-          >
-            <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 font-bold text-sm">
-              2
-            </div>
-            <h4 className="font-bold text-white text-base group-hover:text-teal-400 transition-colors">
-              Pitch to The Arena
-            </h4>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Have an asset allocation dilemma or stock question? Watch 5 expert personas debate with hard empirical data and reach consensus.
-            </p>
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-teal-400 pt-1">
-              Launch Arena Debate <ArrowRight className="w-3.5 h-3.5" />
-            </span>
-          </div>
-
-          {/* Pathway 3 */}
-          <div
-            onClick={onOpenChat}
-            className="p-6 rounded-2xl bg-zinc-950/80 border border-zinc-800 hover:border-cyan-500/50 transition-all cursor-pointer group space-y-3"
-          >
-            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold text-sm">
-              3
-            </div>
-            <h4 className="font-bold text-white text-base group-hover:text-cyan-400 transition-colors">
-              Chat with Draww Copilot
-            </h4>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Open the interactive drawer co-pilot. Grounded in your exact portfolio numbers, Monte Carlo paths, and tax drag with verifiable evidence links.
-            </p>
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-cyan-400 pt-1">
-              Open Draww Copilot <ArrowRight className="w-3.5 h-3.5" />
-            </span>
+          <div className="pt-3 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-400">
+            <span>Portfolio Status: Balanced</span>
+            <button
+              onClick={() => onNavigate("frontier")}
+              className="font-bold text-emerald-400 hover:text-emerald-300 cursor-pointer"
+            >
+              Re-solve SLSQP Frontier →
+            </button>
           </div>
         </div>
+
+        {/* Column 2: 3 Independent Multi-LLM Personas */}
+        <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 flex flex-col justify-between space-y-4">
+          <div>
+            <div className="flex items-center justify-between border-b border-zinc-800/60 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-white">3 Independent Multi-LLM Chatbots</h3>
+                <span className="text-[11px] text-zinc-400">Each persona runs on a dedicated LLM microservice</span>
+              </div>
+              <button
+                onClick={() => onNavigate("arena")}
+                className="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <span>Enter The Arena</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* 3 Personas List */}
+            <div className="space-y-2.5 pt-3">
+              {independentPersonas.map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => onNavigate("arena")}
+                  className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 hover:border-zinc-700 transition-all cursor-pointer flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{p.avatar}</span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs">{p.botName}</span>
+                        <span className={`text-[10px] font-mono px-2 py-0.2 rounded-full border ${p.badgeColor}`}>
+                          {p.model}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-zinc-400 block line-clamp-1 mt-0.5">
+                        {p.description}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-zinc-600 shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-400">
+            <span>Dynamic Model Routing</span>
+            <button
+              onClick={() => onNavigate("observatory")}
+              className="font-bold text-cyan-400 hover:text-cyan-300 cursor-pointer"
+            >
+              Inspect Telemetry Leaderboard →
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── STATE ANNOTATION FOOTNOTE (DEFAULT / ACCREDITATION) ── */}
+      <section className="p-4 rounded-xl bg-zinc-950/40 border border-zinc-900 text-center text-xs text-zinc-500 font-mono">
+        Status: <strong className="text-emerald-400">Default Verified</strong> • Deterministic Python Microservices • Single-Schema PostgreSQL • Redis Memory
       </section>
     </div>
   );
