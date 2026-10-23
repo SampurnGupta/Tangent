@@ -58,7 +58,7 @@ export function RiskProfilerWizard({
       <div className="space-y-2 text-center sm:text-left">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
           <Gauge className="w-3.5 h-3.5" />
-          <span>Stage 1 & 3: Investor Profile & Portfolio Constraints</span>
+          <span>Investor Profile & Portfolio Constraints</span>
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
           Investor Profile, Capital Sizing & Optimization Bounds
@@ -69,14 +69,14 @@ export function RiskProfilerWizard({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Controls Card (Stage 1) */}
+        {/* Controls Card */}
         <div className="lg:col-span-7 bg-zinc-900/70 border border-zinc-800 rounded-2xl p-6 space-y-6 shadow-xl backdrop-blur-sm">
           <div className="border-b border-zinc-800/80 pb-3 flex items-center justify-between">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Award className="w-4 h-4 text-emerald-400" />
-              <span>1. Investor Persona & Demographics</span>
+              <span>Investor Persona & Demographics</span>
             </h3>
-            <span className="text-[11px] text-zinc-400 font-mono">Stage 1 of 12</span>
+            <span className="text-[11px] text-zinc-400 font-mono">Profile Calibration</span>
           </div>
 
           {/* Age Slider */}

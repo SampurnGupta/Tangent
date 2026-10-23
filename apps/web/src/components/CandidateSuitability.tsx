@@ -217,7 +217,7 @@ export function CandidateSuitability({
         <div className="border-b border-zinc-800/80 pb-3 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
           <div>
             <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
-              Stage 9: Suitability Evaluation Report
+              Suitability Evaluation Report
             </span>
             <h3 className="text-lg font-bold text-white mt-0.5">
               Why the {selectedCandidate.name} is Recommended for You

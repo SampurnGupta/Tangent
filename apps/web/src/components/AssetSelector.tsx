@@ -311,7 +311,7 @@ export function AssetSelector({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800/80 pb-3">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[11px] font-semibold mb-1">
-              <span>Stage 4 of 12</span>
+              <span>Statistical Matrices</span>
             </div>
             <h3 className="text-sm font-bold text-white">Market Data & Statistical Matrices</h3>
             <p className="text-[11px] text-zinc-400">

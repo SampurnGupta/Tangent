@@ -59,7 +59,7 @@ export function MonteCarloProjection({
       <div className="space-y-1">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
           <BarChart2 className="w-3.5 h-3.5" />
-          <span>Stage 7B: Future Portfolio Outcome Simulation (5,000 Paths)</span>
+          <span>Future Portfolio Wealth Simulation (5,000 Paths)</span>
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-white mt-1">
           Wealth Trajectory & Probability-of-Success Simulation

@@ -3,17 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
-import { RiskProfilerWizard } from "@/components/RiskProfilerWizard";
-import { AssetSelector } from "@/components/AssetSelector";
-import { OptimizationDashboard } from "@/components/OptimizationDashboard";
-import { MonteCarloProjection } from "@/components/MonteCarloProjection";
-import { DecisionStudio } from "@/components/DecisionStudio";
-import { AIChatConcierge } from "@/components/AIChatConcierge";
-import { CandidateSuitability } from "@/components/CandidateSuitability";
-import { BacktestStressTesting } from "@/components/BacktestStressTesting";
+import { YourPortfolioView } from "@/components/YourPortfolioView";
 import { ArenaView } from "@/components/ArenaView";
 import { HeroHomepage } from "@/components/HeroHomepage";
 import { ModelObservatory } from "@/components/ModelObservatory";
+import { AIChatConcierge } from "@/components/AIChatConcierge";
 import { CandidatePortfolio, fetchGuestSession, getRiskProfile, OptimizationResponse } from "@/lib/api";
 import { ShieldCheck, Database, Cpu } from "lucide-react";
 
@@ -147,10 +141,10 @@ export default function Home() {
       <Header userId={userId} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 relative z-10">
-        {/* Tab 0: Modern Swiss Grid Fintech Dashboard */}
+        {/* Tab 1: Product Homepage */}
         <div className={activeTab === "home" ? "block animate-fade-in" : "hidden"}>
           <HeroHomepage
-            onNavigate={(tabId) => setActiveTab(tabId)}
+            onNavigate={(tabId) => setActiveTab(tabId === "home" ? "home" : tabId === "arena" ? "arena" : tabId === "observatory" ? "observatory" : "portfolio")}
             onOpenChat={() => setIsChatOpen(true)}
             investorProfileName={riskProfile.name}
             capital={initialCapital}
@@ -161,9 +155,22 @@ export default function Home() {
           />
         </div>
 
-        {/* Tab 1: Stage 1 (Profile) + Stage 3 (Constraints) */}
-        <div className={activeTab === "profile" ? "block animate-fade-in" : "hidden"}>
-          <RiskProfilerWizard
+        {/* Tab 2: Your Portfolio (Unified 7-Step Sequential Construction Workflow) */}
+        <div
+          className={
+            activeTab === "portfolio" ||
+            activeTab === "profile" ||
+            activeTab === "universe" ||
+            activeTab === "frontier" ||
+            activeTab === "candidates" ||
+            activeTab === "projections" ||
+            activeTab === "backtest" ||
+            activeTab === "decision"
+              ? "block animate-fade-in"
+              : "hidden"
+          }
+        >
+          <YourPortfolioView
             age={age}
             setAge={setAge}
             horizon={horizon}
@@ -176,82 +183,23 @@ export default function Home() {
             setMonthlySip={setMonthlySip}
             liquidityTier={liquidityTier}
             setLiquidityTier={setLiquidityTier}
-            onProceed={() => setActiveTab("universe")}
-          />
-        </div>
-
-        {/* Tab 2: Stage 2 (Universe) + Stage 4 (Market Data Stats) */}
-        <div className={activeTab === "universe" ? "block animate-fade-in" : "hidden"}>
-          <AssetSelector
             selectedTickers={selectedTickers}
             setSelectedTickers={setSelectedTickers}
-            onProceed={() => setActiveTab("frontier")}
-          />
-        </div>
-
-        {/* Tab 3: Stage 5 (Frontier) + Stage 6 (SLSQP) + Stage 7A (MC Exploration) */}
-        <div className={activeTab === "frontier" ? "block animate-fade-in" : "hidden"}>
-          <OptimizationDashboard
-            selectedTickers={selectedTickers}
+            authToken={authToken}
             riskProfile={riskProfile}
-            authToken={authToken}
-            initialResult={optimizationResult}
-            onOptimizationDone={(res) => setOptimizationResult(res)}
-            onProceedToProjections={() => setActiveTab("candidates")}
+            optimizationResult={optimizationResult}
+            setOptimizationResult={(res) => setOptimizationResult(res)}
+            selectedCandidate={selectedCandidate}
+            setSelectedCandidate={(cand) => setSelectedCandidate(cand)}
+            activeWeights={activeWeights}
+            activeSharpe={activeSharpe}
+            activeNominalReturn={activeNominalReturn}
+            activeRealReturn={activeRealReturn}
+            activeVol={activeVol}
           />
         </div>
 
-        {/* Tab 4: Stage 8 (Candidates) + Stage 9 (Suitability Layer) */}
-        <div className={activeTab === "candidates" ? "block animate-fade-in" : "hidden"}>
-          <CandidateSuitability
-            selectedTickers={selectedTickers}
-            riskProfile={riskProfile}
-            horizon={horizon}
-            initialCapital={initialCapital}
-            initialCandidateId={selectedCandidate?.id}
-            onSelectPortfolio={(cand) => setSelectedCandidate(cand)}
-            onProceed={() => setActiveTab("projections")}
-          />
-        </div>
-
-        {/* Tab 5: Stage 7B (Future Projections 5,000 Paths) */}
-        <div className={activeTab === "projections" ? "block animate-fade-in" : "hidden"}>
-          <MonteCarloProjection
-            expectedReturn={activeNominalReturn}
-            volatility={activeVol}
-            horizonYears={horizon}
-            authToken={authToken}
-            onProceedToStudio={() => setActiveTab("backtest")}
-          />
-        </div>
-
-        {/* Tab 6: Stage 10 (Backtesting) + Stage 11 (Crisis Stress Testing) */}
-        <div className={activeTab === "backtest" ? "block animate-fade-in" : "hidden"}>
-          <BacktestStressTesting
-            weights={activeWeights}
-            horizon={horizon}
-            initialCapital={initialCapital}
-            onProceed={() => setActiveTab("decision")}
-          />
-        </div>
-
-        {/* Tab 7: Stage 12 (Final Recommendation, Multi-Agent & Export) */}
-        <div className={activeTab === "decision" ? "block animate-fade-in" : "hidden"}>
-          <DecisionStudio
-            selectedTickers={selectedTickers}
-            authToken={authToken}
-            currentSharpe={activeSharpe}
-            currentReturn={activeNominalReturn}
-            currentVol={activeVol}
-            currentWeights={activeWeights}
-            nominalReturn={activeNominalReturn}
-            realReturn={activeRealReturn}
-            horizon={horizon}
-            riskScore={riskScore}
-          />
-        </div>
-
-        {/* Tab 8: Feature 8 (The Arena: Multi-Agent Cross-Fire Deliberation) */}
+        {/* Tab 3: The Arena (Multi-Agent Cross-Fire Deliberation) */}
         <div className={activeTab === "arena" ? "block animate-fade-in" : "hidden"}>
           <ArenaView
             investorProfileName={riskProfile.name}
@@ -266,7 +214,7 @@ export default function Home() {
           />
         </div>
 
-        {/* Tab 9: Feature 9 (LLM Observatory & MetaBot DevOps Intelligence) */}
+        {/* Tab 4: LLM Observatory & MetaBot DevOps Intelligence */}
         <div className={activeTab === "observatory" ? "block animate-fade-in" : "hidden"}>
           <ModelObservatory />
         </div>

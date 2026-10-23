@@ -29,15 +29,9 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
         <nav className="flex items-center gap-1 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800/80 overflow-x-auto max-w-[65vw] sm:max-w-none no-scrollbar">
           {[
             { id: "home", label: "Overview" },
-            { id: "profile", label: "1. Profile" },
-            { id: "universe", label: "2. Universe" },
-            { id: "frontier", label: "3. Solver" },
-            { id: "candidates", label: "4. Suitability" },
-            { id: "projections", label: "5. Projections" },
-            { id: "backtest", label: "6. Stress Test" },
-            { id: "decision", label: "7. Studio" },
-            { id: "arena", label: "8. Arena" },
-            { id: "observatory", label: "9. Observatory 🔬" },
+            { id: "portfolio", label: "Your Portfolio" },
+            { id: "arena", label: "Arena" },
+            { id: "observatory", label: "Observatory" },
           ].map((tab) => (
             <button
               key={tab.id}

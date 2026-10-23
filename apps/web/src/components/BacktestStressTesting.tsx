@@ -64,7 +64,7 @@ export function BacktestStressTesting({
               : "border-transparent text-zinc-400 hover:text-zinc-200"
           }`}
         >
-          Stage 10: 10-Year Historical Backtest
+          10-Year Historical Backtest
         </button>
         <button
           onClick={() => setActiveTab("stress")}
@@ -74,7 +74,7 @@ export function BacktestStressTesting({
               : "border-transparent text-zinc-400 hover:text-zinc-200"
           }`}
         >
-          Stage 11: 6 Crisis Stress Scenarios
+          Crisis Stress Scenarios
         </button>
       </div>
 
