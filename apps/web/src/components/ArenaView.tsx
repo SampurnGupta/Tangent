@@ -111,6 +111,12 @@ interface ArenaViewProps {
   investorProfileName?: string;
   horizon?: number;
   capital?: number;
+  weights?: Record<string, number>;
+  nominalReturn?: number;
+  realReturn?: number;
+  volatility?: number;
+  sharpeRatio?: number;
+  selectedTickers?: string[];
 }
 
 const PRESET_QUERIES = [
@@ -125,6 +131,12 @@ export function ArenaView({
   investorProfileName = "Moderate",
   horizon = 10,
   capital = 1000000,
+  weights,
+  nominalReturn,
+  realReturn,
+  volatility,
+  sharpeRatio,
+  selectedTickers,
 }: ArenaViewProps) {
   const [query, setQuery] = useState<string>("");
   const [isDebating, setIsDebating] = useState<boolean>(false);
@@ -608,6 +620,12 @@ export function ArenaView({
             investor_profile: investorProfileName,
             horizon,
             capital,
+            weights,
+            nominalReturn,
+            realReturn,
+            volatility,
+            sharpeRatio,
+            selectedTickers,
           }
         );
         if (personaRes && personaRes.reply) {

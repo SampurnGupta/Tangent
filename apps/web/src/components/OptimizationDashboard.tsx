@@ -26,6 +26,7 @@ interface OptimizationDashboardProps {
   authToken?: string;
   onProceedToProjections: () => void;
   onOptimizationDone?: (result: OptimizationResponse) => void;
+  initialResult?: OptimizationResponse | null;
 }
 
 export function OptimizationDashboard({
@@ -34,10 +35,17 @@ export function OptimizationDashboard({
   authToken,
   onProceedToProjections,
   onOptimizationDone,
+  initialResult,
 }: OptimizationDashboardProps) {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<OptimizationResponse | null>(null);
+  const [result, setResult] = useState<OptimizationResponse | null>(initialResult || null);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  React.useEffect(() => {
+    if (initialResult && !result) {
+      setResult(initialResult);
+    }
+  }, [initialResult]);
 
   const handleOptimize = async () => {
     setLoading(true);

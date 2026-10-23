@@ -1462,9 +1462,13 @@ export async function chatWithDraww(
     { id: "E5", label: "Diversification", value: Number(div), unit: "/10" },
   ];
 
+  // 0. GREETING / INTRO INTENT: User sends hi, hello, who are you, etc.
+  const isGreeting = /^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|yo|sup|who\s*are\s*you|what\s*do\s*you\s*do|what\s*can\s*you\s*do|introduce\s*yourself|help)\b/i.test(q);
+
   // 1. UNIVERSE INTENT: Querying available universe securities across the 8 domains
   const isUniverseQuery =
-    q.includes("universe") ||
+    !isGreeting &&
+    (q.includes("universe") ||
     (q.includes("all") && (q.includes("asset") || q.includes("stock") || q.includes("securit") || q.includes("instrument"))) ||
     q.includes("what assets can") ||
     q.includes("available asset") ||
@@ -1472,7 +1476,7 @@ export async function chatWithDraww(
     q.includes("what are the available") ||
     q.includes("what stocks can i") ||
     q.includes("asset classes") ||
-    (q.includes("list") && (q.includes("universe") || (q.includes("asset") && (q.includes("all") || q.includes("available")))));
+    (q.includes("list") && (q.includes("universe") || (q.includes("asset") && (q.includes("all") || q.includes("available"))))));
 
   // 2. HOLDINGS / PORTFOLIO INTENT: Querying current recommended portfolio or allocation
   const isHoldingsQuery =
@@ -1588,7 +1592,26 @@ export async function chatWithDraww(
 
   // ── ROUTING LOGIC ────────────────────────────────────────────────────────
 
-  if (isUniverseQuery) {
+  if (isGreeting) {
+    const topHoldingsStr = activeHoldings.length > 0
+      ? activeHoldings.slice(0, 4).map(([t, w]) => `${t} (${(w * 100).toFixed(0)}%)`).join(", ")
+      : "Diversified Multi-Asset Core (Reliance, TCS, HDFC Bank, G-Sec, Gold)";
+
+    replyText = `**👋 Greetings! I am Draww**, your quantitative portfolio co-pilot at Tangent.\n\n` +
+      `I provide mathematically grounded explanations of your asset allocations, SLSQP solver results, Ledoit-Wolf covariance matrices, and Monte Carlo wealth projections.\n\n` +
+      `**Your Active Session Profile:**\n` +
+      `• **Investor Profile:** **${profileName}** (Age: ${age}, Horizon: ${horizon} Years)\n` +
+      `• **Target Capital:** **₹${capital.toLocaleString("en-IN")}**\n` +
+      `• **Expected Nominal Return:** **${nom}%** [E1: Nominal Return]\n` +
+      `• **Post-Tax Real Return:** **${real}%** [E2: Real Return]\n` +
+      `• **Risk / Volatility:** **${vol}%** [E3: Volatility] (Sharpe: **${sh}** [E4: Sharpe Ratio])\n` +
+      `• **Key Active Allocations:** ${topHoldingsStr}\n\n` +
+      `**How can I assist your portfolio decisions today? You can ask:**\n` +
+      `• *"Show my recommended portfolio holdings"* — View allocation details and rupee values\n` +
+      `• *"Why was this portfolio chosen over pure Max-Sharpe?"* — Understand risk-calibrated trade-offs\n` +
+      `• *"How does my allocation hold up during a crisis?"* — Review stress-test drawdowns\n` +
+      `• *"List the entire 74-asset universe"* — Explore all available investment domains`;
+  } else if (isUniverseQuery) {
     replyText = `The **Draww Asset Universe** spans **74 institutional securities across 8 distinct asset classes**:\n\n` +
       `1. **Indian Large Caps (All Nifty 50 Constituents):** Reliance, TCS, HDFC Bank, Infosys, ICICI Bank, Bharti Airtel, ITC, L&T, HUL, State Bank of India, Tata Motors, M&M, Sun Pharma, Bajaj Finance, and 36 more.\n` +
       `2. **Fixed Deposits & Cash Reserves:** SBI Fixed Deposit (7.1%), HDFC Bank Term Deposit (7.25%), Liquid Savings Account (4.0%).\n` +
@@ -1855,6 +1878,32 @@ export async function chatWithMetaBot(
     // Fallback response
   }
   const leaderboard = await fetchObservatoryLeaderboard();
+  const trimmed = (message || "").trim();
+  const isGreeting = /^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|yo|sup|who\s*are\s*you|what\s*do\s*you\s*do|introduce\s*yourself|help)\b/i.test(trimmed);
+
+  if (isGreeting) {
+    return {
+      reply: `**👋 Greetings! I am MetaBot**, Tangent's DevOps & Multi-LLM Telemetry Intelligence Analyst.\n\n` +
+        `**What I Do:**\n` +
+        `I continuously monitor live inference latency, token velocity, error rates, and cost economics across Tangent's 3 independent persona microservices:\n\n` +
+        `1. **MacroBot (Gemini 2.0 Flash on Google TPU):** Evaluates sovereign rates, Fed/RBI policy differentials, and USD/INR currency drift.\n` +
+        `2. **GrowthBot (Llama 3.3 70B on Groq LPU):** Analyzes corporate moats, ROE/ROCE compounding, and enterprise cash flows.\n` +
+        `3. **RiskBot (Llama 3.2 3B on Cloudflare Workers AI):** Executes sub-300ms quantitative risk screening, Ledoit-Wolf covariance matrices, and downside VaR.\n\n` +
+        `I execute dynamic latency routing to balance high-reasoning tasks with sub-second responsiveness.\n\n` +
+        `**Ask me anything about:**\n` +
+        `• *"Which model is fastest right now?"*\n` +
+        `• *"Compare costs of 100,000 queries across Gemini, Groq, and Cloudflare"*\n` +
+        `• *"How does dynamic latency routing work?"*\n` +
+        `• *"Show me the full telemetry leaderboard snapshot"*`,
+      model_used: "groq/llama-3.3-70b-versatile",
+      tokens_in: 185,
+      tokens_out: 145,
+      latency_ms: 360.0,
+      cost_usd: 0.00018,
+      telemetry_snapshot: leaderboard,
+    };
+  }
+
   return {
     reply: `**MetaBot Dynamic Telemetry Routing Report:**\n\nLive cross-model latency & token efficiency across the 3 independent persona microservices:\n\n• **Groq LPU (Llama 3.3 70B — GrowthBot):** Fastest median time-to-first-token (~380ms p50) with 70B-grade corporate moat reasoning. Ideal for deep financial statement synthesis.\n• **Google TPU (Gemini 2.0 Flash — MacroBot):** Extremely high token bandwidth and economical TPU cost ($0.10 / 1M input tokens) for sovereign interest rate and central bank policy modeling.\n• **Cloudflare Workers AI (Llama 3.2 3B — RiskBot):** Sub-300ms ultra-low latency edge compute ($0.00 free tier) executing fast covariance risk screening and downside VaR validation.\n\n*Dynamic Routing Strategy:* Low-latency queries (<400ms threshold) route to Cloudflare Workers AI or Groq; large-context sovereign macro prompts route to Gemini 2.0 Flash.`,
     model_used: "groq/llama-3.3-70b-versatile",
@@ -1872,6 +1921,9 @@ export async function chatWithIndependentPersona(
   sessionId: string,
   context?: Record<string, any>
 ): Promise<PersonaResponse> {
+  const userText = (message || "").trim();
+  const isGreeting = /^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|yo|sup|who\s*are\s*you|what\s*do\s*you\s*do|introduce\s*yourself|help)\b/i.test(userText);
+
   try {
     const directPersonaUrl =
       (persona === "macro" && (process.env.NEXT_PUBLIC_PERSONA_MACRO_URL || process.env.NEXT_PUBLIC_MACRO_URL)) ||
@@ -1901,11 +1953,45 @@ export async function chatWithIndependentPersona(
   };
 
   const meta = defaultModels[persona] || { model: "generic", provider: "Cloud", latency: 450 };
-  const userText = (message || "").trim();
+  const prof = context?.investor_profile || "Moderate";
+  const hor = context?.horizon || 10;
+  const cap = context?.capital ? `₹${Number(context.capital).toLocaleString("en-IN")}` : "₹10,00,000";
 
   let dynamicReply = "";
 
-  if (persona === "macro") {
+  if (isGreeting) {
+    if (persona === "macro") {
+      dynamicReply = `**👋 Greetings! I am MacroBot**, powered by **Gemini 2.0 Flash on Google TPU**.\n\n` +
+        `**My Role & Ideology:**\n` +
+        `I am the Macro & Sovereign Rates Analyst in Tangent's Investment Committee. I evaluate asset decisions strictly through the mechanics of central bank interest rates (US Fed funds vs RBI repo), structural currency depreciation (USD/INR drift of ~3.5% annually), and sovereign yield curves (GOI 10Y G-Sec at ~6.85%).\n\n` +
+        `**Your Active Session Profile:**\n` +
+        `• Strategy Profile: **${prof}** | Investment Horizon: **${hor} Years** | Capital: **${cap}**\n\n` +
+        `**How can I assist your macro thesis? Ask me:**\n` +
+        `• *"How do US Fed rate decisions impact Indian equity valuations?"*\n` +
+        `• *"Is USD/INR depreciation a risk or tailwind for an Indian investor?"*\n` +
+        `• *"Should I allocate into Fixed Deposits at 7.2% or sovereign debt?"*`;
+    } else if (persona === "growth") {
+      dynamicReply = `**👋 Greetings! I am GrowthBot**, powered by **Llama 3.3 70B on Groq LPU**.\n\n` +
+        `**My Role & Ideology:**\n` +
+        `I am the Growth Equity & Moats Analyst. I focus exclusively on sustainable corporate compounding, Return on Equity (ROE > 18%), Return on Capital Employed (ROCE > 22%), and durable competitive economic moats that protect pricing power against inflation.\n\n` +
+        `**Your Active Session Profile:**\n` +
+        `• Strategy Profile: **${prof}** | Investment Horizon: **${hor} Years** | Capital: **${cap}**\n\n` +
+        `**How can I assist your equity research? Ask me:**\n` +
+        `• *"What is the long-term compounding moat of TCS or Reliance?"*\n` +
+        `• *"Why do high-ROE businesses consistently beat gold over a 10-year horizon?"*\n` +
+        `• *"What metrics separate true compounders from value traps?"*`;
+    } else {
+      dynamicReply = `**👋 Greetings! I am RiskBot**, powered by **Llama 3.2 3B on Cloudflare Workers AI**.\n\n` +
+        `**My Role & Ideology:**\n` +
+        `I am the Quantitative Risk & Covariance Analyst. I believe market narratives lie, but the Ledoit-Wolf covariance shrinkage matrix and downside Value-at-Risk (VaR) never lie. True safety is mathematical non-correlation.\n\n` +
+        `**Your Active Session Profile:**\n` +
+        `• Strategy Profile: **${prof}** | Investment Horizon: **${hor} Years** | Capital: **${cap}**\n\n` +
+        `**How can I assist your risk modeling? Ask me:**\n` +
+        `• *"What is the maximum historical drawdown risk for my allocation?"*\n` +
+        `• *"How does adding Gold or G-Secs mathematically reduce portfolio variance?"*\n` +
+        `• *"Why must single-asset allocations be capped at 15%?"*`;
+    }
+  } else if (persona === "macro") {
     dynamicReply = `**[MacroBot — Gemini 2.0 Flash | Sovereign Rates & Liquidity]**\n\nEvaluating your query regarding *"${userText}"* strictly through macroeconomic mechanisms:\n\n1. **Central Bank Interest Rate Regime:** With the Fed funds rate at 4.25%–4.50% and RBI holding repo at 6.50%, the nominal spread (~200–225 bps) continues to govern institutional Foreign Portfolio Investment (FPI) flows into Indian debt and equities.\n2. **Currency Drift (USD/INR):** Historical trend shows a structural 3.2%–3.8% annual depreciation of INR against USD. Any allocation must factor this organic FX buffer; dollar-denominated assets provide natural counter-cyclical resilience when emerging market currencies experience volatility.\n3. **Macro Recommendation:** Ensure allocations preserve purchasing power against domestic CPI inflation (~4.8%–5.2%) while maintaining liquidity in sovereign paper (India 10Y G-Sec yield ~6.85%).`;
   } else if (persona === "growth") {
     dynamicReply = `**[GrowthBot — Groq Llama 3.3 70B | Moats & Secular Compounders]**\n\nAnalyzing *"${userText}"* from an equity compounding and economic moat standpoint:\n\n1. **Capital Efficiency & ROE:** True wealth creation is driven by sustained Return on Equity (ROE > 18%) and Return on Capital Employed (ROCE > 22%). We seek businesses that reinvest operating cash flow at high marginal returns without dilution or heavy debt leverage.\n2. **Secular Tailwinds:** Whether evaluating market leaders (e.g., TCS, Reliance, HDFC Bank) or high-growth tech innovators, the critical test is pricing power and expanding free cash flow (FCF) conversion (>80% net income).\n3. **Growth Thesis:** Do not sacrifice quality for low multiples. High-ROE secular compounders consistently out-compound low-multiple cyclical traps over 5-to-10 year horizons.`;

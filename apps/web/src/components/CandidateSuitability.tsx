@@ -27,6 +27,7 @@ interface CandidateSuitabilityProps {
   initialCapital?: number;
   onSelectPortfolio: (portfolio: CandidatePortfolio) => void;
   onProceed: () => void;
+  initialCandidateId?: string;
 }
 
 export function CandidateSuitability({
@@ -36,6 +37,7 @@ export function CandidateSuitability({
   initialCapital = 1000000,
   onSelectPortfolio,
   onProceed,
+  initialCandidateId,
 }: CandidateSuitabilityProps) {
   const candidates = generateCandidatePortfolios(
     selectedTickers,
@@ -44,7 +46,9 @@ export function CandidateSuitability({
     initialCapital
   );
 
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string>("target_risk");
+  const [selectedCandidateId, setSelectedCandidateId] = useState<string>(
+    initialCandidateId || "target_risk"
+  );
 
   const selectedCandidate =
     candidates.find((c) => c.id === selectedCandidateId) || candidates[0];

@@ -49,7 +49,7 @@ export default function Home() {
   // Selected candidate portfolio (bubbled from Stage 8 & 9)
   const [selectedCandidate, setSelectedCandidate] = useState<CandidatePortfolio | null>(null);
 
-  // Authenticate guest on mount
+  // Authenticate guest and restore persistent state on mount
   useEffect(() => {
     async function initGuest() {
       const session = await fetchGuestSession();
@@ -57,7 +57,54 @@ export default function Home() {
       setAuthToken(session.access_token);
     }
     initGuest();
+
+    if (typeof window !== "undefined") {
+      try {
+        const savedAge = localStorage.getItem("tangent_age");
+        if (savedAge) setAge(Number(savedAge));
+        const savedHorizon = localStorage.getItem("tangent_horizon");
+        if (savedHorizon) setHorizon(Number(savedHorizon));
+        const savedRisk = localStorage.getItem("tangent_risk_score");
+        if (savedRisk) setRiskScore(Number(savedRisk));
+        const savedCapital = localStorage.getItem("tangent_capital");
+        if (savedCapital) setInitialCapital(Number(savedCapital));
+        const savedSip = localStorage.getItem("tangent_monthly_sip");
+        if (savedSip) setMonthlySip(Number(savedSip));
+        const savedLiquidity = localStorage.getItem("tangent_liquidity_tier");
+        if (savedLiquidity) setLiquidityTier(savedLiquidity);
+        const savedTickers = localStorage.getItem("tangent_selected_tickers");
+        if (savedTickers) setSelectedTickers(JSON.parse(savedTickers));
+        const savedOpt = localStorage.getItem("tangent_opt_result");
+        if (savedOpt) setOptimizationResult(JSON.parse(savedOpt));
+        const savedCand = localStorage.getItem("tangent_selected_candidate");
+        if (savedCand) setSelectedCandidate(JSON.parse(savedCand));
+      } catch (err) {
+        console.warn("Could not restore session from localStorage:", err);
+      }
+    }
   }, []);
+
+  // Sync state to localStorage so hard refresh or navigation preserves user data
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("tangent_age", String(age));
+      localStorage.setItem("tangent_horizon", String(horizon));
+      localStorage.setItem("tangent_risk_score", String(riskScore));
+      localStorage.setItem("tangent_capital", String(initialCapital));
+      localStorage.setItem("tangent_monthly_sip", String(monthlySip));
+      localStorage.setItem("tangent_liquidity_tier", liquidityTier);
+      localStorage.setItem("tangent_selected_tickers", JSON.stringify(selectedTickers));
+      if (optimizationResult) {
+        localStorage.setItem("tangent_opt_result", JSON.stringify(optimizationResult));
+      }
+      if (selectedCandidate) {
+        localStorage.setItem("tangent_selected_candidate", JSON.stringify(selectedCandidate));
+      }
+    } catch {
+      // quota or private browsing
+    }
+  }, [age, horizon, riskScore, initialCapital, monthlySip, liquidityTier, selectedTickers, optimizationResult, selectedCandidate]);
 
   const riskProfile = getRiskProfile(riskScore, horizon);
 
@@ -101,7 +148,7 @@ export default function Home() {
 
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 relative z-10">
         {/* Tab 0: Modern Swiss Grid Fintech Dashboard */}
-        {activeTab === "home" && (
+        <div className={activeTab === "home" ? "block animate-fade-in" : "hidden"}>
           <HeroHomepage
             onNavigate={(tabId) => setActiveTab(tabId)}
             onOpenChat={() => setIsChatOpen(true)}
@@ -112,10 +159,10 @@ export default function Home() {
             sharpeRatio={activeSharpe}
             weights={activeWeights}
           />
-        )}
+        </div>
 
         {/* Tab 1: Stage 1 (Profile) + Stage 3 (Constraints) */}
-        {activeTab === "profile" && (
+        <div className={activeTab === "profile" ? "block animate-fade-in" : "hidden"}>
           <RiskProfilerWizard
             age={age}
             setAge={setAge}
@@ -131,42 +178,44 @@ export default function Home() {
             setLiquidityTier={setLiquidityTier}
             onProceed={() => setActiveTab("universe")}
           />
-        )}
+        </div>
 
         {/* Tab 2: Stage 2 (Universe) + Stage 4 (Market Data Stats) */}
-        {activeTab === "universe" && (
+        <div className={activeTab === "universe" ? "block animate-fade-in" : "hidden"}>
           <AssetSelector
             selectedTickers={selectedTickers}
             setSelectedTickers={setSelectedTickers}
             onProceed={() => setActiveTab("frontier")}
           />
-        )}
+        </div>
 
         {/* Tab 3: Stage 5 (Frontier) + Stage 6 (SLSQP) + Stage 7A (MC Exploration) */}
-        {activeTab === "frontier" && (
+        <div className={activeTab === "frontier" ? "block animate-fade-in" : "hidden"}>
           <OptimizationDashboard
             selectedTickers={selectedTickers}
             riskProfile={riskProfile}
             authToken={authToken}
+            initialResult={optimizationResult}
             onOptimizationDone={(res) => setOptimizationResult(res)}
             onProceedToProjections={() => setActiveTab("candidates")}
           />
-        )}
+        </div>
 
         {/* Tab 4: Stage 8 (Candidates) + Stage 9 (Suitability Layer) */}
-        {activeTab === "candidates" && (
+        <div className={activeTab === "candidates" ? "block animate-fade-in" : "hidden"}>
           <CandidateSuitability
             selectedTickers={selectedTickers}
             riskProfile={riskProfile}
             horizon={horizon}
             initialCapital={initialCapital}
+            initialCandidateId={selectedCandidate?.id}
             onSelectPortfolio={(cand) => setSelectedCandidate(cand)}
             onProceed={() => setActiveTab("projections")}
           />
-        )}
+        </div>
 
         {/* Tab 5: Stage 7B (Future Projections 5,000 Paths) */}
-        {activeTab === "projections" && (
+        <div className={activeTab === "projections" ? "block animate-fade-in" : "hidden"}>
           <MonteCarloProjection
             expectedReturn={activeNominalReturn}
             volatility={activeVol}
@@ -174,20 +223,20 @@ export default function Home() {
             authToken={authToken}
             onProceedToStudio={() => setActiveTab("backtest")}
           />
-        )}
+        </div>
 
         {/* Tab 6: Stage 10 (Backtesting) + Stage 11 (Crisis Stress Testing) */}
-        {activeTab === "backtest" && (
+        <div className={activeTab === "backtest" ? "block animate-fade-in" : "hidden"}>
           <BacktestStressTesting
             weights={activeWeights}
             horizon={horizon}
             initialCapital={initialCapital}
             onProceed={() => setActiveTab("decision")}
           />
-        )}
+        </div>
 
         {/* Tab 7: Stage 12 (Final Recommendation, Multi-Agent & Export) */}
-        {activeTab === "decision" && (
+        <div className={activeTab === "decision" ? "block animate-fade-in" : "hidden"}>
           <DecisionStudio
             selectedTickers={selectedTickers}
             authToken={authToken}
@@ -200,19 +249,27 @@ export default function Home() {
             horizon={horizon}
             riskScore={riskScore}
           />
-        )}
+        </div>
 
         {/* Tab 8: Feature 8 (The Arena: Multi-Agent Cross-Fire Deliberation) */}
-        {activeTab === "arena" && (
+        <div className={activeTab === "arena" ? "block animate-fade-in" : "hidden"}>
           <ArenaView
             investorProfileName={riskProfile.name}
             horizon={horizon}
             capital={initialCapital}
+            weights={activeWeights}
+            nominalReturn={activeNominalReturn}
+            realReturn={activeRealReturn}
+            volatility={activeVol}
+            sharpeRatio={activeSharpe}
+            selectedTickers={selectedTickers}
           />
-        )}
+        </div>
 
         {/* Tab 9: Feature 9 (LLM Observatory & MetaBot DevOps Intelligence) */}
-        {activeTab === "observatory" && <ModelObservatory />}
+        <div className={activeTab === "observatory" ? "block animate-fade-in" : "hidden"}>
+          <ModelObservatory />
+        </div>
       </main>
 
       {/* Grounded Interactive Draww AI Copilot Drawer with Full Context */}

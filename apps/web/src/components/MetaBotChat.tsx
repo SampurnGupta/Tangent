@@ -9,7 +9,7 @@ export function MetaBotChat() {
     {
       role: "assistant",
       content:
-        "👋 Greetings! I am **MetaBot**, the DevOps & AI Observability Intelligence Analyst for Tangent.\n\nI monitor real-time inference latency, token velocity, and cost economics across the 3 independent persona models (**Groq Llama 3.3 70B**, **Gemini 2.0 Flash**, and **Mistral Small / Ollama**).\n\nAsk me about architecture bottlenecks, cost optimizations, or why specific models differ in latency and verbosity!",
+        "👋 Greetings! I am **MetaBot**, the DevOps & AI Observability Intelligence Analyst for Tangent.\n\nI monitor real-time inference latency, token velocity, and cost economics across the 3 independent persona microservices (**Groq Llama 3.3 70B**, **Gemini 2.0 Flash**, and **Cloudflare Workers AI Llama 3.2 3B**).\n\nAsk me about architecture bottlenecks, cost optimizations, or why specific models differ in latency and verbosity!",
     },
   ]);
   const [input, setInput] = useState("");
