@@ -8,6 +8,7 @@ from common.logging import get_logger, setup_logging
 from common.middleware import RequestIdMiddleware
 from common.redis_client import get_redis_client
 from fastapi import FastAPI, status
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from observatory.metabot import MetaBotEngine
@@ -54,6 +55,13 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.add_middleware(RequestIdMiddleware)
 
     redis_c = get_redis_client()

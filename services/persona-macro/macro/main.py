@@ -9,6 +9,7 @@ from common.middleware import RequestIdMiddleware
 from common.redis_client import get_redis_client
 from contracts.agent import PersonaChatRequest, PersonaChatResponse
 from fastapi import FastAPI, Path, status
+from fastapi.middleware.cors import CORSMiddleware
 from llm.client import LLMConfig, ResilientLLMClient
 
 from macro.persona import MODEL_NAME, PERSONA_NAME, SYSTEM_PROMPT, build_macro_prompt
@@ -37,6 +38,13 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.add_middleware(RequestIdMiddleware)
     llm_client = ResilientLLMClient(
         LLMConfig(

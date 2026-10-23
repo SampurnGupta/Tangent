@@ -1770,7 +1770,13 @@ export interface PersonaResponse {
 
 export async function fetchObservatoryLeaderboard(): Promise<ModelLeaderboardItem[]> {
   try {
-    const res = await fetch(`${GATEWAY_BASE_URL}/api/v1/observatory/leaderboard`, {
+    const observatoryBase =
+      process.env.NEXT_PUBLIC_OBSERVATORY_URL ||
+      (process.env.NEXT_PUBLIC_GATEWAY_URL
+        ? `${process.env.NEXT_PUBLIC_GATEWAY_URL}/api/v1/observatory`
+        : `${GATEWAY_BASE_URL}/api/v1/observatory`);
+
+    const res = await fetch(`${observatoryBase.replace(/\/$/, "")}/api/v1/observatory/leaderboard`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
@@ -1778,7 +1784,7 @@ export async function fetchObservatoryLeaderboard(): Promise<ModelLeaderboardIte
       return await res.json();
     }
   } catch {
-    // Return realistic fallback leaderboard data when offline or awaiting live gateway sync
+    // Return realistic fallback leaderboard data when offline or awaiting live sync
   }
   return [
     {
@@ -1831,7 +1837,13 @@ export async function chatWithMetaBot(
   sessionId: string = "observatory-session"
 ): Promise<MetaBotResponse> {
   try {
-    const res = await fetch(`${GATEWAY_BASE_URL}/api/v1/observatory/metabot/chat`, {
+    const observatoryBase =
+      process.env.NEXT_PUBLIC_OBSERVATORY_URL ||
+      (process.env.NEXT_PUBLIC_GATEWAY_URL
+        ? `${process.env.NEXT_PUBLIC_GATEWAY_URL}/api/v1/observatory`
+        : `${GATEWAY_BASE_URL}/api/v1/observatory`);
+
+    const res = await fetch(`${observatoryBase.replace(/\/$/, "")}/api/v1/observatory/metabot/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, session_id: sessionId }),
@@ -1861,7 +1873,16 @@ export async function chatWithIndependentPersona(
   context?: Record<string, any>
 ): Promise<PersonaResponse> {
   try {
-    const res = await fetch(`${GATEWAY_BASE_URL}/api/v1/personas/${persona}/chat`, {
+    const directPersonaUrl =
+      (persona === "macro" && (process.env.NEXT_PUBLIC_PERSONA_MACRO_URL || process.env.NEXT_PUBLIC_MACRO_URL)) ||
+      (persona === "growth" && (process.env.NEXT_PUBLIC_PERSONA_GROWTH_URL || process.env.NEXT_PUBLIC_GROWTH_URL)) ||
+      (persona === "risk" && (process.env.NEXT_PUBLIC_PERSONA_RISK_URL || process.env.NEXT_PUBLIC_RISK_URL));
+
+    const targetUrl = directPersonaUrl
+      ? `${directPersonaUrl.replace(/\/$/, "")}/chat`
+      : `${GATEWAY_BASE_URL}/api/v1/personas/${persona}/chat`;
+
+    const res = await fetch(targetUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ session_id: sessionId, message, context }),
