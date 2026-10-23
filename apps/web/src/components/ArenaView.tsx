@@ -151,16 +151,20 @@ export function ArenaView({
   const [chatMessages, setChatMessages] = useState<PersonaChatMessage[]>([]);
   const [userChatInput, setUserChatInput] = useState<string>("");
   const [isPersonaReplying, setIsPersonaReplying] = useState<boolean>(false);
-  const [sessionId, setSessionId] = useState<string>(() => {
+  const [sessionId, setSessionId] = useState<string>("arena_default");
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem("tangent_arena_session_id");
-      if (saved) return saved;
-      const generated = `arena_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      sessionStorage.setItem("tangent_arena_session_id", generated);
-      return generated;
+      if (saved) {
+        setSessionId(saved);
+      } else {
+        const generated = `arena_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        sessionStorage.setItem("tangent_arena_session_id", generated);
+        setSessionId(generated);
+      }
     }
-    return `arena_${Date.now()}`;
-  });
+  }, []);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);

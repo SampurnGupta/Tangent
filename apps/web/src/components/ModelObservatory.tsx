@@ -65,7 +65,7 @@ export function ModelObservatory() {
             Refresh
           </button>
           <div className="text-right font-mono text-xs text-[#5A5D61]">
-            <span className="block">Synced: {lastRefreshed.toLocaleTimeString()}</span>
+            <span suppressHydrationWarning className="block">Synced: {lastRefreshed.toLocaleTimeString()}</span>
             <span className="text-[#0F766E] font-bold">● 30s auto-sync</span>
           </div>
         </div>

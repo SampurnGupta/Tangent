@@ -32,7 +32,7 @@ export function Header({ userId, activeTab, setActiveTab }: HeaderProps) {
         </button>
 
         {/* Center: Strictly Centralized Navbar (Only 3 Options, Overview moved to Logo) */}
-        <nav className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center gap-1.5 bg-[#FFFFFF] p-1.5 rounded-xl border border-[#CDCECF] shadow-xs">
+        <nav className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center gap-1.5 bg-[#FFFFFF] p-1.5 rounded-xl border border-[#CDCECF] shadow-xs z-20">
           {[
             { id: "portfolio", label: "Your Portfolio" },
             { id: "arena", label: "Arena" },
