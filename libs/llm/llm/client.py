@@ -1,6 +1,7 @@
 """Resilient, provider-agnostic LLM client using LiteLLM."""
 
 import os
+import re
 import time
 import uuid
 from typing import Any, Optional
@@ -217,8 +218,60 @@ class ResilientLLMClient:
         """Produce a grounded, deterministic fixture response citing evidence IDs."""
         # Detect if prompt is asking for Bull, Bear, Synthesizer, or Critic thesis
         low_prompt = (prompt + (system_prompt or "")).lower()
+        low_system = (system_prompt or "").lower()
 
-        if "bull" in low_prompt:
+        # Check for user greeting (hi, hello, hey, etc.)
+        is_greeting = any(
+            re.search(rf"\b{g}\b", prompt.lower())
+            for g in [
+                "hi",
+                "hello",
+                "hey",
+                "greetings",
+                "yo",
+                "sup",
+                "who are you",
+                "what do you do",
+                "introduce yourself",
+            ]
+        )
+
+        if is_greeting:
+            if "macrobot" in low_system or "macro" in low_system:
+                text = (
+                    "👋 **Greetings! I am MacroBot**, powered by **Gemini 2.0 Flash on Google TPU**.\n\n"
+                    "**My Role & Ideology:**\n"
+                    "I evaluate portfolio decisions strictly through the lens of sovereign interest rates (RBI repo 6.50% vs US Fed funds 4.25%–4.50%), "
+                    "USD/INR currency drift (~3.5% structural depreciation), and government bond yield curves (GOI 10Y G-Sec yield ~6.85%).\n\n"
+                    "Ask me about central bank policy, inflation drag, currency hedging, or sovereign debt yields!"
+                )
+            elif "growthbot" in low_system or "growth" in low_system:
+                text = (
+                    "👋 **Greetings! I am GrowthBot**, powered by **Llama 3.3 70B on Groq LPU**.\n\n"
+                    "**My Role & Ideology:**\n"
+                    "I analyze businesses through sustainable economic moats, high Return on Equity (ROE > 18%), and secular compounding runway.\n\n"
+                    "Ask me about corporate competitive moats, pricing power, management capital allocation, or revenue compounding!"
+                )
+            elif "riskbot" in low_system or "risk" in low_system:
+                text = (
+                    "👋 **Greetings! I am RiskBot**, powered by **Llama 3.2 3B on Cloudflare Workers AI**.\n\n"
+                    "**My Role & Ideology:**\n"
+                    "I quantify portfolio variance, Ledoit-Wolf covariance shrinkage matrices, downside Value-at-Risk (VaR), and maximum historical drawdowns.\n\n"
+                    "Ask me about portfolio variance, correlation reduction, asset caps, or stress-test drawdowns!"
+                )
+            elif "metabot" in low_system or "observatory" in low_system:
+                text = (
+                    "👋 **Greetings! I am MetaBot**, Tangent's DevOps & Multi-LLM Telemetry Intelligence Analyst.\n\n"
+                    "I monitor real-time latency, token velocity, error rates, and costs across our 3 independent persona microservices (Groq, Gemini, Cloudflare).\n\n"
+                    "Ask me about inference latency, token economics, or dynamic latency routing!"
+                )
+            else:
+                text = (
+                    "👋 **Greetings! Welcome to Tangent.** I am your quantitative portfolio decision assistant. "
+                    "I provide traceable, mathematically grounded portfolio analytics and risk modeling. "
+                    "How can I assist your portfolio decisions today?"
+                )
+        elif "bull" in low_prompt:
             text = (
                 "**Bull Thesis:** The proposed allocation leverages high risk-adjusted compounding. "
                 "The nominal return of 13.4% [EVD-METRIC-NOMRET] outperforms broad inflation by 7.4%. "
