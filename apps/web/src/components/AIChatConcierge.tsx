@@ -9,12 +9,9 @@ import {
   ShieldCheck,
   Bot,
   User,
-  Info,
   Maximize2,
   Minimize2,
   RotateCcw,
-  Layers,
-  ArrowRight,
 } from "lucide-react";
 import {
   EvidenceItem,
@@ -99,89 +96,89 @@ export function AIChatConcierge({
       evidenceItems: [
         { id: "E1", kind: "metric", label: "Nominal Return", value: Number((nominalReturn * 100).toFixed(1)), unit: "%", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh01" },
         { id: "E2", kind: "metric", label: "Real Return", value: Number((realReturn * 100).toFixed(1)), unit: "%", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh02" },
-        { id: "E4", kind: "metric", label: "Real Sharpe Ratio", value: Number(currentSharpe.toFixed(2)), unit: "ratio", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh04" },
+        { id: "E3", kind: "metric", label: "Sharpe Ratio", value: Number(currentSharpe.toFixed(2)), unit: "ratio", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh03" },
       ],
+      model: "MetaBot Dynamic Router",
     },
   ]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
     if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      scrollToBottom();
     }
   }, [messages, isOpen]);
 
-  const conversationContext: ChatConciergeContext = {
-    age,
-    horizon,
-    riskScore,
-    riskProfileName,
-    selectedTickers,
-    weights: currentWeights,
-    nominalReturn,
-    realReturn,
-    volatility: currentVol,
-    sharpe: currentSharpe,
-    taxDrag,
-    diversificationScore,
-    monteCarloMedian,
-    monteCarlo5th,
-    monteCarlo95th,
-    initialCapital,
+  const buildContext = (): ChatConciergeContext => {
+    return {
+      selectedTickers,
+      currentSharpe,
+      currentReturn,
+      currentVol,
+      currentWeights,
+      nominalReturn,
+      realReturn,
+      taxDrag,
+      diversificationScore,
+      horizon,
+      age,
+      riskScore,
+      riskProfileName,
+      monteCarloMedian,
+      monteCarlo5th,
+      monteCarlo95th,
+      initialCapital,
+    };
   };
 
-  const handleSendMessage = async (contentToSend?: string) => {
-    const text = (contentToSend || input).trim();
-    if (!text || loading) return;
+  const handleSendMessage = async (textToSend?: string) => {
+    const query = (textToSend || input).trim();
+    if (!query || loading) return;
 
     const userMsg: ChatMessage = {
-      id: `u-${Date.now()}`,
+      id: `m-${Date.now()}`,
       sender: "user",
-      text,
+      text: query,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
     setMessages((prev) => [...prev, userMsg]);
-    setInput("");
+    if (!textToSend) setInput("");
     setLoading(true);
 
     try {
-      const historyPayload = messages.map((m) => ({
-        role: m.sender === "user" ? "user" : "assistant",
+      const history = messages.map((m) => ({
+        role: m.sender === "user" ? ("user" as const) : ("assistant" as const),
         content: m.text,
       }));
 
-      const res = await chatWithConcierge(text, historyPayload, conversationContext, authToken);
+      const context = buildContext();
+      const response = await chatWithConcierge(query, history, context, authToken);
 
       const assistantMsg: ChatMessage = {
-        id: `a-${Date.now()}`,
+        id: `m-${Date.now() + 1}`,
         sender: "assistant",
-        text: res.reply,
+        text: response.reply,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        model: res.model || "draww/grounded-mpt-v2",
-        evidenceItems: res.evidence?.map((e) => ({
-          id: e.id,
-          kind: "metric",
-          label: e.label,
-          value: e.value,
-          unit: e.unit,
-          as_of: new Date().toISOString(),
-          source_service: "quant",
-          params_hash: "interactive",
-        })),
+        evidenceItems: response.evidence_items || (response.evidence as any),
+        model: response.model_used || response.model,
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (err) {
-      console.error("Chat error:", err);
-      const fallbackMsg: ChatMessage = {
-        id: `a-err-${Date.now()}`,
+      console.error("Concierge query failed", err);
+      const errorMsg: ChatMessage = {
+        id: `m-${Date.now() + 1}`,
         sender: "assistant",
-        text: `Based on your ${riskProfileName} profile, your nominal return is ${(nominalReturn * 100).toFixed(1)}% [E1: Nominal Return] and real Sharpe is ${currentSharpe.toFixed(2)} [E4: Sharpe Ratio]. How can I clarify your allocations?`,
+        text: "I am having difficulty retrieving your live mathematical metrics right now. Please verify your connection or try again in a moment.",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
-      setMessages((prev) => [...prev, fallbackMsg]);
+      setMessages((prev) => [...prev, errorMsg]);
     } finally {
       setLoading(false);
     }
@@ -190,15 +187,20 @@ export function AIChatConcierge({
   const resetChat = () => {
     setMessages([
       {
-        id: `m-${Date.now()}`,
+        id: "m-0",
         sender: "assistant",
         text: initialGreeting,
         timestamp: "Just now",
+        evidenceItems: [
+          { id: "E1", kind: "metric", label: "Nominal Return", value: Number((nominalReturn * 100).toFixed(1)), unit: "%", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh01" },
+          { id: "E2", kind: "metric", label: "Real Return", value: Number((realReturn * 100).toFixed(1)), unit: "%", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh02" },
+          { id: "E3", kind: "metric", label: "Sharpe Ratio", value: Number(currentSharpe.toFixed(2)), unit: "ratio", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh03" },
+        ],
+        model: "MetaBot Dynamic Router",
       },
     ]);
   };
 
-  // Helper to render text with clickable citation badges
   const renderTextWithBadges = (text: string, items?: EvidenceItem[]) => {
     const parts = text.split(/(\[[^\]]+\])/g);
     return parts.map((part, i) => {
@@ -213,7 +215,7 @@ export function AIChatConcierge({
                 if (found) setActiveEvidenceModal(found);
               }
             }}
-            className="inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 cursor-pointer hover:bg-emerald-500/30 transition-colors"
+            className="inline-flex items-center px-2 py-0.5 mx-0.5 rounded text-xs font-mono font-bold bg-[#F4F5F6] text-[#191B1D] border border-[#CDCECF] cursor-pointer hover:bg-[#191B1D] hover:text-white transition-colors"
           >
             {part}
           </span>
@@ -228,64 +230,64 @@ export function AIChatConcierge({
       {/* Floating Action Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-zinc-950 font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer border border-emerald-400/40 group"
+        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 cursor-pointer border border-[#CDCECF] group"
         aria-label="Open Draww AI Copilot"
       >
-        <MessageSquare className="w-5 h-5 text-zinc-950 group-hover:rotate-12 transition-transform" />
+        <MessageSquare className="w-5 h-5 text-white group-hover:rotate-12 transition-transform" />
         <span className="hidden sm:inline text-xs tracking-wide font-black">Draww AI</span>
-        <span className="w-2 h-2 rounded-full bg-zinc-950 animate-ping" />
+        <span className="w-2 h-2 rounded-full bg-[#0F766E] animate-ping" />
       </button>
 
       {/* Slide-Over Drawer Container */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs animate-fade-in">
           <div
             className={`w-full ${
               isExpanded ? "sm:max-w-3xl" : "sm:max-w-lg"
-            } h-full bg-zinc-950 border-l border-zinc-800 flex flex-col shadow-2xl transition-all duration-300`}
+            } h-full bg-[#FFFFFF] border-l border-[#CDCECF] flex flex-col shadow-2xl transition-all duration-300`}
           >
             {/* Header */}
-            <div className="p-4 border-b border-zinc-800 bg-zinc-900/60 flex items-center justify-between">
+            <div className="p-4 border-b border-[#CDCECF] bg-[#F8F9FA] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-zinc-950 font-black shadow-md">
-                  <Bot className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-lg bg-[#191B1D] flex items-center justify-center text-white font-bold shadow-xs">
+                  <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-white">Draww</h3>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                      MPT Copilot
+                    <h3 className="text-sm font-bold text-[#191B1D]">Draww AI Concierge</h3>
+                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#F4F5F6] text-[#0F766E] border border-[#CDCECF] font-bold">
+                      Grounded Copilot
                     </span>
                   </div>
-                  <p className="text-[11px] text-zinc-400 flex items-center gap-1.5">
+                  <p className="text-xs text-[#5A5D61] font-mono mt-0.5">
                     <span>Horizon: {horizon}y</span>
-                    <span>•</span>
+                    <span> • </span>
                     <span>Risk: {riskScore}/10</span>
-                    <span>•</span>
-                    <span className="text-emerald-400">Sharpe: {currentSharpe.toFixed(2)}</span>
+                    <span> • </span>
+                    <span className="text-[#0F766E] font-bold">Sharpe: {currentSharpe.toFixed(2)}</span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 text-zinc-400">
+              <div className="flex items-center gap-1 text-[#5A5D61]">
                 <button
                   onClick={resetChat}
                   title="Clear conversation"
-                  className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-white cursor-pointer transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-[#F4F5F6] hover:text-[#191B1D] cursor-pointer transition-colors"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
                   title={isExpanded ? "Collapse width" : "Expand width"}
-                  className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-white cursor-pointer transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-[#F4F5F6] hover:text-[#191B1D] cursor-pointer transition-colors"
                 >
                   {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
                   title="Close Concierge"
-                  className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-white cursor-pointer transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-[#F4F5F6] hover:text-[#191B1D] cursor-pointer transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -293,12 +295,12 @@ export function AIChatConcierge({
             </div>
 
             {/* Quick Context Summary Strip */}
-            <div className="px-4 py-2 bg-zinc-900/40 border-b border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-400 font-mono overflow-x-auto whitespace-nowrap">
+            <div className="px-4 py-2 bg-[#F4F5F6] border-b border-[#CDCECF] flex items-center justify-between text-xs text-[#5A5D61] font-mono overflow-x-auto whitespace-nowrap no-scrollbar">
               <span>Nominal: {(nominalReturn * 100).toFixed(1)}%</span>
               <span>Real: {(realReturn * 100).toFixed(1)}%</span>
               <span>Vol: {(currentVol * 100).toFixed(1)}%</span>
               <span>Div: {diversificationScore.toFixed(1)}/10</span>
-              <span className="text-emerald-400">10Y Med: ₹{(monteCarloMedian / 100000).toFixed(1)}L</span>
+              <span className="text-[#0F766E] font-bold">10Y Med: ₹{(monteCarloMedian / 100000).toFixed(1)}L</span>
             </div>
 
             {/* Interactive Chat Messages Log */}
@@ -311,27 +313,27 @@ export function AIChatConcierge({
                   }`}
                 >
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${
                       m.sender === "user"
-                        ? "bg-zinc-800 text-zinc-200 border border-zinc-700"
-                        : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                        ? "bg-[#191B1D] text-white"
+                        : "bg-[#F4F5F6] text-[#191B1D] border border-[#CDCECF]"
                     }`}
                   >
-                    {m.sender === "user" ? <User className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
+                    {m.sender === "user" ? <User className="w-4 h-4" /> : <Sparkles className="w-4 h-4 text-[#0F766E]" />}
                   </div>
 
                   <div
-                    className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed ${
+                    className={`max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed ${
                       m.sender === "user"
-                        ? "bg-emerald-600 text-white rounded-tr-none shadow-md"
-                        : "bg-zinc-900/80 border border-zinc-800 text-zinc-200 rounded-tl-none shadow-sm whitespace-pre-line"
+                        ? "bg-[#191B1D] text-white rounded-tr-none shadow-xs"
+                        : "bg-[#F8F9FA] border border-[#CDCECF] text-[#191B1D] rounded-tl-none shadow-xs whitespace-pre-line"
                     }`}
                   >
                     {m.sender === "user" ? m.text : renderTextWithBadges(m.text, m.evidenceItems)}
 
-                    <div className="mt-2 flex items-center justify-between text-[10px] text-zinc-400/80 font-mono">
+                    <div className="mt-2.5 flex items-center justify-between text-xs text-[#5A5D61] font-mono">
                       <span>{m.timestamp}</span>
-                      {m.model && <span className="text-zinc-500">{m.model}</span>}
+                      {m.model && <span>{m.model}</span>}
                     </div>
                   </div>
                 </div>
@@ -339,11 +341,11 @@ export function AIChatConcierge({
 
               {loading && (
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 animate-spin" />
+                  <div className="w-8 h-8 rounded-lg bg-[#F4F5F6] border border-[#CDCECF] flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 animate-spin text-[#0F766E]" />
                   </div>
-                  <div className="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <div className="p-3.5 rounded-2xl bg-[#F8F9FA] border border-[#CDCECF] text-[#5A5D61] text-xs flex items-center gap-2 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-[#0F766E] animate-ping" />
                     <span>Analyzing portfolio mathematics & evidence items...</span>
                   </div>
                 </div>
@@ -353,8 +355,8 @@ export function AIChatConcierge({
             </div>
 
             {/* Suggested Question Chips */}
-            <div className="p-3 bg-zinc-900/40 border-t border-zinc-800/80 flex items-center gap-2 overflow-x-auto scrollbar-none">
-              <span className="text-[11px] text-zinc-500 font-semibold shrink-0">Prompts:</span>
+            <div className="p-3 bg-[#F8F9FA] border-t border-[#CDCECF] flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <span className="text-xs text-[#5A5D61] font-mono font-bold shrink-0">Prompts:</span>
               {[
                 "What are the assets recommended to me?",
                 "List out the asset universe",
@@ -366,7 +368,7 @@ export function AIChatConcierge({
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(chip)}
-                  className="px-2.5 py-1 rounded-lg text-[11px] whitespace-nowrap bg-zinc-900 border border-zinc-800 text-zinc-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors cursor-pointer shrink-0"
+                  className="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap bg-[#FFFFFF] border border-[#CDCECF] text-[#191B1D] hover:border-[#191B1D] transition-colors cursor-pointer shrink-0 font-medium"
                 >
                   {chip}
                 </button>
@@ -374,7 +376,7 @@ export function AIChatConcierge({
             </div>
 
             {/* Input Bar */}
-            <div className="p-3 border-t border-zinc-800 bg-zinc-900/70">
+            <div className="p-3.5 border-t border-[#CDCECF] bg-[#FFFFFF]">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -384,22 +386,22 @@ export function AIChatConcierge({
               >
                 <input
                   type="text"
-                  placeholder="Ask about your allocations, taxes, Sharpe, or drawdowns..."
+                  placeholder="Ask Draww about your allocations, taxes, Sharpe, or drawdowns..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   disabled={loading}
-                  className="flex-1 px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-emerald-500/60"
+                  className="flex-1 px-4 py-2.5 bg-[#F8F9FA] border border-[#CDCECF] rounded-lg text-sm text-[#191B1D] placeholder-[#85888C] focus:outline-none focus:border-[#191B1D]"
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || loading}
-                  className="p-2.5 rounded-xl bg-emerald-500 text-zinc-950 hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-bold"
+                  className="p-2.5 rounded-lg bg-[#191B1D] text-white hover:bg-[#2E3236] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-bold"
                 >
                   <Send className="w-4 h-4" />
                 </button>
               </form>
-              <p className="text-[10px] text-zinc-500 text-center mt-2">
-                All metrics cited from deterministic SciPy & Monte Carlo models. Educational decision-support only.
+              <p className="text-xs text-[#5A5D61] text-center mt-2 font-mono">
+                Cited deterministically from SciPy SLSQP & Monte Carlo models.
               </p>
             </div>
           </div>
@@ -408,52 +410,52 @@ export function AIChatConcierge({
 
       {/* Evidence Provenance Modal */}
       {activeEvidenceModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-sm rounded-2xl bg-zinc-900 border border-zinc-800 p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-sm rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-[#CDCECF] pb-3">
               <div className="flex items-center gap-2">
-                <span className="font-mono font-bold text-sm text-emerald-400">
+                <span className="font-mono font-bold text-sm text-[#0F766E]">
                   [{activeEvidenceModal.id}]
                 </span>
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-bold text-[#191B1D]">
                   {activeEvidenceModal.label}
                 </span>
               </div>
               <button
                 onClick={() => setActiveEvidenceModal(null)}
-                className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white cursor-pointer"
+                className="p-1 rounded hover:bg-[#F4F5F6] text-[#5A5D61] hover:text-[#191B1D] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="flex justify-between items-center py-1 border-b border-zinc-800/50">
-                <span className="text-zinc-400">Deterministic Value:</span>
-                <span className="font-mono font-bold text-emerald-300 text-sm">
+            <div className="space-y-3 text-xs font-mono">
+              <div className="flex justify-between items-center py-1.5 border-b border-[#CDCECF]">
+                <span className="text-[#5A5D61]">Deterministic Value:</span>
+                <span className="font-bold text-[#0F766E] text-sm">
                   {activeEvidenceModal.value} {activeEvidenceModal.unit}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-1 border-b border-zinc-800/50">
-                <span className="text-zinc-400">Source Microservice:</span>
-                <span className="font-mono text-zinc-300">{activeEvidenceModal.source_service}</span>
+              <div className="flex justify-between items-center py-1.5 border-b border-[#CDCECF]">
+                <span className="text-[#5A5D61]">Microservice:</span>
+                <span className="text-[#191B1D] font-bold">{activeEvidenceModal.source_service}</span>
               </div>
-              <div className="flex justify-between items-center py-1 border-b border-zinc-800/50">
-                <span className="text-zinc-400">Assumptions Timestamp:</span>
-                <span className="font-mono text-zinc-400">
+              <div className="flex justify-between items-center py-1.5 border-b border-[#CDCECF]">
+                <span className="text-[#5A5D61]">Timestamp:</span>
+                <span className="text-[#5A5D61]">
                   {activeEvidenceModal.as_of ? new Date(activeEvidenceModal.as_of).toLocaleDateString() : "Active"}
                 </span>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 text-[11px] text-zinc-400 leading-relaxed">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 inline mr-1.5" />
+            <div className="p-3.5 rounded-xl bg-[#F8F9FA] border border-[#CDCECF] text-xs text-[#5A5D61] leading-relaxed">
+              <ShieldCheck className="w-4 h-4 text-[#0F766E] inline mr-1.5" />
               This value is computed deterministically by the Python quantitative engine. The Critic agent verified zero numerical drift.
             </div>
 
             <button
               onClick={() => setActiveEvidenceModal(null)}
-              className="w-full py-2 rounded-xl bg-zinc-800 text-zinc-200 text-xs font-semibold hover:bg-zinc-700 transition-colors cursor-pointer"
+              className="w-full py-2.5 rounded-lg bg-[#191B1D] text-white text-xs font-bold hover:bg-[#2E3236] cursor-pointer"
             >
               Close
             </button>

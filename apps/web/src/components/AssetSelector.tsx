@@ -15,7 +15,7 @@ import {
   Building,
   PiggyBank,
   TrendingUp,
-  Shield,
+  ShieldCheck,
 } from "lucide-react";
 
 interface AssetSelectorProps {
@@ -90,7 +90,6 @@ export function AssetSelector({
     }
   };
 
-  // Unbiased full universe mode: selects all assets across all 8 domains without bias
   const handleEnableUnbiasedMode = () => {
     setIsUnbiasedMode(true);
     setSelectedTickers(DEFAULT_CURATED_ASSETS.map((a) => a.ticker));
@@ -130,18 +129,18 @@ export function AssetSelector({
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 py-6 animate-fade-in">
-      {/* Header & Unbiased Mode Highlight Banner */}
+      {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-semibold">
-            <Layers className="w-3.5 h-3.5" />
-            <span>Step 2: Universal Multi-Asset Universe</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#FFFFFF] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-bold">
+            <Layers className="w-3.5 h-3.5 text-[#0F766E]" />
+            <span>Universal Multi-Asset Universe</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1">
-            Candidate Assets & Domains
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D] mt-2">
+            Asset Universe & Statistical Baseline
           </h2>
-          <p className="text-xs text-zinc-400">
-            Nifty 50 Equities, Sovereign Debt, FDs & Savings, REITs, Global ETFs, Commodities, and Crypto.
+          <p className="text-sm text-[#5A5D61] mt-1">
+            74 candidate assets across Indian Equities, Sovereign Debt, Bank FDs, REITs, Global ETFs, and Commodities.
           </p>
         </div>
 
@@ -149,70 +148,70 @@ export function AssetSelector({
         <div className="flex items-center gap-2">
           <button
             onClick={handleEnableUnbiasedMode}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border shadow-lg cursor-pointer ${
+            className={`px-4 py-2.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-2 border cursor-pointer ${
               isUnbiasedMode
-                ? "bg-emerald-500 text-zinc-950 border-emerald-400 shadow-emerald-500/20"
-                : "bg-emerald-950/40 text-emerald-300 border-emerald-500/30 hover:bg-emerald-900/50"
+                ? "bg-[#191B1D] text-white border-[#191B1D] shadow-xs"
+                : "bg-[#FFFFFF] text-[#191B1D] border-[#CDCECF] hover:border-[#191B1D]"
             }`}
           >
-            <Zap className="w-4 h-4 text-emerald-400" />
-            <span>✨ Unbiased Auto-Universe ({DEFAULT_CURATED_ASSETS.length} Assets)</span>
+            <Zap className="w-4 h-4 text-[#0F766E]" />
+            <span>Unbiased Universe ({DEFAULT_CURATED_ASSETS.length} Assets)</span>
           </button>
         </div>
       </div>
 
-      {/* Preset Buttons */}
-      <div className="flex flex-wrap items-center gap-2 bg-zinc-900/60 p-3 rounded-2xl border border-zinc-800">
-        <span className="text-xs text-zinc-400 font-semibold mr-1">Curated Strategies:</span>
+      {/* Strategy Presets */}
+      <div className="flex flex-wrap items-center gap-2 bg-[#FFFFFF] p-3.5 rounded-xl border border-[#CDCECF] shadow-xs">
+        <span className="text-xs text-[#5A5D61] font-mono font-bold mr-1">Institutional Presets:</span>
         <button
           onClick={() => applyPreset("balanced")}
-          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:text-white transition-all cursor-pointer border border-zinc-700"
+          className="px-3.5 py-1.5 text-xs font-semibold rounded-md bg-[#F4F5F6] text-[#191B1D] hover:bg-[#191B1D] hover:text-white transition-all cursor-pointer border border-[#CDCECF]"
         >
           Balanced 60/40
         </button>
         <button
           onClick={() => applyPreset("allweather")}
-          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:text-white transition-all cursor-pointer border border-zinc-700"
+          className="px-3.5 py-1.5 text-xs font-semibold rounded-md bg-[#F4F5F6] text-[#191B1D] hover:bg-[#191B1D] hover:text-white transition-all cursor-pointer border border-[#CDCECF]"
         >
           All-Weather (Bonds + Gold + REITs)
         </button>
         <button
           onClick={() => applyPreset("nifty50_core")}
-          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:text-white transition-all cursor-pointer border border-zinc-700"
+          className="px-3.5 py-1.5 text-xs font-semibold rounded-md bg-[#F4F5F6] text-[#191B1D] hover:bg-[#191B1D] hover:text-white transition-all cursor-pointer border border-[#CDCECF]"
         >
           Top 20 Nifty 50
         </button>
         <button
           onClick={() => applyPreset("growth")}
-          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:text-white transition-all cursor-pointer border border-zinc-700"
+          className="px-3.5 py-1.5 text-xs font-semibold rounded-md bg-[#F4F5F6] text-[#191B1D] hover:bg-[#191B1D] hover:text-white transition-all cursor-pointer border border-[#CDCECF]"
         >
-          Tech & Crypto Alpha
+          Tech & Growth Alpha
         </button>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-zinc-900/70 p-3 rounded-2xl border border-zinc-800 backdrop-blur-md">
-        {/* Category Pills across all requested domains */}
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-[#FFFFFF] p-3.5 rounded-xl border border-[#CDCECF] shadow-xs">
+        {/* Category Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 no-scrollbar">
           {[
-            { id: "all", label: `All Domains (${DEFAULT_CURATED_ASSETS.length})`, icon: Layers },
-            { id: "nifty50", label: "Nifty 50 (50)", icon: TrendingUp },
-            { id: "bonds", label: "Govt Bonds & Debt (4)", icon: Shield },
-            { id: "fds", label: "FDs & Savings (4)", icon: PiggyBank },
+            { id: "all", label: `All (${DEFAULT_CURATED_ASSETS.length})`, icon: Layers },
+            { id: "nifty50", label: "Equities (50)", icon: TrendingUp },
+            { id: "bonds", label: "Govt Debt (4)", icon: ShieldCheck },
+            { id: "fds", label: "FDs & Cash (4)", icon: PiggyBank },
             { id: "reit", label: "REITs (4)", icon: Building },
             { id: "commodity", label: "Commodities (4)", icon: Sparkles },
-            { id: "global", label: "US & Global ETFs (5)", icon: Globe },
-            { id: "crypto", label: "Crypto (3)", icon: Coins },
+            { id: "global", label: "Global ETFs (5)", icon: Globe },
+            { id: "crypto", label: "Digital Assets (3)", icon: Coins },
           ].map((cat) => {
             const Icon = cat.icon;
             return (
               <button
                 key={cat.id}
                 onClick={() => setFilterClass(cat.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 border ${
                   filterClass === cat.id
-                    ? "bg-teal-500/20 text-teal-300 border border-teal-500/40 shadow-sm"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60"
+                    ? "bg-[#191B1D] text-white border-[#191B1D]"
+                    : "bg-[#F4F5F6] text-[#5A5D61] border-[#CDCECF] hover:text-[#191B1D] hover:border-[#191B1D]"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -223,69 +222,61 @@ export function AssetSelector({
         </div>
 
         {/* Search Field */}
-        <div className="relative w-full sm:w-64 shrink-0">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-zinc-400" />
+        <div className="relative w-full sm:w-72 shrink-0">
+          <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#5A5D61]" />
           <input
             type="text"
-            placeholder="Search 70+ assets or tickers..."
+            placeholder="Search assets or tickers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-teal-500/60"
+            className="w-full pl-9 pr-3 py-2 bg-[#FFFFFF] border border-[#CDCECF] rounded-lg text-sm text-[#191B1D] placeholder-[#85888C] focus:outline-none focus:border-[#191B1D]"
           />
         </div>
       </div>
 
-      {/* Quick Select / Deselect Bar */}
-      <div className="flex items-center justify-between text-xs px-1 text-zinc-400">
-        <span>Showing {filteredAssets.length} assets in this view</span>
+      {/* Quick Select Bar */}
+      <div className="flex items-center justify-between text-xs px-1 text-[#5A5D61] font-mono">
+        <span>Displaying {filteredAssets.length} assets</span>
         <button
           onClick={handleSelectAllVisible}
-          className="text-teal-400 hover:text-teal-300 font-semibold cursor-pointer"
+          className="text-[#0F766E] hover:underline font-bold cursor-pointer"
         >
           + Select All {filteredAssets.length} Visible
         </button>
       </div>
 
       {/* Assets Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[560px] overflow-y-auto p-1 pr-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 max-h-[540px] overflow-y-auto p-1 pr-2">
         {filteredAssets.map((asset) => {
           const isSelected = selectedTickers.includes(asset.ticker);
-          const isCrypto = asset.sector === "Cryptocurrency";
           const isDebt = asset.asset_class === "debt";
-          const isReit = asset.sector?.includes("Real Estate");
           const isComm = asset.asset_class === "commodity";
 
           return (
             <div
               key={asset.ticker}
               onClick={() => toggleTicker(asset.ticker)}
-              className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
+              className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
                 isSelected
-                  ? "bg-teal-950/40 border-teal-500/60 shadow-lg shadow-teal-500/5 ring-1 ring-teal-500/30"
-                  : "bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900 hover:border-zinc-700"
+                  ? "bg-[#FFFFFF] border-[#191B1D] shadow-sm ring-1 ring-[#191B1D]"
+                  : "bg-[#FFFFFF] border-[#CDCECF] hover:border-[#191B1D]"
               }`}
             >
-              <div className="space-y-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-mono font-bold text-xs text-white truncate">{asset.ticker}</span>
+              <div className="space-y-1.5 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-sm text-[#191B1D] truncate">{asset.ticker}</span>
                   <span
-                    className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 ${
-                      isCrypto
-                        ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                        : isComm
-                        ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                        : isReit
-                        ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                        : isDebt
-                        ? "bg-teal-500/10 text-teal-400 border border-teal-500/20"
-                        : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded border uppercase tracking-wider shrink-0 ${
+                      isSelected
+                        ? "bg-[#191B1D] text-white border-[#191B1D]"
+                        : "bg-[#F4F5F6] text-[#5A5D61] border-[#CDCECF]"
                     }`}
                   >
                     {asset.asset_class}
                   </span>
                 </div>
-                <p className="text-xs text-zinc-300 font-medium line-clamp-1">{asset.name}</p>
-                <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                <p className="text-sm text-[#191B1D] font-medium line-clamp-1">{asset.name}</p>
+                <div className="flex items-center gap-2 text-xs text-[#5A5D61] font-mono">
                   <span className="truncate">{asset.sector}</span>
                   <span>•</span>
                   <span>{asset.currency}</span>
@@ -293,55 +284,52 @@ export function AssetSelector({
               </div>
 
               <div
-                className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all ${
+                className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-all ${
                   isSelected
-                    ? "bg-teal-500 text-zinc-950 font-bold"
-                    : "bg-zinc-800 text-zinc-500 border border-zinc-700"
+                    ? "bg-[#191B1D] text-white font-bold"
+                    : "bg-[#F4F5F6] text-[#5A5D61] border border-[#CDCECF]"
                 }`}
               >
-                {isSelected ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                {isSelected ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Stage 4: Market Data & Statistical Inputs Card */}
-      <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800/80 pb-3">
+      {/* Covariance Matrix & Statistical Inputs Card */}
+      <div className="bg-[#FFFFFF] border border-[#CDCECF] rounded-2xl p-6 space-y-4 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#CDCECF] pb-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[11px] font-semibold mb-1">
-              <span>Statistical Matrices</span>
-            </div>
-            <h3 className="text-sm font-bold text-white">Market Data & Statistical Matrices</h3>
-            <p className="text-[11px] text-zinc-400">
-              Historical returns, expected return vector μ, covariance Σ (Ledoit-Wolf shrinkage), and pairwise correlation.
+            <h3 className="text-base font-bold text-[#191B1D]">Statistical Inputs & Covariance Matrix</h3>
+            <p className="text-xs text-[#5A5D61] mt-0.5">
+              Historical returns, expected return vector μ, and Ledoit-Wolf shrinkage covariance Σ.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono bg-zinc-950 px-2 py-1 rounded border border-zinc-800 text-emerald-400">
-              Risk-Free Rate (Rf): 6.50%
+          <div className="flex items-center gap-2 font-mono text-xs">
+            <span className="bg-[#F4F5F6] px-3 py-1 rounded-md border border-[#CDCECF] text-[#191B1D] font-bold">
+              Rf: 6.50%
             </span>
-            <span className="text-[11px] font-mono bg-zinc-950 px-2 py-1 rounded border border-zinc-800 text-teal-400">
-              Ledoit-Wolf: Enabled
+            <span className="bg-[#0F766E]/10 px-3 py-1 rounded-md border border-[#0F766E]/30 text-[#0F766E] font-bold">
+              Ledoit-Wolf Active
             </span>
           </div>
         </div>
 
-        {/* Statistical Metrics Table for Top Candidate Assets */}
+        {/* Statistical Metrics Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-zinc-800 text-[11px] text-zinc-400">
-                <th className="py-2 font-medium">Candidate Asset</th>
-                <th className="py-2 font-medium">Asset Class</th>
-                <th className="py-2 font-medium">Expected Return (μ)</th>
-                <th className="py-2 font-medium">Volatility (σ)</th>
-                <th className="py-2 font-medium">Historical Max DD</th>
-                <th className="py-2 font-medium">Asset Status</th>
+              <tr className="border-b border-[#CDCECF] text-xs font-mono text-[#5A5D61]">
+                <th className="py-2.5 font-bold">Asset</th>
+                <th className="py-2.5 font-bold">Class</th>
+                <th className="py-2.5 font-bold">Expected Return (μ)</th>
+                <th className="py-2.5 font-bold">Volatility (σ)</th>
+                <th className="py-2.5 font-bold">Max Drawdown</th>
+                <th className="py-2.5 font-bold">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800/50">
+            <tbody className="divide-y divide-[#CDCECF]">
               {selectedTickers.slice(0, 8).map((t) => {
                 const found = DEFAULT_CURATED_ASSETS.find((a: AssetItem) => a.ticker === t);
                 const retVal = found?.expected_return ?? found?.annual_return ?? 0.12;
@@ -353,17 +341,17 @@ export function AssetSelector({
                 const dd = isDebt ? "4.2%" : isComm ? "22.0%" : "34.5%";
 
                 return (
-                  <tr key={t} className="text-zinc-300 hover:bg-zinc-800/30">
-                    <td className="py-2 font-mono font-semibold text-white">
-                      {found?.name || t} <span className="text-zinc-500 text-[10px]">({t})</span>
+                  <tr key={t} className="text-[#191B1D] hover:bg-[#F8F9FA]">
+                    <td className="py-3 font-mono font-bold">
+                      {found?.name || t} <span className="text-[#5A5D61] text-xs">({t})</span>
                     </td>
-                    <td className="py-2 capitalize text-zinc-400">{found?.asset_class || "Equity"}</td>
-                    <td className="py-2 font-mono text-emerald-400">{ret}</td>
-                    <td className="py-2 font-mono text-teal-400">{vol}</td>
-                    <td className="py-2 font-mono text-rose-400">-{dd}</td>
-                    <td className="py-2">
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        Validated ✓
+                    <td className="py-3 capitalize text-[#5A5D61] text-xs font-mono">{found?.asset_class || "Equity"}</td>
+                    <td className="py-3 font-mono font-bold text-[#0F766E]">{ret}</td>
+                    <td className="py-3 font-mono font-bold text-[#191B1D]">{vol}</td>
+                    <td className="py-3 font-mono font-bold text-[#B91C1C]">-{dd}</td>
+                    <td className="py-3">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-[#0F766E]/10 text-[#0F766E] border border-[#0F766E]/30 font-bold">
+                        Verified ✓
                       </span>
                     </td>
                   </tr>
@@ -372,23 +360,23 @@ export function AssetSelector({
             </tbody>
           </table>
           {selectedTickers.length > 8 && (
-            <p className="text-[10px] text-zinc-500 mt-2 text-right">
-              + {selectedTickers.length - 8} more candidate assets preprocessed in covariance matrix Σ.
+            <p className="text-xs text-[#5A5D61] font-mono mt-3 text-right">
+              + {selectedTickers.length - 8} additional candidate assets modeled in covariance matrix Σ.
             </p>
           )}
         </div>
       </div>
 
-      {/* Selected Floating Action Bar */}
-      <div className="sticky bottom-4 z-40 bg-zinc-950/90 border border-zinc-800 rounded-2xl p-4 shadow-2xl backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-zinc-300">Active Universe:</span>
-          <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20">
-            {selectedTickers.length} Assets Selected
+      {/* Selected Action Bar */}
+      <div className="bg-[#FFFFFF] border border-[#CDCECF] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-bold text-[#191B1D]">Selected Pool:</span>
+          <span className="font-mono text-sm font-bold px-3 py-1 rounded-md bg-[#F4F5F6] text-[#191B1D] border border-[#CDCECF]">
+            {selectedTickers.length} Assets
           </span>
           {isUnbiasedMode && (
-            <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-              Unbiased Mode Active (All 74)
+            <span className="text-xs font-mono font-bold text-[#0F766E] bg-[#0F766E]/10 px-2.5 py-1 rounded border border-[#0F766E]/30">
+              Unbiased Mode (All 74)
             </span>
           )}
         </div>
@@ -408,15 +396,15 @@ export function AssetSelector({
                 "EMBASSY_REIT",
               ]);
             }}
-            className="text-xs text-zinc-400 hover:text-zinc-200 px-3 py-2 cursor-pointer"
+            className="text-sm font-medium text-[#5A5D61] hover:text-[#191B1D] px-3 py-2 cursor-pointer"
           >
             Reset Default
           </button>
           <button
             onClick={onProceed}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 py-2.5 px-6 rounded-xl bg-gradient-to-r from-teal-500 via-cyan-500 to-emerald-500 text-zinc-950 font-bold text-xs hover:brightness-110 active:scale-[0.99] transition-all shadow-md shadow-teal-500/20 cursor-pointer"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 py-3 px-6 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all shadow-xs cursor-pointer"
           >
-            <span>Proceed to Frontier & Optimization</span>
+            <span>Proceed to Solver & Frontier</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

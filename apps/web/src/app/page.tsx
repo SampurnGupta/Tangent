@@ -130,14 +130,7 @@ export default function Home() {
     };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/30 selection:text-emerald-300 relative overflow-x-hidden">
-      {/* Dynamic Animated Ambient Mesh Backdrop */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-32 left-1/4 w-[550px] h-[550px] rounded-full bg-emerald-500/10 blur-[130px] animate-float-slow" />
-        <div className="absolute top-1/3 -right-32 w-[600px] h-[600px] rounded-full bg-cyan-500/8 blur-[140px] animate-float-reverse" />
-        <div className="absolute -bottom-32 left-1/3 w-[500px] h-[500px] rounded-full bg-teal-500/8 blur-[120px] animate-pulse-subtle" />
-      </div>
-
+    <div className="min-h-screen bg-[#F4F5F6] text-[#191B1D] flex flex-col font-sans selection:bg-[#191B1D] selection:text-white relative overflow-x-hidden">
       <Header userId={userId} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 relative z-10">
@@ -247,25 +240,25 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-900 bg-zinc-950 py-8 px-4 sm:px-6 lg:px-8 text-xs text-zinc-500 relative z-10">
+      <footer className="border-t border-[#CDCECF] bg-[#FFFFFF] py-8 px-4 sm:px-6 lg:px-8 text-sm text-[#5A5D61] relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-zinc-300">Tangent</span>
+            <span className="font-bold text-[#191B1D]">Tangent</span>
             <span>—</span>
             <span>Portfolio decisions you can trace.</span>
           </div>
 
-          <div className="flex items-center gap-6">
-            <span className="flex items-center gap-1.5 text-zinc-400">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Deterministic Python Microservices</span>
+          <div className="flex items-center gap-6 text-xs font-mono">
+            <span className="flex items-center gap-1.5 text-[#5A5D61]">
+              <ShieldCheck className="w-4 h-4 text-[#0F766E]" />
+              <span>Deterministic Python Services</span>
             </span>
-            <span className="flex items-center gap-1.5 text-zinc-400">
-              <Cpu className="w-3.5 h-3.5 text-teal-400" />
-              <span>SciPy SLSQP Optimizer</span>
+            <span className="flex items-center gap-1.5 text-[#5A5D61]">
+              <Cpu className="w-4 h-4 text-[#191B1D]" />
+              <span>SciPy SLSQP Solver</span>
             </span>
-            <span className="flex items-center gap-1.5 text-zinc-400">
-              <Database className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="flex items-center gap-1.5 text-[#5A5D61]">
+              <Database className="w-4 h-4 text-[#5A5D61]" />
               <span>Alembic Migrations</span>
             </span>
           </div>

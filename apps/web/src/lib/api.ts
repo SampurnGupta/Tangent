@@ -1386,10 +1386,14 @@ export interface ChatConciergeContext {
   riskProfileName?: string;
   selectedTickers?: string[];
   weights?: Record<string, number>;
+  currentWeights?: Record<string, number>;
   nominalReturn?: number;
+  currentReturn?: number;
   realReturn?: number;
   volatility?: number;
+  currentVol?: number;
   sharpe?: number;
+  currentSharpe?: number;
   taxDrag?: number;
   diversificationScore?: number;
   monteCarloMedian?: number;
@@ -1406,7 +1410,9 @@ export interface ChatConciergeContext {
 export interface ChatConciergeResponse {
   reply: string;
   evidence: Array<{ id: string; label: string; value: number | string; unit: string }>;
+  evidence_items?: EvidenceItem[];
   model?: string;
+  model_used?: string;
 }
 
 /**

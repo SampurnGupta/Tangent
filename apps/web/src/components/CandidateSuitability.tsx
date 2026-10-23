@@ -9,15 +9,9 @@ import {
 } from "@/lib/api";
 import {
   Award,
-  ShieldCheck,
-  TrendingUp,
   AlertTriangle,
   CheckCircle2,
-  XCircle,
   ArrowRight,
-  Sliders,
-  Layers,
-  Sparkles,
 } from "lucide-react";
 
 interface CandidateSuitabilityProps {
@@ -64,22 +58,22 @@ export function CandidateSuitability({
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 py-6">
+    <div className="max-w-6xl mx-auto space-y-8 py-6 animate-fade-in">
       {/* Header */}
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
-          <Award className="w-3.5 h-3.5" />
-          <span>Stages 8 & 9: Candidate Portfolios & Suitability Layer</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#FFFFFF] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-bold">
+          <Award className="w-3.5 h-3.5 text-[#0F766E]" />
+          <span>Candidate Portfolios & Suitability Layer</span>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-          Multi-Candidate Comparison & Investor Suitability Analysis
+        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D]">
+          Candidate Evaluation & Suitability Matching
         </h2>
-        <p className="text-xs text-zinc-400 max-w-2xl">
-          We do not automatically recommend the Maximum Sharpe portfolio simply because of mathematical ratio. Our suitability engine compares 4 distinct candidate allocations against your risk capacity, investment horizon, and drawdown limits.
+        <p className="text-sm text-[#5A5D61] max-w-2xl leading-relaxed">
+          Rather than unthinkingly selecting the theoretical Max-Sharpe solution, our engine evaluates 4 distinct candidate allocations against your risk tolerance, timeline, and drawdown resilience.
         </p>
       </div>
 
-      {/* 4 Candidate Portfolios Side-by-Side (Stage 8) */}
+      {/* 4 Candidate Portfolios Side-by-Side */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {candidates.map((cand) => {
           const isSelected = selectedCandidateId === cand.id;
@@ -89,92 +83,84 @@ export function CandidateSuitability({
             <div
               key={cand.id}
               onClick={() => handleChoose(cand)}
-              className={`rounded-2xl p-5 border flex flex-col justify-between transition-all cursor-pointer relative ${
+              className={`rounded-2xl p-6 border flex flex-col justify-between transition-all cursor-pointer relative ${
                 isSelected
-                  ? "bg-zinc-900 border-emerald-500/60 shadow-xl shadow-emerald-500/10 ring-1 ring-emerald-500/30"
-                  : "bg-zinc-950/80 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/40"
+                  ? "bg-[#FFFFFF] border-[#191B1D] shadow-sm ring-1 ring-[#191B1D]"
+                  : "bg-[#FFFFFF] border-[#CDCECF] hover:border-[#191B1D]"
               }`}
             >
               {isRecommended && (
-                <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-zinc-950 text-[10px] font-black tracking-wide shadow-md">
-                  ★ MOST SUITABLE
+                <div className="absolute -top-3 right-4 px-3 py-0.5 rounded-full bg-[#191B1D] text-white text-xs font-mono font-bold tracking-wide shadow-xs">
+                  ★ RECOMMENDED
                 </div>
               )}
 
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-bold text-sm text-white">{cand.name}</h3>
-                  <p className="text-[11px] text-zinc-400 line-clamp-1 mt-0.5">{cand.tagline}</p>
+                  <h3 className="font-bold text-base text-[#191B1D]">{cand.name}</h3>
+                  <p className="text-xs text-[#5A5D61] line-clamp-1 mt-0.5">{cand.tagline}</p>
                 </div>
 
                 {/* Key Metrics */}
-                <div className="space-y-2 py-2 border-y border-zinc-800/80 font-mono text-xs">
+                <div className="space-y-2.5 py-3 border-y border-[#CDCECF] font-mono text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-400 text-[11px]">Nominal Return</span>
-                    <span className="font-bold text-emerald-400">
+                    <span className="text-[#5A5D61] text-xs">Nominal Return</span>
+                    <span className="font-bold text-[#191B1D]">
                       {(cand.expectedReturnNominal * 100).toFixed(1)}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-400 text-[11px]">Real Return</span>
-                    <span className="font-bold text-teal-400">
+                    <span className="text-[#5A5D61] text-xs">Real Return</span>
+                    <span className="font-bold text-[#0F766E]">
                       {(cand.expectedReturnReal * 100).toFixed(1)}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-400 text-[11px]">Volatility (σ)</span>
-                    <span className="text-zinc-300">
+                    <span className="text-[#5A5D61] text-xs">Volatility (σ)</span>
+                    <span className="text-[#191B1D]">
                       {(cand.annualVolatility * 100).toFixed(1)}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-400 text-[11px]">Sharpe Ratio</span>
-                    <span className="font-bold text-cyan-400">{cand.sharpeRatio.toFixed(2)}</span>
+                    <span className="text-[#5A5D61] text-xs">Sharpe Ratio</span>
+                    <span className="font-bold text-[#0F766E]">{cand.sharpeRatio.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-400 text-[11px]">Max Drawdown</span>
-                    <span className="font-bold text-rose-400">
+                    <span className="text-[#5A5D61] text-xs">Max Drawdown</span>
+                    <span className="font-bold text-[#B91C1C]">
                       -{(cand.maxDrawdown * 100).toFixed(1)}%
                     </span>
                   </div>
                 </div>
 
                 {/* Suitability Score Bar */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[11px]">
-                    <span className="text-zinc-400">Suitability Match:</span>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-[#5A5D61] font-mono">Suitability Score:</span>
                     <span
                       className={`font-bold font-mono ${
                         cand.suitabilityScore >= 90
-                          ? "text-emerald-400"
-                          : cand.suitabilityScore >= 70
-                          ? "text-teal-400"
-                          : "text-amber-400"
+                          ? "text-[#0F766E]"
+                          : "text-[#191B1D]"
                       }`}
                     >
                       {cand.suitabilityScore}%
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-[#F4F5F6] rounded-full overflow-hidden border border-[#CDCECF]">
                     <div
-                      className={`h-full rounded-full transition-all ${
-                        cand.suitabilityScore >= 90
-                          ? "bg-emerald-500"
-                          : cand.suitabilityScore >= 70
-                          ? "bg-teal-500"
-                          : "bg-amber-500"
-                      }`}
+                      className="h-full rounded-full bg-[#191B1D] transition-all"
                       style={{ width: `${cand.suitabilityScore}%` }}
                     />
                   </div>
                 </div>
 
-                {/* Asset Class Allocations Breakdown */}
+                {/* Asset Class Split */}
                 <div className="space-y-1.5 pt-1">
-                  <span className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider block">
+                  <span className="text-xs text-[#5A5D61] font-mono uppercase tracking-wider block">
                     Asset Class Split
                   </span>
-                  <div className="flex gap-1 h-2 rounded-full overflow-hidden bg-zinc-900">
+                  <div className="flex gap-1 h-2 rounded-full overflow-hidden bg-[#F4F5F6] border border-[#CDCECF]">
                     {Object.entries(cand.assetClassAllocations).map(([cls, share]) => (
                       <div
                         key={cls}
@@ -182,12 +168,10 @@ export function CandidateSuitability({
                         title={`${cls}: ${(share * 100).toFixed(0)}%`}
                         className={
                           cls === "equity"
-                            ? "bg-emerald-500"
+                            ? "bg-[#191B1D]"
                             : cls === "debt"
-                            ? "bg-teal-500"
-                            : cls === "commodity"
-                            ? "bg-amber-500"
-                            : "bg-cyan-500"
+                            ? "bg-[#0F766E]"
+                            : "bg-[#B45309]"
                         }
                       />
                     ))}
@@ -199,10 +183,10 @@ export function CandidateSuitability({
               <button
                 type="button"
                 onClick={() => handleChoose(cand)}
-                className={`w-full mt-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                className={`w-full mt-5 py-2.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer border ${
                   isSelected
-                    ? "bg-emerald-500 text-zinc-950 font-bold"
-                    : "bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700"
+                    ? "bg-[#191B1D] text-white border-[#191B1D] shadow-xs"
+                    : "bg-[#F4F5F6] text-[#191B1D] border-[#CDCECF] hover:bg-[#191B1D] hover:text-white"
                 }`}
               >
                 {isSelected ? "Selected Candidate ✓" : "Select Candidate"}
@@ -212,56 +196,56 @@ export function CandidateSuitability({
         })}
       </div>
 
-      {/* Stage 9: Deep Suitability Layer Analysis Card */}
-      <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 space-y-6 shadow-xl">
-        <div className="border-b border-zinc-800/80 pb-3 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+      {/* Suitability Deep-Dive Card */}
+      <div className="bg-[#FFFFFF] border border-[#CDCECF] rounded-2xl p-7 space-y-6 shadow-xs">
+        <div className="border-b border-[#CDCECF] pb-4 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
           <div>
-            <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-[#0F766E] uppercase tracking-wider">
               Suitability Evaluation Report
             </span>
-            <h3 className="text-lg font-bold text-white mt-0.5">
-              Why the {selectedCandidate.name} is Recommended for You
+            <h3 className="text-xl font-black text-[#191B1D] mt-1">
+              Why the {selectedCandidate.name} Fits Your Parameters
             </h3>
           </div>
-          <span className="text-xs font-mono px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold">
-            Suitability Score: {selectedCandidate.suitabilityScore}/100
+          <span className="text-xs font-mono px-3.5 py-1.5 rounded-md bg-[#0F766E]/10 text-[#0F766E] border border-[#0F766E]/30 font-bold">
+            Match Score: {selectedCandidate.suitabilityScore}/100
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Why Suitable */}
-          <div className="space-y-3 p-4 rounded-xl bg-zinc-950/70 border border-zinc-800/80">
-            <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+          {/* Investment Rationale */}
+          <div className="space-y-3.5 p-5 rounded-xl bg-[#F8F9FA] border border-[#CDCECF]">
+            <div className="flex items-center gap-2 text-[#0F766E] font-bold text-sm">
               <CheckCircle2 className="w-4 h-4" />
               <span>Investment Rationale</span>
             </div>
-            <p className="text-xs text-zinc-300 leading-relaxed">
+            <p className="text-sm text-[#191B1D] leading-relaxed">
               {selectedCandidate.rationale}
             </p>
-            <div className="pt-2 border-t border-zinc-800/60 space-y-1.5 text-[11px] text-zinc-400">
-              <p>• Aligns with investor age ({riskProfile.score > 7 ? "early/growth phase" : "prime accumulation"}) and horizon ({horizon} years).</p>
-              <p>• Max drawdown of {(selectedCandidate.maxDrawdown * 100).toFixed(1)}% stays within the psychological panic threshold.</p>
-              <p>• Blended tax drag is contained to preserve purchasing power against 6.0% inflation.</p>
+            <div className="pt-3 border-t border-[#CDCECF] space-y-2 text-xs text-[#5A5D61] font-mono">
+              <p>• Aligns with investor age and horizon of {horizon} years.</p>
+              <p>• Projected max drawdown of {(selectedCandidate.maxDrawdown * 100).toFixed(1)}% stays within calculated stress thresholds.</p>
+              <p>• Estimated tax drag is mitigated to protect real returns above 6.0% inflation.</p>
             </div>
           </div>
 
-          {/* Rejected / Alternative Comparison */}
-          <div className="space-y-3 p-4 rounded-xl bg-zinc-950/70 border border-zinc-800/80">
-            <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
+          {/* Alternative Comparison */}
+          <div className="space-y-3.5 p-5 rounded-xl bg-[#F8F9FA] border border-[#CDCECF]">
+            <div className="flex items-center gap-2 text-[#B45309] font-bold text-sm">
               <AlertTriangle className="w-4 h-4" />
-              <span>Transparent Comparison with Alternatives</span>
+              <span>Comparison Against Other Candidates</span>
             </div>
-            <div className="space-y-2 text-xs text-zinc-300">
+            <div className="space-y-2.5 text-xs">
               {candidates
                 .filter((c) => c.id !== selectedCandidate.id)
                 .map((alt) => (
-                  <div key={alt.id} className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800/60 space-y-1">
-                    <div className="flex justify-between items-center text-[11px]">
-                      <strong className="text-white">{alt.name}</strong>
-                      <span className="text-zinc-500">Suitability: {alt.suitabilityScore}%</span>
+                  <div key={alt.id} className="p-3 rounded-lg bg-[#FFFFFF] border border-[#CDCECF] space-y-1">
+                    <div className="flex justify-between items-center text-xs">
+                      <strong className="text-[#191B1D]">{alt.name}</strong>
+                      <span className="text-[#5A5D61] font-mono">Score: {alt.suitabilityScore}%</span>
                     </div>
-                    <p className="text-[11px] text-zinc-400">
-                      {alt.rejectionReason || "Feasible alternative, but offers less balanced risk-adjusted alignment."}
+                    <p className="text-xs text-[#5A5D61]">
+                      {alt.rejectionReason || "Feasible alternative, but demonstrates lower parameter harmony."}
                     </p>
                   </div>
                 ))}
@@ -269,18 +253,18 @@ export function CandidateSuitability({
           </div>
         </div>
 
-        {/* Selected Portfolio Holdings Snapshot */}
+        {/* Selected Holdings Snapshot */}
         <div className="space-y-3 pt-2">
-          <div className="flex justify-between items-center text-xs">
-            <span className="font-semibold text-zinc-200">
+          <div className="flex justify-between items-center text-sm">
+            <span className="font-bold text-[#191B1D]">
               Holdings Breakdown for {selectedCandidate.name} (Capital: ₹{initialCapital.toLocaleString("en-IN")})
             </span>
-            <span className="font-mono text-zinc-400">
-              {Object.keys(selectedCandidate.weights).length} Securities
+            <span className="font-mono text-xs text-[#5A5D61]">
+              {Object.keys(selectedCandidate.weights).length} Assets
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {Object.entries(selectedCandidate.weights)
               .sort((a, b) => b[1] - a[1])
               .map(([ticker, weight]) => {
@@ -288,21 +272,21 @@ export function CandidateSuitability({
                 return (
                   <div
                     key={ticker}
-                    className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex justify-between items-center text-xs"
+                    className="p-3.5 rounded-xl bg-[#FFFFFF] border border-[#CDCECF] flex justify-between items-center text-xs"
                   >
                     <div>
-                      <span className="font-mono font-bold text-white block truncate max-w-[110px]">
+                      <span className="font-mono font-bold text-[#191B1D] block truncate max-w-[110px]">
                         {ticker}
                       </span>
-                      <span className="text-[10px] text-zinc-500 truncate block max-w-[110px]">
+                      <span className="text-xs text-[#5A5D61] truncate block max-w-[110px]">
                         {getAssetName(ticker)}
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="font-mono font-bold text-emerald-400 block">
+                      <span className="font-mono font-bold text-[#0F766E] block">
                         {(weight * 100).toFixed(1)}%
                       </span>
-                      <span className="font-mono text-[10px] text-zinc-400 block">
+                      <span className="font-mono text-xs text-[#5A5D61] block">
                         ₹{amt.toLocaleString("en-IN")}
                       </span>
                     </div>
@@ -316,7 +300,7 @@ export function CandidateSuitability({
         <div className="flex justify-end pt-2">
           <button
             onClick={onProceed}
-            className="flex items-center gap-2 py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 text-zinc-950 font-bold text-xs hover:brightness-110 active:scale-[0.99] transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
+            className="flex items-center gap-2 py-3.5 px-6 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all shadow-xs cursor-pointer"
           >
             <span>Proceed to 10-Year Monte Carlo Projections</span>
             <ArrowRight className="w-4 h-4" />

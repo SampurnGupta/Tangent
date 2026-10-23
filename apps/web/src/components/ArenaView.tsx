@@ -38,9 +38,9 @@ export const ARENA_PERSONAS: AgentPersona[] = [
     ideologyTitle: "Macro & Sovereign Rates Analyst",
     modelName: "Gemini 2.0 Flash",
     modelProvider: "Google TPU",
-    badgeColor: "text-amber-400 bg-amber-500/10 border-amber-500/30",
-    bgColor: "bg-amber-950/20",
-    borderColor: "border-amber-500/30",
+    badgeColor: "text-[#B45309] bg-[#B45309]/10 border-[#B45309]/30",
+    bgColor: "bg-[#FFFFFF]",
+    borderColor: "border-[#CDCECF]",
     coreIdeology:
       "Central bank interest rate differentials (Fed vs RBI), sovereign yield curves, currency depreciation (USD/INR), and institutional liquidity flows dictate asset valuations.",
     strictBoundaries:
@@ -52,9 +52,9 @@ export const ARENA_PERSONAS: AgentPersona[] = [
     ideologyTitle: "Growth Equity & Moats Analyst",
     modelName: "Llama 3.3 70B",
     modelProvider: "Groq LPU",
-    badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
-    bgColor: "bg-emerald-950/20",
-    borderColor: "border-emerald-500/30",
+    badgeColor: "text-[#0F766E] bg-[#0F766E]/10 border-[#0F766E]/30",
+    bgColor: "bg-[#FFFFFF]",
+    borderColor: "border-[#CDCECF]",
     coreIdeology:
       "Long-term compounding is driven exclusively by business economic moats, capital reinvestment rates, Return on Equity (ROE > 18%), and secular market leadership.",
     strictBoundaries:
@@ -66,9 +66,9 @@ export const ARENA_PERSONAS: AgentPersona[] = [
     ideologyTitle: "Quantitative Risk & Covariance Analyst",
     modelName: "Llama 3.2 3B",
     modelProvider: "Cloudflare Workers AI",
-    badgeColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30",
-    bgColor: "bg-cyan-950/20",
-    borderColor: "border-cyan-500/30",
+    badgeColor: "text-[#191B1D] bg-[#F4F5F6] border-[#CDCECF]",
+    bgColor: "bg-[#FFFFFF]",
+    borderColor: "border-[#CDCECF]",
     coreIdeology:
       "Market narratives deceive; the Ledoit-Wolf covariance matrix and downside Value-at-Risk (VaR) never lie. True safety is mathematical non-correlation.",
     strictBoundaries:
@@ -741,80 +741,79 @@ STRICT RULES:
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 py-6 animate-fade-in">
-      {/* ── HEADER (Target & cryptic hex numbers removed) ──────────────────────── */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-zinc-900 via-zinc-900/90 to-zinc-950 border border-zinc-800 shadow-2xl space-y-3 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 blur-[120px] pointer-events-none" />
+      {/* ── HEADER ── */}
+      <div className="p-7 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] shadow-xs space-y-3 relative overflow-hidden">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
-              <Swords className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F4F5F6] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-bold">
+              <Swords className="w-3.5 h-3.5 text-[#0F766E]" />
               <span>The Arena — Multi-Agent Cross-Fire Deliberation</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D] flex items-center gap-2 mt-1">
               Cross-Fire Investment Committee
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl">
+            <p className="text-sm text-[#5A5D61] max-w-2xl leading-relaxed">
               Pitch any asset allocation hypothesis or market idea. Domain expert personas debate the trade-offs,
               strictly bound to their core ideology, cross-examine previous arguments with real-world data, and reach a definitive consensus conclusion.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-950/60 px-3 py-2 rounded-xl border border-zinc-800 shrink-0">
-            <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-            <span>Autonomous Institutional Deliberation</span>
+          <div className="flex items-center gap-2 text-xs font-mono text-[#5A5D61] bg-[#F4F5F6] px-3.5 py-2 rounded-lg border border-[#CDCECF] shrink-0 font-bold">
+            <Sparkles className="w-3.5 h-3.5 text-[#0F766E]" />
+            <span>Autonomous Deliberation</span>
           </div>
         </div>
       </div>
 
-      {/* ── SECTION 1: AGENT PERSONAS (STRICT PHILOSOPHY & BOUNDARIES ONLY) ── */}
-      <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-4">
-        <div className="space-y-0.5">
-          <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold block">
+      {/* ── SECTION 1: AGENT PERSONAS ── */}
+      <div className="p-7 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] space-y-5 shadow-xs">
+        <div className="space-y-1">
+          <span className="text-xs uppercase tracking-wider text-[#5A5D61] font-mono font-bold block">
             Expert Ideologies & Strict Boundations
           </span>
-          <p className="text-xs text-zinc-400">
+          <p className="text-sm text-[#5A5D61]">
             Each agent is strictly bound to its guiding financial doctrine. Click any persona to inspect its operational boundaries:
           </p>
         </div>
 
-        {/* Persona Ideology Selector Pills (3 Independent Personas) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        {/* Persona Ideology Selector Pills */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {ARENA_PERSONAS.map((persona) => {
             const isSelected = selectedPersonaId === persona.id;
             return (
               <button
                 key={persona.id}
                 onClick={() => setSelectedPersonaId(persona.id)}
-                className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                className={`p-5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                   isSelected
-                    ? `${persona.borderColor} ${persona.bgColor} shadow-lg ring-1 ring-zinc-500/40`
-                    : "border-zinc-800/80 bg-zinc-950/40 hover:border-zinc-700 hover:bg-zinc-900/40"
+                    ? "border-[#191B1D] bg-[#F8F9FA] shadow-xs ring-1 ring-[#191B1D]"
+                    : "border-[#CDCECF] bg-[#FFFFFF] hover:border-[#191B1D]"
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       <span className="text-2xl">{persona.avatar}</span>
                       <div>
-                        <span className="text-xs font-bold text-white block leading-tight">
+                        <span className="text-sm font-bold text-[#191B1D] block leading-tight">
                           {persona.ideologyTitle}
                         </span>
-                        <span className="text-[10px] text-zinc-400 font-mono">
+                        <span className="text-xs text-[#5A5D61] font-mono">
                           {persona.id.toUpperCase()}BOT
                         </span>
                       </div>
                     </div>
                   </div>
-                  <span className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">
+                  <span className="text-xs text-[#5A5D61] line-clamp-2 leading-relaxed">
                     {persona.coreIdeology}
                   </span>
                 </div>
 
-                <div className="pt-3 mt-3 border-t border-zinc-800/60 flex items-center justify-between text-[10px] font-mono">
-                  <span className={`px-2 py-0.5 rounded-full border ${persona.badgeColor}`}>
+                <div className="pt-3 mt-3 border-t border-[#CDCECF] flex items-center justify-between text-xs font-mono">
+                  <span className={`px-2 py-0.5 rounded border font-semibold ${persona.badgeColor}`}>
                     {persona.modelName}
                   </span>
-                  <span className="text-zinc-500">{persona.modelProvider}</span>
+                  <span className="text-[#5A5D61]">{persona.modelProvider}</span>
                 </div>
               </button>
             );
@@ -823,37 +822,37 @@ STRICT RULES:
 
         {/* Active Selected Persona Deep-Dive Card */}
         {selectedPersonaId && (
-          <div className="p-4 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs space-y-2 animate-fade-in">
+          <div className="p-5 rounded-xl bg-[#F8F9FA] border border-[#CDCECF] text-xs space-y-3 animate-fade-in">
             {(() => {
               const active = ARENA_PERSONAS.find((p) => p.id === selectedPersonaId)!;
               return (
                 <>
-                  <div className="flex items-center justify-between border-b border-zinc-800/60 pb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{active.avatar}</span>
+                  <div className="flex items-center justify-between border-b border-[#CDCECF] pb-2.5">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">{active.avatar}</span>
                       <div>
-                        <span className="font-bold text-white text-sm">{active.ideologyTitle}</span>
-                        <span className="text-[10px] text-zinc-400 font-mono ml-2">
+                        <span className="font-bold text-[#191B1D] text-sm">{active.ideologyTitle}</span>
+                        <span className="text-xs text-[#5A5D61] font-mono ml-2">
                           Powered by {active.modelName} ({active.modelProvider})
                         </span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-zinc-400 uppercase">
+                    <span className="text-xs font-mono text-[#5A5D61] uppercase font-bold">
                       Operational Guardrails
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                     <div>
-                      <span className="font-semibold text-emerald-400 block mb-0.5">
+                      <span className="font-bold text-[#0F766E] block mb-1 text-xs">
                         Guiding Doctrine:
                       </span>
-                      <p className="text-zinc-300 leading-relaxed">{active.coreIdeology}</p>
+                      <p className="text-sm text-[#191B1D] leading-relaxed">{active.coreIdeology}</p>
                     </div>
                     <div>
-                      <span className="font-semibold text-amber-400 block mb-0.5">
+                      <span className="font-bold text-[#B45309] block mb-1 text-xs">
                         Strict Boundaries Enforced:
                       </span>
-                      <p className="text-zinc-300 leading-relaxed">{active.strictBoundaries}</p>
+                      <p className="text-sm text-[#191B1D] leading-relaxed">{active.strictBoundaries}</p>
                     </div>
                   </div>
                 </>
@@ -864,12 +863,12 @@ STRICT RULES:
       </div>
 
       {/* ── SECTION 2: PITCH INVESTMENT QUESTION OR IDEA ── */}
-      <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-4">
+      <div className="p-7 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] space-y-4 shadow-xs">
         <div className="space-y-1">
-          <label className="text-sm font-bold text-white block">
+          <label className="text-base font-bold text-[#191B1D] block">
             Pitch Your Asset Allocation Idea or Investment Question:
           </label>
-          <p className="text-xs text-zinc-400">
+          <p className="text-sm text-[#5A5D61]">
             Submit a hypothesis or query. The expert committee will debate its macro, valuation, growth, and covariance merits sequentially.
           </p>
         </div>
@@ -882,13 +881,13 @@ STRICT RULES:
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="e.g. tell me about Tata Consultancy Services Ltd stock and its future scope, or should I sell US stocks to buy India..."
-              className="w-full px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all resize-none"
+              className="w-full px-4 py-3 rounded-xl bg-[#FFFFFF] border border-[#CDCECF] text-[#191B1D] placeholder-[#85888C] text-sm focus:outline-none focus:border-[#191B1D] transition-all resize-none"
             />
           </div>
 
           {/* Quick Preset Buttons */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider">
+            <span className="text-xs text-[#5A5D61] font-mono uppercase tracking-wider font-bold">
               Presets:
             </span>
             {PRESET_QUERIES.map((preset, i) => (
@@ -898,7 +897,7 @@ STRICT RULES:
                   setQuery(preset);
                   handleStartDebate(preset);
                 }}
-                className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 transition-all cursor-pointer truncate max-w-[260px]"
+                className="text-xs px-3 py-1.5 rounded-md bg-[#F4F5F6] border border-[#CDCECF] text-[#5A5D61] hover:text-[#191B1D] hover:border-[#191B1D] transition-all cursor-pointer truncate max-w-[280px]"
               >
                 {preset}
               </button>
@@ -911,16 +910,16 @@ STRICT RULES:
           <button
             onClick={() => handleStartDebate()}
             disabled={!query.trim() || isDebating}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-zinc-950 font-bold text-xs hover:brightness-110 active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20 disabled:opacity-40"
+            className="px-6 py-3 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-40"
           >
             {isDebating ? (
               <>
-                <BrainCircuit className="w-4 h-4 animate-spin text-zinc-950" />
+                <BrainCircuit className="w-4 h-4 animate-spin text-white" />
                 <span>Simulating Committee Discussion...</span>
               </>
             ) : (
               <>
-                <Play className="w-4 h-4 fill-zinc-950" />
+                <Play className="w-4 h-4 fill-white" />
                 <span>Launch Committee Deliberation</span>
               </>
             )}
@@ -928,19 +927,19 @@ STRICT RULES:
         </div>
       </div>
 
-      {/* ── SECTION 3: SEQUENTIAL EXPERT ANSWERS (DISPLAYED DIRECTLY UNDERNEATH) ── */}
+      {/* ── SECTION 3: SEQUENTIAL EXPERT ANSWERS ── */}
       {turns.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between px-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#5A5D61] font-mono">
               Committee Discussion Stream
             </span>
             {conclusion && (
               <button
                 onClick={handleCopyTranscript}
-                className="px-2.5 py-1 rounded-lg text-xs bg-zinc-950 border border-zinc-800 text-zinc-300 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
+                className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-[#FFFFFF] border border-[#CDCECF] text-[#191B1D] hover:border-[#191B1D] flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-[#0F766E]" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? "Copied Debate!" : "Copy Debate Transcript"}</span>
               </button>
             )}
@@ -951,36 +950,33 @@ STRICT RULES:
             {turns.map((turn, idx) => {
               const persona =
                 ARENA_PERSONAS.find((p) => p.id === turn.agentId) || ARENA_PERSONAS[0];
-              const isArbiter = turn.agentId === "arbiter";
 
               return (
                 <div
                   key={idx}
-                  className={`p-5 rounded-2xl border ${persona.borderColor} ${persona.bgColor} space-y-3 animate-fade-in backdrop-blur-sm ${
-                    isArbiter ? "border-teal-500/50 shadow-xl" : ""
-                  }`}
+                  className="p-6 rounded-2xl border border-[#CDCECF] bg-[#FFFFFF] space-y-3 shadow-xs animate-fade-in"
                 >
-                  <div className="flex items-center justify-between border-b border-zinc-800/50 pb-2">
+                  <div className="flex items-center justify-between border-b border-[#CDCECF] pb-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-xl p-1.5 rounded-lg bg-zinc-950/60 border border-zinc-800">
+                      <span className="text-xl p-1.5 rounded-lg bg-[#F4F5F6] border border-[#CDCECF]">
                         {persona.avatar}
                       </span>
                       <div>
-                        <span className="font-bold text-white text-sm block">{turn.speakerTitle}</span>
-                        <span className="text-[10px] text-zinc-400 font-mono">Turn #{idx + 1} of Debate</span>
+                        <span className="font-bold text-[#191B1D] text-sm block">{turn.speakerTitle}</span>
+                        <span className="text-xs text-[#5A5D61] font-mono">Turn #{idx + 1} of Debate</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Headline & Core Argument */}
                   <div className="space-y-1.5">
-                    <h4 className="font-bold text-zinc-100 text-sm">{turn.headline}</h4>
-                    <p className="text-xs leading-relaxed text-zinc-300">{turn.argument}</p>
+                    <h4 className="font-bold text-[#191B1D] text-base">{turn.headline}</h4>
+                    <p className="text-sm leading-relaxed text-[#191B1D]">{turn.argument}</p>
                   </div>
 
-                  {/* Empirical Verifiable Evidence Pill */}
-                  <div className="p-2.5 rounded-lg bg-zinc-950/80 border border-zinc-800 text-[11px] text-zinc-400 font-mono flex items-start gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
+                  {/* Verifiable Evidence Pill */}
+                  <div className="p-3 rounded-lg bg-[#F8F9FA] border border-[#CDCECF] text-xs text-[#191B1D] font-mono flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-[#0F766E] mt-0.5 shrink-0" />
                     <span>{turn.verifiableData}</span>
                   </div>
                 </div>
@@ -990,46 +986,44 @@ STRICT RULES:
         </div>
       )}
 
-      {/* ── SECTION 4: FINAL CONSENSUS CONCLUSION (NO PORTFOLIO SUGGESTIONS) ── */}
+      {/* ── SECTION 4: FINAL CONSENSUS CONCLUSION ── */}
       {conclusion && (
-        <div className="p-6 rounded-2xl bg-gradient-to-b from-zinc-900 via-zinc-950 to-zinc-950 border-2 border-emerald-500/40 shadow-2xl space-y-6 animate-fade-in relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 blur-[100px] pointer-events-none" />
-
+        <div className="p-7 rounded-2xl bg-[#FFFFFF] border-2 border-[#191B1D] shadow-sm space-y-6 animate-fade-in relative overflow-hidden">
           {/* Verdict Banner */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-zinc-800 pb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#CDCECF] pb-4">
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🎯</span>
-                <span className="text-xs uppercase tracking-wider text-emerald-400 font-bold">
+                <span className="text-xs uppercase tracking-wider text-[#0F766E] font-bold font-mono">
                   Chief Synthesis Arbiter — Consensus Conclusion
                 </span>
               </div>
-              <h3 className="text-lg sm:text-xl font-black text-white mt-1">
+              <h3 className="text-xl sm:text-2xl font-black text-[#191B1D] mt-1">
                 {conclusion.consensusVerdict}
               </h3>
             </div>
 
-            <div className="px-3.5 py-1.5 rounded-xl bg-zinc-950 border border-zinc-800 text-right">
-              <span className="text-[10px] text-zinc-400 font-mono block">Debate Status</span>
-              <span className="text-xs font-bold text-emerald-400 uppercase font-mono">Consensus Reached</span>
+            <div className="px-3.5 py-1.5 rounded-lg bg-[#F4F5F6] border border-[#CDCECF] text-right font-mono">
+              <span className="text-xs text-[#5A5D61] block">Debate Status</span>
+              <span className="text-xs font-bold text-[#0F766E] uppercase">Consensus Reached</span>
             </div>
           </div>
 
           {/* Executive Synthesis */}
-          <div className="p-4 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-zinc-200 leading-relaxed space-y-2">
-            <span className="font-bold text-white block">Synthesis of the Expert Deliberation:</span>
+          <div className="p-5 rounded-xl bg-[#F8F9FA] border border-[#CDCECF] text-sm text-[#191B1D] leading-relaxed space-y-2">
+            <span className="font-bold text-[#191B1D] block">Synthesis of the Expert Deliberation:</span>
             <p>{conclusion.synthesisText}</p>
           </div>
 
           {/* Key Pitfalls Identified */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-rose-400 uppercase tracking-wider">
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#B91C1C] uppercase tracking-wider font-mono">
               <AlertTriangle className="w-4 h-4" />
               <span>Critical Blind Spots & Pitfalls Identified by Experts:</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {conclusion.keyPitfalls.map((pitfall, i) => (
-                <div key={i} className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 text-xs text-zinc-300">
+                <div key={i} className="p-3.5 rounded-xl bg-[#FFFFFF] border border-[#CDCECF] text-xs text-[#5A5D61]">
                   {pitfall}
                 </div>
               ))}
@@ -1037,15 +1031,15 @@ STRICT RULES:
           </div>
 
           {/* Actionable Consensus */}
-          <div className="space-y-2 pt-2 border-t border-zinc-800">
-            <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
+          <div className="space-y-2.5 pt-2 border-t border-[#CDCECF]">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#0F766E] uppercase tracking-wider font-mono">
               <CheckCircle2 className="w-4 h-4" />
               <span>Agreed Committee Guidelines for the Investor:</span>
             </div>
             <ul className="space-y-2">
               {conclusion.actionableConsensus.map((action, idx) => (
-                <li key={idx} className="flex items-start gap-2.5 text-xs text-zinc-200 p-2.5 rounded-lg bg-zinc-950/40 border border-zinc-800/80">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1 shrink-0" />
+                <li key={idx} className="flex items-start gap-2.5 text-xs text-[#191B1D] p-3 rounded-lg bg-[#F8F9FA] border border-[#CDCECF]">
+                  <span className="w-2 h-2 rounded-full bg-[#0F766E] mt-1 shrink-0" />
                   <span>{action}</span>
                 </li>
               ))}
@@ -1054,38 +1048,38 @@ STRICT RULES:
         </div>
       )}
 
-      {/* ── SECTION 5: 1-ON-1 INTERACTIVE CONSULTATION WITH SPECIFIED PERSONA (ALWAYS ACCESSIBLE) ── */}
-      <div className="p-6 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-5 animate-fade-in">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-zinc-800 pb-3">
+      {/* ── SECTION 5: 1-ON-1 INTERACTIVE CONSULTATION ── */}
+      <div className="p-7 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] space-y-6 animate-fade-in shadow-xs">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-[#CDCECF] pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-teal-400" />
-              <h3 className="font-bold text-white text-base">
+              <MessageSquare className="w-5 h-5 text-[#0F766E]" />
+              <h3 className="font-bold text-[#191B1D] text-lg">
                 Direct 1-on-1 Consultation With An Expert Persona
               </h3>
             </div>
-            <p className="text-xs text-zinc-400 mt-0.5">
+            <p className="text-xs text-[#5A5D61] mt-1">
               Engage directly with any persona. The selected expert strictly maintains its guiding doctrine and evaluates your questions with empirical facts.
             </p>
           </div>
 
-          {/* Persona Switcher Tabs (3 Independent Multi-LLM Chatbots) */}
-          <div className="flex items-center gap-2 overflow-x-auto py-1">
+          {/* Persona Switcher Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar">
             {ARENA_PERSONAS.map((p) => {
               const isActive = consultPersonaId === p.id;
               return (
                 <button
                   key={p.id}
                   onClick={() => handleSwitchConsultPersona(p.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-2 transition-all cursor-pointer shrink-0 ${
+                  className={`px-3.5 py-2 rounded-lg text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer shrink-0 border ${
                     isActive
-                      ? "bg-zinc-800 text-white border border-zinc-600 shadow-md ring-1 ring-zinc-500/40"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 border border-zinc-800"
+                      ? "bg-[#191B1D] text-white border-[#191B1D] shadow-xs"
+                      : "text-[#5A5D61] hover:text-[#191B1D] bg-[#F4F5F6] border-[#CDCECF]"
                   }`}
                 >
                   <span className="text-base">{p.avatar}</span>
-                  <span className="font-bold">{p.id.toUpperCase()}BOT</span>
-                  <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${isActive ? "bg-zinc-900 text-emerald-400" : "text-zinc-500"}`}>
+                  <span>{p.id.toUpperCase()}BOT</span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${isActive ? "bg-white/20 text-white" : "text-[#5A5D61]"}`}>
                     {p.modelName}
                   </span>
                 </button>
@@ -1094,120 +1088,120 @@ STRICT RULES:
           </div>
         </div>
 
-          {/* Active Persona Banner */}
-          {(() => {
-            const currentPersona =
-              ARENA_PERSONAS.find((p) => p.id === consultPersonaId) || ARENA_PERSONAS[0];
-            return (
-              <div className={`p-4 rounded-xl border ${currentPersona.borderColor} ${currentPersona.bgColor} flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs`}>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{currentPersona.avatar}</span>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-white text-sm">{currentPersona.ideologyTitle}</span>
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${currentPersona.badgeColor}`}>
-                        {currentPersona.modelName} • {currentPersona.modelProvider}
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-zinc-300 mt-0.5 block">{currentPersona.coreIdeology}</span>
+        {/* Active Persona Banner */}
+        {(() => {
+          const currentPersona =
+            ARENA_PERSONAS.find((p) => p.id === consultPersonaId) || ARENA_PERSONAS[0];
+          return (
+            <div className="p-4 rounded-xl border border-[#CDCECF] bg-[#F8F9FA] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{currentPersona.avatar}</span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-[#191B1D] text-sm">{currentPersona.ideologyTitle}</span>
+                    <span className={`text-xs font-mono px-2 py-0.5 rounded border ${currentPersona.badgeColor}`}>
+                      {currentPersona.modelName} • {currentPersona.modelProvider}
+                    </span>
                   </div>
+                  <span className="text-xs text-[#5A5D61] mt-0.5 block">{currentPersona.coreIdeology}</span>
                 </div>
-                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                  <span className="text-[10px] font-mono font-semibold px-2 py-1 rounded bg-zinc-950/80 border border-zinc-800 text-zinc-300">
-                    Session: {sessionId.slice(0, 12)}…
+              </div>
+              <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 font-mono">
+                <span className="text-xs px-2.5 py-1 rounded bg-[#FFFFFF] border border-[#CDCECF] text-[#5A5D61]">
+                  Session: {sessionId.slice(0, 12)}…
+                </span>
+                <button
+                  onClick={handleClearSession}
+                  title="Reset session memory for this persona"
+                  className="flex items-center gap-1 text-xs px-2.5 py-1 rounded bg-[#FFFFFF] border border-[#CDCECF] text-[#5A5D61] hover:text-[#191B1D] transition-colors cursor-pointer"
+                >
+                  <RotateCcw className="w-3 h-3 text-[#0F766E]" />
+                  <span>Reset Memory</span>
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Chat Messages Stream */}
+        <div className="space-y-3.5 max-h-[440px] overflow-y-auto pr-2">
+          {chatMessages.map((msg, idx) => {
+            const isUser = msg.sender === "user";
+            return (
+              <div
+                key={idx}
+                className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}
+              >
+                {!isUser && (
+                  <span className="text-xl p-2 rounded-xl bg-[#F4F5F6] border border-[#CDCECF] h-fit shrink-0">
+                    {msg.avatar || "🏛️"}
                   </span>
-                  <button
-                    onClick={handleClearSession}
-                    title="Reset session memory for this persona"
-                    className="flex items-center gap-1 text-[10px] font-mono px-2.5 py-1 rounded bg-zinc-950/80 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors cursor-pointer"
-                  >
-                    <RotateCcw className="w-2.5 h-2.5 text-teal-400" />
-                    <span>Reset Memory</span>
-                  </button>
+                )}
+                <div
+                  className={`max-w-[85%] sm:max-w-[75%] p-4 rounded-2xl text-sm leading-relaxed space-y-1.5 shadow-xs ${
+                    isUser
+                      ? "bg-[#191B1D] text-white rounded-br-xs"
+                      : "bg-[#F8F9FA] border border-[#CDCECF] text-[#191B1D] rounded-bl-xs"
+                  }`}
+                >
+                  {!isUser && msg.speakerTitle && (
+                    <div className="flex items-center justify-between text-xs font-mono border-b border-[#CDCECF] pb-1.5 mb-1.5 gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-[#0F766E]">{msg.speakerTitle}</span>
+                        {msg.model && (
+                          <span className="px-1.5 py-0.5 rounded bg-[#FFFFFF] border border-[#CDCECF] text-[#5A5D61] text-[10px]">
+                            {msg.model.split("/").pop()}
+                            {msg.latency_ms ? ` · ${Math.round(msg.latency_ms)}ms` : ""}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[#5A5D61] shrink-0">{msg.timestamp}</span>
+                    </div>
+                  )}
+                  <p className="whitespace-pre-line">{msg.text}</p>
+                  {isUser && (
+                    <span className="text-xs text-zinc-300 block text-right font-mono mt-1">
+                      {msg.timestamp}
+                    </span>
+                  )}
                 </div>
               </div>
             );
-          })()}
+          })}
 
-          {/* Chat Messages Stream */}
-          <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2">
-            {chatMessages.map((msg, idx) => {
-              const isUser = msg.sender === "user";
-              return (
-                <div
-                  key={idx}
-                  className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}
-                >
-                  {!isUser && (
-                    <span className="text-xl p-2 rounded-xl bg-zinc-950 border border-zinc-800 h-fit shrink-0">
-                      {msg.avatar || "🏛️"}
-                    </span>
-                  )}
-                  <div
-                    className={`max-w-[85%] sm:max-w-[75%] p-3.5 rounded-2xl text-xs leading-relaxed space-y-1.5 shadow-sm ${
-                      isUser
-                        ? "bg-emerald-600/20 border border-emerald-500/40 text-emerald-100 rounded-br-xs"
-                        : "bg-zinc-950 border border-zinc-800/80 text-zinc-200 rounded-bl-xs"
-                    }`}
-                  >
-                    {!isUser && msg.speakerTitle && (
-                      <div className="flex items-center justify-between text-[10px] font-mono border-b border-zinc-800/60 pb-1 mb-1 gap-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-teal-400">{msg.speakerTitle}</span>
-                          {msg.model && (
-                            <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-mono">
-                              {msg.model.split("/").pop()}
-                              {msg.latency_ms ? ` · ${Math.round(msg.latency_ms)}ms` : ""}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-zinc-400 shrink-0">{msg.timestamp}</span>
-                      </div>
-                    )}
-                    <p className="whitespace-pre-line">{msg.text}</p>
-                    {isUser && (
-                      <span className="text-[10px] text-zinc-400 block text-right font-mono">
-                        {msg.timestamp}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-
-            {isPersonaReplying && (
-              <div className="flex gap-3 items-center text-xs text-zinc-400 p-2">
-                <BrainCircuit className="w-4 h-4 animate-spin text-teal-400" />
-                <span>Consulting doctrine & real-world financial metrics...</span>
-              </div>
-            )}
-            <div ref={chatBottomRef} />
-          </div>
-
-          {/* Chat Input Field */}
-          <div className="flex items-center gap-2 pt-2 border-t border-zinc-800">
-            <input
-              type="text"
-              value={userChatInput}
-              onChange={(e) => setUserChatInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleSendPersonaChatMessage();
-                }
-              }}
-              placeholder={`Ask a follow-up question directly to ${ARENA_PERSONAS.find((p) => p.id === consultPersonaId)?.ideologyTitle}...`}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition-all"
-            />
-            <button
-              onClick={handleSendPersonaChatMessage}
-              disabled={!userChatInput.trim() || isPersonaReplying}
-              className="p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold cursor-pointer transition-all disabled:opacity-40"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </div>
+          {isPersonaReplying && (
+            <div className="flex gap-3 items-center text-xs text-[#5A5D61] p-2 font-mono">
+              <BrainCircuit className="w-4 h-4 animate-spin text-[#0F766E]" />
+              <span>Consulting doctrine & empirical market metrics...</span>
+            </div>
+          )}
+          <div ref={chatBottomRef} />
         </div>
+
+        {/* Chat Input Field */}
+        <div className="flex items-center gap-2 pt-3 border-t border-[#CDCECF]">
+          <input
+            type="text"
+            value={userChatInput}
+            onChange={(e) => setUserChatInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSendPersonaChatMessage();
+              }
+            }}
+            placeholder={`Ask a follow-up question directly to ${ARENA_PERSONAS.find((p) => p.id === consultPersonaId)?.ideologyTitle}...`}
+            className="flex-1 px-4 py-3 rounded-lg bg-[#FFFFFF] border border-[#CDCECF] text-sm text-[#191B1D] placeholder-[#85888C] focus:outline-none focus:border-[#191B1D] transition-all"
+          />
+          <button
+            onClick={handleSendPersonaChatMessage}
+            disabled={!userChatInput.trim() || isPersonaReplying}
+            className="p-3 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold cursor-pointer transition-all disabled:opacity-40"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
 
       <div ref={bottomRef} />
     </div>

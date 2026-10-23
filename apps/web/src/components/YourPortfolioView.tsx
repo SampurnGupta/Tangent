@@ -113,34 +113,34 @@ export function YourPortfolioView({
   return (
     <div className="space-y-6">
       {/* ── TOP SEQUENTIAL WORKFLOW STEPPER BAR ── */}
-      <section className="bg-zinc-900/50 rounded-2xl p-4 sm:p-5 border border-zinc-800/80 backdrop-blur-md">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800/60">
+      <section className="bg-[#FFFFFF] rounded-2xl p-5 sm:p-6 border border-[#CDCECF] shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#CDCECF]">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 font-mono">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#0F766E] font-mono">
                 Sequential Portfolio Workflow
               </span>
-              <span className="text-[10px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full font-mono">
+              <span className="text-[11px] bg-[#F4F5F6] border border-[#CDCECF] text-[#191B1D] px-2.5 py-0.5 rounded-full font-mono font-bold">
                 Step {currentIndex + 1} of {STEPS.length}
               </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white mt-0.5">
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D] mt-1">
               Your Portfolio Construction Journey
             </h2>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
-            <span>Profile: <strong className="text-white">{riskProfile.name}</strong></span>
+          <div className="flex items-center gap-3 text-sm font-mono text-[#5A5D61] bg-[#F8F9FA] px-4 py-2 rounded-xl border border-[#CDCECF]">
+            <span>Profile: <strong className="text-[#191B1D]">{riskProfile.name}</strong></span>
             <span>•</span>
-            <span>Capital: <strong className="text-white">₹{initialCapital.toLocaleString("en-IN")}</strong></span>
+            <span>Capital: <strong className="text-[#191B1D]">₹{initialCapital.toLocaleString("en-IN")}</strong></span>
             <span>•</span>
-            <span>Sharpe: <strong className="text-emerald-400">{activeSharpe.toFixed(2)}</strong></span>
+            <span>Sharpe: <strong className="text-[#0F766E] font-bold">{activeSharpe.toFixed(2)}</strong></span>
           </div>
         </div>
 
         {/* Stepper Navigation Pills */}
         <div className="pt-4 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-2 min-w-max">
+          <div className="flex items-center gap-2.5 min-w-max">
             {STEPS.map((step, idx) => {
               const Icon = step.icon;
               const isActive = currentStep === step.id;
@@ -150,30 +150,30 @@ export function YourPortfolioView({
                 <button
                   key={step.id}
                   onClick={() => setCurrentStep(step.id)}
-                  className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-left transition-all cursor-pointer border ${
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all cursor-pointer border ${
                     isActive
-                      ? "bg-zinc-100 text-zinc-950 font-bold border-white shadow-md shadow-white/5"
+                      ? "bg-[#191B1D] text-white font-bold border-[#191B1D] shadow-sm"
                       : isPast
-                      ? "bg-zinc-900/80 text-zinc-300 border-zinc-800 hover:border-zinc-700"
-                      : "bg-zinc-950/60 text-zinc-500 border-zinc-900 hover:text-zinc-400"
+                      ? "bg-[#FFFFFF] text-[#191B1D] border-[#CDCECF] hover:border-[#191B1D]"
+                      : "bg-[#F8F9FA] text-[#5A5D61] border-[#CDCECF] hover:text-[#191B1D] hover:border-[#A6A8AA]"
                   }`}
                 >
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       isActive
-                        ? "bg-zinc-950 text-white"
+                        ? "bg-[#2E3236] text-white"
                         : isPast
-                        ? "bg-emerald-500/10 text-emerald-400"
-                        : "bg-zinc-900 text-zinc-600"
+                        ? "bg-[#0F766E]/10 text-[#0F766E]"
+                        : "bg-[#EAEBED] text-[#5A5D61]"
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-xs block leading-tight">{step.title}</span>
+                    <span className="text-sm block leading-tight">{step.title}</span>
                     <span
-                      className={`text-[10px] block leading-tight font-mono ${
-                        isActive ? "text-zinc-600 font-semibold" : "text-zinc-500"
+                      className={`text-xs block leading-tight font-mono ${
+                        isActive ? "text-zinc-300 font-medium" : "text-[#5A5D61]"
                       }`}
                     >
                       {step.shortDesc}
