@@ -227,15 +227,15 @@ export function AIChatConcierge({
 
   return (
     <>
-      {/* Floating Action Trigger Button */}
+      {/* Floating Action Trigger Button (AVEKA-Styled #6D0E5A Pill) */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 cursor-pointer border border-[#CDCECF] group"
+        className="fixed bottom-6 right-6 z-50 px-4 py-3.5 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold shadow-xl shadow-[#6D0E5A]/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 cursor-pointer border border-[#6D0E5A]/40 group hover:-translate-y-1"
         aria-label="Open Draww AI Copilot"
       >
         <MessageSquare className="w-5 h-5 text-white group-hover:rotate-12 transition-transform" />
         <span className="hidden sm:inline text-xs tracking-wide font-black">Draww AI</span>
-        <span className="w-2 h-2 rounded-full bg-[#0F766E] animate-ping" />
+        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
       </button>
 
       {/* Slide-Over Drawer Container */}
@@ -249,13 +249,13 @@ export function AIChatConcierge({
             {/* Header */}
             <div className="p-4 border-b border-[#CDCECF] bg-[#F8F9FA] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#191B1D] flex items-center justify-center text-white font-bold shadow-xs">
+                <div className="w-9 h-9 rounded-lg bg-[#6D0E5A] flex items-center justify-center text-white font-bold shadow-xs">
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-bold text-[#191B1D]">Draww AI Concierge</h3>
-                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#F4F5F6] text-[#0F766E] border border-[#CDCECF] font-bold">
+                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#F7EBF4] text-[#6D0E5A] border border-[#6D0E5A]/30 font-bold">
                       Grounded Copilot
                     </span>
                   </div>
@@ -395,7 +395,7 @@ export function AIChatConcierge({
                 <button
                   type="submit"
                   disabled={!input.trim() || loading}
-                  className="p-2.5 rounded-lg bg-[#191B1D] text-white hover:bg-[#2E3236] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-bold"
+                  className="p-2.5 rounded-lg bg-[#6D0E5A] text-white hover:bg-[#580B48] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-bold shadow-sm shadow-[#6D0E5A]/25"
                 >
                   <Send className="w-4 h-4" />
                 </button>

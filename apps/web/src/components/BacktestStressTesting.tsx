@@ -262,10 +262,10 @@ export function BacktestStressTesting({
       <div className="flex justify-end pt-2">
         <button
           onClick={onProceed}
-          className="flex items-center gap-2 py-3.5 px-6 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all shadow-xs cursor-pointer"
+          className="flex items-center gap-2 py-3.5 px-6 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm transition-all shadow-md shadow-[#6D0E5A]/25 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
         >
           <span>Proceed to Decision Studio & Audit Pack</span>
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 text-white" />
         </button>
       </div>
     </div>

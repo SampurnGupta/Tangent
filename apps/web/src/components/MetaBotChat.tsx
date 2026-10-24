@@ -148,7 +148,7 @@ export function MetaBotChat() {
         <button
           onClick={() => handleSend(input)}
           disabled={loading || !input.trim()}
-          className="p-2.5 bg-[#191B1D] hover:bg-[#2E3236] text-white rounded-lg disabled:opacity-50 transition-all cursor-pointer"
+          className="p-2.5 bg-[#6D0E5A] hover:bg-[#580B48] text-white rounded-lg disabled:opacity-50 transition-all cursor-pointer shadow-sm shadow-[#6D0E5A]/25"
         >
           <Send className="w-4 h-4" />
         </button>

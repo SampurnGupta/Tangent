@@ -342,10 +342,10 @@ export function RiskProfilerWizard({
 
           <button
             onClick={onProceed}
-            className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 px-5 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all shadow-xs cursor-pointer"
+            className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 px-5 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm transition-all shadow-md shadow-[#6D0E5A]/25 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
           >
             <span>Proceed to Investment Universe</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 text-white" />
           </button>
         </div>
       </div>

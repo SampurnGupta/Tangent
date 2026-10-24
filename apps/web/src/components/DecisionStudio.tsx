@@ -374,8 +374,8 @@ export function DecisionStudio({
                   onClick={() => handleSelectCandidate(item.ticker)}
                   className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
                     candidateTicker === item.ticker
-                      ? "bg-[#191B1D] text-white border-[#191B1D]"
-                      : "bg-[#FFFFFF] border-[#CDCECF] text-[#5A5D61] hover:text-[#191B1D] hover:border-[#191B1D]"
+                      ? "bg-[#6D0E5A] text-white border-[#6D0E5A] shadow-sm shadow-[#6D0E5A]/20"
+                      : "bg-[#FFFFFF] border-[#CDCECF] text-[#5A5D61] hover:text-[#6D0E5A] hover:border-[#6D0E5A]"
                   }`}
                 >
                   <div className="font-mono font-bold text-xs">{item.ticker}</div>
@@ -387,7 +387,7 @@ export function DecisionStudio({
             <button
               onClick={handleRunBrief}
               disabled={loading}
-              className="w-full py-3.5 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+              className="w-full py-3.5 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#6D0E5A]/25 disabled:opacity-50 hover:-translate-y-0.5 active:translate-y-0"
             >
               {loading ? (
                 <>

@@ -258,7 +258,7 @@ export function AssetSelector({
               onClick={() => toggleTicker(asset.ticker)}
               className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
                 isSelected
-                  ? "bg-[#FFFFFF] border-[#191B1D] shadow-sm ring-1 ring-[#191B1D]"
+                  ? "bg-[#FFFFFF] border-[#6D0E5A] shadow-sm ring-1 ring-[#6D0E5A]"
                   : "bg-[#FFFFFF] border-[#CDCECF] hover:border-[#191B1D]"
               }`}
             >
@@ -402,10 +402,10 @@ export function AssetSelector({
           </button>
           <button
             onClick={onProceed}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 py-3 px-6 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all shadow-xs cursor-pointer"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 py-3 px-6 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm transition-all shadow-md shadow-[#6D0E5A]/25 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
           >
             <span>Proceed to Solver & Frontier</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 text-white" />
           </button>
         </div>
       </div>

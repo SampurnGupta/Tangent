@@ -37,18 +37,13 @@ export function HeroHomepage({
   return (
     <div className="max-w-6xl mx-auto space-y-20 py-10 animate-fade-in font-sans">
       {/* ── 1. EDITORIAL PRODUCT HERO ── */}
-      <section className="text-center space-y-8 pt-6 pb-4">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFFFFF] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-semibold shadow-xs">
-          <span className="w-2 h-2 rounded-full bg-[#0F766E]" />
-          <span>Verifiable Fintech Decision Engine</span>
-        </div>
-
+      <section className="text-center space-y-8 pt-4 pb-4">
         <div className="space-y-4">
           <h1 className="text-6xl sm:text-8xl font-black tracking-tight text-[#191B1D] leading-none">
             Tangent
           </h1>
           <p className="text-2xl sm:text-3xl font-medium text-[#5A5D61] tracking-tight">
-            Portfolio decisions you can trace.
+            Portfolio decisions <span className="text-[#6D0E5A] font-bold">you can trace</span>.
           </p>
         </div>
 
@@ -57,28 +52,28 @@ export function HeroHomepage({
           mathematics, Ledoit-Wolf covariance shrinkage, and multi-model AI consensus to give you portfolio allocations with verifiable audit trails.
         </p>
 
-        {/* Primary Action Buttons */}
+        {/* Primary Action Buttons (Styled with #6D0E5A & Tactile Physics) */}
         <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
           <button
             onClick={() => onNavigate("portfolio")}
-            className="px-7 py-4 rounded-xl bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-base transition-all shadow-sm flex items-center gap-2.5 cursor-pointer active:scale-[0.99]"
+            className="px-8 py-4 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-base transition-all shadow-md shadow-[#6D0E5A]/25 flex items-center gap-2.5 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
           >
             <span>Build Your Portfolio</span>
-            <ArrowRight className="w-4 h-4 text-emerald-400" />
+            <ArrowRight className="w-4 h-4 text-white" />
           </button>
 
           <button
             onClick={() => onNavigate("arena")}
-            className="px-6 py-4 rounded-xl bg-[#FFFFFF] hover:bg-[#EAEBED] text-[#191B1D] font-bold text-base border border-[#CDCECF] transition-all flex items-center gap-2 cursor-pointer"
+            className="px-7 py-4 rounded-full bg-[#FFFFFF] hover:bg-[#F7EBF4] text-[#191B1D] hover:text-[#6D0E5A] hover:border-[#6D0E5A] font-bold text-base border border-[#CDCECF] transition-all flex items-center gap-2 cursor-pointer shadow-xs hover:-translate-y-0.5 active:translate-y-0"
           >
             <span>Enter The Arena</span>
           </button>
 
           <button
             onClick={() => onNavigate("observatory")}
-            className="px-6 py-4 rounded-xl bg-[#FFFFFF] hover:bg-[#EAEBED] text-[#5A5D61] hover:text-[#191B1D] font-semibold text-base border border-[#CDCECF] transition-all flex items-center gap-2 cursor-pointer"
+            className="px-7 py-4 rounded-full bg-[#FFFFFF] hover:bg-[#F4F5F6] text-[#5A5D61] hover:text-[#191B1D] font-semibold text-base border border-[#CDCECF] transition-all flex items-center gap-2 cursor-pointer shadow-xs hover:-translate-y-0.5 active:translate-y-0"
           >
-            <Activity className="w-4 h-4 text-[#0F766E]" />
+            <Activity className="w-4 h-4 text-[#6D0E5A]" />
             <span>LLM Observatory</span>
           </button>
         </div>
@@ -87,7 +82,7 @@ export function HeroHomepage({
       {/* ── 2. WHAT WE DO (INSTITUTIONAL PILLARS) ── */}
       <section className="bg-[#FFFFFF] rounded-2xl p-8 sm:p-12 border border-[#CDCECF] shadow-xs space-y-8">
         <div className="max-w-2xl">
-          <span className="text-xs uppercase tracking-wider text-[#0F766E] font-mono font-bold block">
+          <span className="text-xs uppercase tracking-wider text-[#6D0E5A] font-mono font-bold block">
             Core Philosophy
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#191B1D] tracking-tight mt-1.5">
@@ -138,7 +133,7 @@ export function HeroHomepage({
       {/* ── 3. SERVICES & REAL-WORLD IMPACT ── */}
       <section className="space-y-8">
         <div className="text-center sm:text-left">
-          <span className="text-xs uppercase tracking-wider text-[#0F766E] font-mono font-bold block">
+          <span className="text-xs uppercase tracking-wider text-[#6D0E5A] font-mono font-bold block">
             Modular Platform
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#191B1D] tracking-tight mt-1.5">
@@ -151,17 +146,17 @@ export function HeroHomepage({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Service 1: Your Portfolio Engine */}
-          <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] hover:border-[#191B1D] transition-all flex flex-col justify-between space-y-6 shadow-xs group">
+          <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] hover:border-[#6D0E5A] hover:shadow-lg hover:shadow-[#6D0E5A]/10 transition-all flex flex-col justify-between space-y-6 shadow-xs group">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono px-3 py-1 rounded-md bg-[#F4F5F6] text-[#191B1D] border border-[#CDCECF] font-bold">
+                <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#F7EBF4] text-[#6D0E5A] border border-[#6D0E5A]/30 font-bold">
                   Portfolio Engine
                 </span>
                 <span className="text-xs text-[#5A5D61] font-mono">7 Integrated Steps</span>
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-[#191B1D] group-hover:text-black transition-colors">
+                <h3 className="text-2xl font-bold text-[#191B1D] group-hover:text-[#6D0E5A] transition-colors">
                   Your Portfolio Construction
                 </h3>
                 <p className="text-sm text-[#5A5D61] mt-1.5 leading-relaxed">
@@ -171,8 +166,8 @@ export function HeroHomepage({
 
               {/* Cute Example Impact */}
               <div className="p-5 rounded-xl bg-[#F8F9FA] border border-[#CDCECF] space-y-2">
-                <span className="text-xs font-bold text-[#0F766E] flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" />
+                <span className="text-xs font-bold text-[#6D0E5A] flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#6D0E5A]" />
                   <span>Real-World Impact Example:</span>
                 </span>
                 <p className="text-sm text-[#191B1D] leading-relaxed">
@@ -185,25 +180,25 @@ export function HeroHomepage({
 
             <button
               onClick={() => onNavigate("portfolio")}
-              className="w-full py-3.5 px-5 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 px-5 rounded-xl bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-[#6D0E5A]/25 hover:-translate-y-0.5 active:translate-y-0"
             >
               <span>Build Your Portfolio Now</span>
-              <ArrowRight className="w-4 h-4 text-emerald-400" />
+              <ArrowRight className="w-4 h-4 text-white" />
             </button>
           </div>
 
           {/* Service 2: The Arena */}
-          <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] hover:border-[#191B1D] transition-all flex flex-col justify-between space-y-6 shadow-xs group">
+          <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] hover:border-[#6D0E5A] hover:shadow-lg hover:shadow-[#6D0E5A]/10 transition-all flex flex-col justify-between space-y-6 shadow-xs group">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono px-3 py-1 rounded-md bg-[#F4F5F6] text-[#191B1D] border border-[#CDCECF] font-bold">
+                <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#F4F5F6] text-[#191B1D] border border-[#CDCECF] font-bold">
                   Multi-Agent Deliberation
                 </span>
                 <span className="text-xs text-[#5A5D61] font-mono">3 Independent Personas</span>
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-[#191B1D] group-hover:text-black transition-colors">
+                <h3 className="text-2xl font-bold text-[#191B1D] group-hover:text-[#6D0E5A] transition-colors">
                   The Investment Arena
                 </h3>
                 <p className="text-sm text-[#5A5D61] mt-1.5 leading-relaxed">
@@ -213,8 +208,8 @@ export function HeroHomepage({
 
               {/* Cute Example Impact */}
               <div className="p-5 rounded-xl bg-[#F8F9FA] border border-[#CDCECF] space-y-2">
-                <span className="text-xs font-bold text-[#B45309] flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" />
+                <span className="text-xs font-bold text-[#6D0E5A] flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#6D0E5A]" />
                   <span>Real-World Impact Example:</span>
                 </span>
                 <p className="text-sm text-[#191B1D] leading-relaxed">
@@ -227,25 +222,25 @@ export function HeroHomepage({
 
             <button
               onClick={() => onNavigate("arena")}
-              className="w-full py-3.5 px-5 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 px-5 rounded-xl bg-[#191B1D] hover:bg-[#6D0E5A] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs hover:-translate-y-0.5 active:translate-y-0"
             >
               <span>Consult Investment Committee</span>
-              <ArrowRight className="w-4 h-4 text-emerald-400" />
+              <ArrowRight className="w-4 h-4 text-[#CDCECF]" />
             </button>
           </div>
 
           {/* Service 3: LLM Observatory */}
-          <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] hover:border-[#191B1D] transition-all flex flex-col justify-between space-y-6 shadow-xs group">
+          <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] hover:border-[#6D0E5A] hover:shadow-lg hover:shadow-[#6D0E5A]/10 transition-all flex flex-col justify-between space-y-6 shadow-xs group">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono px-3 py-1 rounded-md bg-[#F4F5F6] text-[#191B1D] border border-[#CDCECF] font-bold">
+                <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#F4F5F6] text-[#191B1D] border border-[#CDCECF] font-bold">
                   DevOps Intelligence
                 </span>
                 <span className="text-xs text-[#5A5D61] font-mono">Dynamic Model Router</span>
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-[#191B1D] group-hover:text-black transition-colors">
+                <h3 className="text-2xl font-bold text-[#191B1D] group-hover:text-[#6D0E5A] transition-colors">
                   LLM Observatory & MetaBot
                 </h3>
                 <p className="text-sm text-[#5A5D61] mt-1.5 leading-relaxed">
@@ -255,39 +250,39 @@ export function HeroHomepage({
 
               {/* Cute Example Impact */}
               <div className="p-5 rounded-xl bg-[#F8F9FA] border border-[#CDCECF] space-y-2">
-                <span className="text-xs font-bold text-[#0F766E] flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" />
+                <span className="text-xs font-bold text-[#6D0E5A] flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#6D0E5A]" />
                   <span>Real-World Impact Example:</span>
                 </span>
                 <p className="text-sm text-[#191B1D] leading-relaxed">
                   <strong>Use Case:</strong> Balancing rapid risk calculation with deep multi-page corporate analysis.
                   <br />
-                  <strong>Impact:</strong> Low-latency risk screening runs on Cloudflare Workers AI edge (<strong className="text-[#0F766E]">&lt;300ms</strong>, $0.00 cost) while deep moat reasoning routes to Groq Llama 3.3 70B (380ms), cutting cloud inference bills by over <strong>82%</strong>.
+                  <strong>Impact:</strong> Low-latency risk screening runs on Cloudflare Workers AI edge (<strong className="text-[#6D0E5A]">&lt;300ms</strong>, $0.00 cost) while deep moat reasoning routes to Groq Llama 3.3 70B (380ms), cutting cloud inference bills by over <strong>82%</strong>.
                 </p>
               </div>
             </div>
 
             <button
               onClick={() => onNavigate("observatory")}
-              className="w-full py-3.5 px-5 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 px-5 rounded-xl bg-[#191B1D] hover:bg-[#6D0E5A] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs hover:-translate-y-0.5 active:translate-y-0"
             >
               <span>Inspect Live Telemetry</span>
-              <ArrowRight className="w-4 h-4 text-emerald-400" />
+              <ArrowRight className="w-4 h-4 text-[#CDCECF]" />
             </button>
           </div>
 
           {/* Service 4: Draww AI Co-Pilot */}
-          <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] hover:border-[#191B1D] transition-all flex flex-col justify-between space-y-6 shadow-xs group">
+          <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] hover:border-[#6D0E5A] hover:shadow-lg hover:shadow-[#6D0E5A]/10 transition-all flex flex-col justify-between space-y-6 shadow-xs group">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono px-3 py-1 rounded-md bg-[#F4F5F6] text-[#191B1D] border border-[#CDCECF] font-bold">
+                <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#F4F5F6] text-[#191B1D] border border-[#CDCECF] font-bold">
                   Always-On Concierge
                 </span>
                 <span className="text-xs text-[#5A5D61] font-mono">Grounded Financial Copilot</span>
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-[#191B1D] group-hover:text-black transition-colors">
+                <h3 className="text-2xl font-bold text-[#191B1D] group-hover:text-[#6D0E5A] transition-colors">
                   Draww AI Quantitative Assistant
                 </h3>
                 <p className="text-sm text-[#5A5D61] mt-1.5 leading-relaxed">
@@ -297,8 +292,8 @@ export function HeroHomepage({
 
               {/* Cute Example Impact */}
               <div className="p-5 rounded-xl bg-[#F8F9FA] border border-[#CDCECF] space-y-2">
-                <span className="text-xs font-bold text-[#0F766E] flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" />
+                <span className="text-xs font-bold text-[#6D0E5A] flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#6D0E5A]" />
                   <span>Real-World Impact Example:</span>
                 </span>
                 <p className="text-sm text-[#191B1D] leading-relaxed">
@@ -311,10 +306,10 @@ export function HeroHomepage({
 
             <button
               onClick={onOpenChat}
-              className="w-full py-3.5 px-5 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 px-5 rounded-xl bg-[#191B1D] hover:bg-[#6D0E5A] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs hover:-translate-y-0.5 active:translate-y-0"
             >
               <span>Chat with Draww AI</span>
-              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <Sparkles className="w-4 h-4 text-[#CDCECF]" />
             </button>
           </div>
         </div>

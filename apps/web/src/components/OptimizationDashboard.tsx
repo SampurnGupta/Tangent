@@ -87,7 +87,7 @@ export function OptimizationDashboard({
         <button
           onClick={handleOptimize}
           disabled={loading}
-          className="flex items-center gap-2 py-3.5 px-6 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm disabled:opacity-50 transition-all shadow-xs cursor-pointer"
+          className="flex items-center gap-2 py-3.5 px-6 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm disabled:opacity-50 transition-all shadow-md shadow-[#6D0E5A]/25 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
         >
           {loading ? (
             <>
@@ -96,7 +96,7 @@ export function OptimizationDashboard({
             </>
           ) : (
             <>
-              <Activity className="w-4 h-4 text-[#0F766E]" />
+              <Activity className="w-4 h-4 text-white" />
               <span>{result ? "Re-Run Optimization" : "Execute SLSQP Optimizer"}</span>
             </>
           )}
@@ -105,7 +105,7 @@ export function OptimizationDashboard({
 
       {!result && !loading && (
         <div className="border border-dashed border-[#CDCECF] rounded-2xl p-12 text-center space-y-4 bg-[#FFFFFF]">
-          <div className="w-12 h-12 rounded-full bg-[#F4F5F6] border border-[#CDCECF] flex items-center justify-center mx-auto text-[#191B1D]">
+          <div className="w-12 h-12 rounded-full bg-[#F7EBF4] border border-[#6D0E5A]/30 flex items-center justify-center mx-auto text-[#6D0E5A]">
             <PieChart className="w-6 h-6" />
           </div>
           <div className="space-y-1">
@@ -116,7 +116,7 @@ export function OptimizationDashboard({
           </div>
           <button
             onClick={handleOptimize}
-            className="px-5 py-2.5 rounded-lg bg-[#191B1D] text-white text-sm font-semibold hover:bg-[#2E3236] transition-all cursor-pointer"
+            className="px-6 py-3 rounded-full bg-[#6D0E5A] text-white text-sm font-bold hover:bg-[#580B48] transition-all cursor-pointer shadow-md shadow-[#6D0E5A]/25 hover:-translate-y-0.5 active:translate-y-0"
           >
             Launch Solver Now
           </button>
@@ -330,10 +330,10 @@ export function OptimizationDashboard({
 
             <button
               onClick={onProceedToProjections}
-              className="flex items-center gap-2 py-3.5 px-6 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-2 py-3.5 px-6 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm transition-all shadow-md shadow-[#6D0E5A]/25 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
             >
               <span>Compare Candidate Portfolios & Suitability</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 text-white" />
             </button>
           </div>
         </div>

@@ -185,8 +185,8 @@ export function CandidateSuitability({
                 onClick={() => handleChoose(cand)}
                 className={`w-full mt-5 py-2.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer border ${
                   isSelected
-                    ? "bg-[#191B1D] text-white border-[#191B1D] shadow-xs"
-                    : "bg-[#F4F5F6] text-[#191B1D] border-[#CDCECF] hover:bg-[#191B1D] hover:text-white"
+                    ? "bg-[#6D0E5A] text-white border-[#6D0E5A] shadow-sm shadow-[#6D0E5A]/20"
+                    : "bg-[#F4F5F6] text-[#191B1D] border-[#CDCECF] hover:bg-[#F7EBF4] hover:text-[#6D0E5A] hover:border-[#6D0E5A]"
                 }`}
               >
                 {isSelected ? "Selected Candidate ✓" : "Select Candidate"}
@@ -300,10 +300,10 @@ export function CandidateSuitability({
         <div className="flex justify-end pt-2">
           <button
             onClick={onProceed}
-            className="flex items-center gap-2 py-3.5 px-6 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all shadow-xs cursor-pointer"
+            className="flex items-center gap-2 py-3.5 px-6 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm transition-all shadow-md shadow-[#6D0E5A]/25 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
           >
             <span>Proceed to 10-Year Monte Carlo Projections</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 text-white" />
           </button>
         </div>
       </div>

@@ -120,7 +120,7 @@ export function MonteCarloProjection({
           <button
             onClick={handleSimulate}
             disabled={loading}
-            className="w-full sm:w-auto px-6 py-3 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm disabled:opacity-50 transition-all cursor-pointer shadow-xs"
+            className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm disabled:opacity-50 transition-all cursor-pointer shadow-md shadow-[#6D0E5A]/25 hover:-translate-y-0.5 active:translate-y-0"
           >
             {loading ? "Simulating 5,000 Paths..." : "Run 10-Year Monte Carlo"}
           </button>
@@ -201,10 +201,10 @@ export function MonteCarloProjection({
             <div className="flex justify-end pt-4">
               <button
                 onClick={onProceedToStudio}
-                className="py-3.5 px-6 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm shadow-xs transition-all cursor-pointer flex items-center gap-2"
+                className="py-3.5 px-6 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm shadow-md shadow-[#6D0E5A]/25 transition-all cursor-pointer flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0"
               >
                 <span>Proceed to Crisis Stress Testing & Backtest</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 text-white" />
               </button>
             </div>
           )}

@@ -790,8 +790,8 @@ STRICT RULES:
                 onClick={() => setSelectedPersonaId(persona.id)}
                 className={`p-5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                   isSelected
-                    ? "border-[#191B1D] bg-[#F8F9FA] shadow-xs ring-1 ring-[#191B1D]"
-                    : "border-[#CDCECF] bg-[#FFFFFF] hover:border-[#191B1D]"
+                    ? "border-[#6D0E5A] bg-[#FFFFFF] shadow-sm ring-1 ring-[#6D0E5A]"
+                    : "border-[#CDCECF] bg-[#FFFFFF] hover:border-[#6D0E5A]"
                 }`}
               >
                 <div>
@@ -914,7 +914,7 @@ STRICT RULES:
           <button
             onClick={() => handleStartDebate()}
             disabled={!query.trim() || isDebating}
-            className="px-6 py-3 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold text-sm transition-all flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-40"
+            className="px-7 py-3.5 rounded-full bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold text-sm transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-[#6D0E5A]/25 disabled:opacity-40 hover:-translate-y-0.5 active:translate-y-0"
           >
             {isDebating ? (
               <>
@@ -1200,7 +1200,7 @@ STRICT RULES:
           <button
             onClick={handleSendPersonaChatMessage}
             disabled={!userChatInput.trim() || isPersonaReplying}
-            className="p-3 rounded-lg bg-[#191B1D] hover:bg-[#2E3236] text-white font-bold cursor-pointer transition-all disabled:opacity-40"
+            className="p-3 rounded-lg bg-[#6D0E5A] hover:bg-[#580B48] text-white font-bold cursor-pointer transition-all disabled:opacity-40 shadow-sm shadow-[#6D0E5A]/25"
           >
             <Send className="w-4 h-4" />
           </button>
