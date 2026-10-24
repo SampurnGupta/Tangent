@@ -66,7 +66,7 @@ export function HeroHomepage({
             onClick={() => onNavigate("arena")}
             className="px-7 py-4 rounded-full bg-[#FFFFFF] hover:bg-[#F7EBF4] text-[#191B1D] hover:text-[#6D0E5A] hover:border-[#6D0E5A] font-bold text-base border border-[#CDCECF] transition-all flex items-center gap-2 cursor-pointer shadow-xs hover:-translate-y-0.5 active:translate-y-0"
           >
-            <span>Enter The Arena</span>
+            <span>Investment Committee</span>
           </button>
 
           <button
@@ -187,7 +187,7 @@ export function HeroHomepage({
             </button>
           </div>
 
-          {/* Service 2: The Arena */}
+          {/* Service 2: Investment Committee */}
           <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] hover:border-[#6D0E5A] hover:shadow-lg hover:shadow-[#6D0E5A]/10 transition-all flex flex-col justify-between space-y-6 shadow-xs group">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -199,7 +199,7 @@ export function HeroHomepage({
 
               <div>
                 <h3 className="text-2xl font-bold text-[#191B1D] group-hover:text-[#6D0E5A] transition-colors">
-                  The Investment Arena
+                  The Investment Committee
                 </h3>
                 <p className="text-sm text-[#5A5D61] mt-1.5 leading-relaxed">
                   Three independent persona microservices debate your allocation theses in real-time: MacroBot (Gemini 2.0 Flash), GrowthBot (Groq Llama 3.3 70B), and RiskBot (Cloudflare Llama 3.2 3B).

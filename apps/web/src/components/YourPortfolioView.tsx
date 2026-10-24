@@ -21,8 +21,7 @@ import {
   LineChart,
   ShieldAlert,
   FileCheck2,
-  ChevronRight,
-  Sparkles,
+  Lock,
 } from "lucide-react";
 
 export type PortfolioWorkflowStep =
@@ -104,9 +103,11 @@ export function YourPortfolioView({
   activeNominalReturn,
   activeRealReturn,
   activeVol,
-  initialStep = "profile",
 }: YourPortfolioViewProps) {
-  const [currentStep, setCurrentStep] = useState<PortfolioWorkflowStep>(initialStep);
+  // Always begin sequentially from Profile
+  const [currentStep, setCurrentStep] = useState<PortfolioWorkflowStep>("profile");
+  // Furthest step unlocked by running previous steps sequentially
+  const [unlockedIndex, setUnlockedIndex] = useState<number>(0);
 
   const currentIndex = STEPS.findIndex((s) => s.id === currentStep);
 
@@ -138,13 +139,33 @@ export function YourPortfolioView({
           </div>
         </div>
 
-        {/* Stepper Navigation Pills (AVEKA-Style Active Indicator & #6D0E5A Accents) */}
+        {/* Stepper Navigation Pills (Strict Sequential Enforcement: Future Steps Locked) */}
         <div className="pt-4 overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-2.5 min-w-max">
             {STEPS.map((step, idx) => {
               const Icon = step.icon;
               const isActive = currentStep === step.id;
-              const isPast = idx < currentIndex;
+              const isLocked = idx > unlockedIndex;
+
+              if (isLocked) {
+                return (
+                  <div
+                    key={step.id}
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl border bg-[#F8F9FA] text-[#85888C] border-[#CDCECF] opacity-55 cursor-not-allowed select-none"
+                    title={`Step locked. Complete Step ${idx} first to unlock.`}
+                  >
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#EAEBED] text-[#85888C]">
+                      <Lock className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <span className="text-sm block leading-tight font-medium text-[#85888C]">{step.title}</span>
+                      <span className="text-xs block leading-tight font-mono text-[#85888C]">
+                        Locked
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
 
               return (
                 <button
@@ -153,18 +174,14 @@ export function YourPortfolioView({
                   className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all cursor-pointer border hover:-translate-y-0.5 active:translate-y-0 ${
                     isActive
                       ? "bg-[#6D0E5A] text-white font-bold border-[#6D0E5A] shadow-md shadow-[#6D0E5A]/25"
-                      : isPast
-                      ? "bg-[#FFFFFF] text-[#191B1D] border-[#CDCECF] hover:border-[#6D0E5A] hover:text-[#6D0E5A]"
-                      : "bg-[#F8F9FA] text-[#5A5D61] border-[#CDCECF] hover:text-[#191B1D] hover:border-[#A6A8AA]"
+                      : "bg-[#FFFFFF] text-[#191B1D] border-[#CDCECF] hover:border-[#6D0E5A] hover:text-[#6D0E5A]"
                   }`}
                 >
                   <div
                     className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       isActive
                         ? "bg-[#580B48] text-white"
-                        : isPast
-                        ? "bg-[#F7EBF4] text-[#6D0E5A]"
-                        : "bg-[#EAEBED] text-[#5A5D61]"
+                        : "bg-[#F7EBF4] text-[#6D0E5A]"
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -203,7 +220,10 @@ export function YourPortfolioView({
             setMonthlySip={setMonthlySip}
             liquidityTier={liquidityTier}
             setLiquidityTier={setLiquidityTier}
-            onProceed={() => setCurrentStep("universe")}
+            onProceed={() => {
+              setUnlockedIndex((prev) => Math.max(prev, 1));
+              setCurrentStep("universe");
+            }}
           />
         </div>
 
@@ -212,7 +232,10 @@ export function YourPortfolioView({
           <AssetSelector
             selectedTickers={selectedTickers}
             setSelectedTickers={setSelectedTickers}
-            onProceed={() => setCurrentStep("solver")}
+            onProceed={() => {
+              setUnlockedIndex((prev) => Math.max(prev, 2));
+              setCurrentStep("solver");
+            }}
           />
         </div>
 
@@ -224,7 +247,10 @@ export function YourPortfolioView({
             authToken={authToken}
             initialResult={optimizationResult}
             onOptimizationDone={(res) => setOptimizationResult(res)}
-            onProceedToProjections={() => setCurrentStep("suitability")}
+            onProceedToProjections={() => {
+              setUnlockedIndex((prev) => Math.max(prev, 3));
+              setCurrentStep("suitability");
+            }}
           />
         </div>
 
@@ -237,7 +263,10 @@ export function YourPortfolioView({
             initialCapital={initialCapital}
             initialCandidateId={selectedCandidate?.id}
             onSelectPortfolio={(cand) => setSelectedCandidate(cand)}
-            onProceed={() => setCurrentStep("projections")}
+            onProceed={() => {
+              setUnlockedIndex((prev) => Math.max(prev, 4));
+              setCurrentStep("projections");
+            }}
           />
         </div>
 
@@ -248,7 +277,10 @@ export function YourPortfolioView({
             volatility={activeVol}
             horizonYears={horizon}
             authToken={authToken}
-            onProceedToStudio={() => setCurrentStep("stresstest")}
+            onProceedToStudio={() => {
+              setUnlockedIndex((prev) => Math.max(prev, 5));
+              setCurrentStep("stresstest");
+            }}
           />
         </div>
 
@@ -258,7 +290,10 @@ export function YourPortfolioView({
             weights={activeWeights}
             horizon={horizon}
             initialCapital={initialCapital}
-            onProceed={() => setCurrentStep("studio")}
+            onProceed={() => {
+              setUnlockedIndex((prev) => Math.max(prev, 6));
+              setCurrentStep("studio");
+            }}
           />
         </div>
 

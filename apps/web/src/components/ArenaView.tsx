@@ -750,8 +750,8 @@ STRICT RULES:
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F4F5F6] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-bold">
-              <Swords className="w-3.5 h-3.5 text-[#0F766E]" />
-              <span>The Arena — Multi-Agent Cross-Fire Deliberation</span>
+              <Swords className="w-3.5 h-3.5 text-[#6D0E5A]" />
+              <span>Investment Committee — Multi-Agent Cross-Fire Deliberation</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D] flex items-center gap-2 mt-1">
               Cross-Fire Investment Committee
