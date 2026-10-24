@@ -40,6 +40,15 @@ class MetaBotChatResponse(BaseModel):
     telemetry_snapshot: list[dict[str, Any]]
 
 
+class TelemetryRecordRequest(BaseModel):
+    model: str
+    persona: str = "generic"
+    latency_ms: float
+    tokens_in: int = 150
+    tokens_out: int = 250
+    cost_usd: float = 0.0
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Observatory service starting up")
@@ -81,6 +90,22 @@ def create_app() -> FastAPI:
     async def get_leaderboard() -> list[dict[str, Any]]:
         """Fetch model performance leaderboard ranked by p50 latency and efficiency."""
         return await observatory.get_leaderboard()
+
+    @app.post("/api/v1/observatory/telemetry", tags=["observatory"])
+    async def record_telemetry(req: TelemetryRecordRequest) -> dict[str, str]:
+        """Record model invocation metrics into Redis telemetry."""
+        import uuid
+
+        await redis_c.record_llm_metric(
+            call_id=f"call_{uuid.uuid4().hex[:12]}",
+            model=req.model,
+            persona=req.persona,
+            latency_ms=req.latency_ms,
+            tokens_in=req.tokens_in,
+            tokens_out=req.tokens_out,
+            cost_usd=req.cost_usd,
+        )
+        return {"status": "recorded", "model": req.model}
 
     @app.post(
         "/api/v1/observatory/metabot/chat",

@@ -67,7 +67,7 @@ export function MetaBotChat() {
           <div>
             <h4 className="text-sm font-bold text-[#191B1D] flex items-center gap-2">
               MetaBot Observability Assistant
-              <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#F4F5F6] text-[#0F766E] border border-[#CDCECF] font-bold">
+              <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#F4F5F6] text-[#6D0E5A] border border-[#CDCECF] font-bold">
                 DevOps AI
               </span>
             </h4>
@@ -95,10 +95,10 @@ export function MetaBotChat() {
               {m.meta && (
                 <div className="mt-3 pt-2.5 border-t border-[#CDCECF] flex items-center gap-4 text-xs text-[#5A5D61] font-mono">
                   <span className="flex items-center gap-1 font-bold text-[#191B1D]">
-                    <Clock className="w-3.5 h-3.5 text-[#0F766E]" />
+                    <Clock className="w-3.5 h-3.5 text-[#6D0E5A]" />
                     {m.meta.latency}ms
                   </span>
-                  <span className="flex items-center gap-1 font-bold text-[#0F766E]">
+                  <span className="flex items-center gap-1 font-bold text-[#6D0E5A]">
                     <DollarSign className="w-3.5 h-3.5" />
                     ${m.meta.cost.toFixed(5)}
                   </span>
@@ -115,7 +115,7 @@ export function MetaBotChat() {
 
         {loading && (
           <div className="flex items-center gap-2 text-xs text-[#5A5D61] font-mono">
-            <span className="w-2 h-2 rounded-full bg-[#0F766E] animate-ping" />
+            <span className="w-2 h-2 rounded-full bg-[#6D0E5A] animate-ping" />
             MetaBot querying Redis latency & cost sorted sets...
           </div>
         )}

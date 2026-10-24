@@ -36,7 +36,9 @@ export function ModelObservatory() {
 
   const totalInferences = leaderboard.reduce((acc, item) => acc + item.call_count, 0);
   const totalCost = leaderboard.reduce((acc, item) => acc + item.total_cost_usd, 0);
-  const fastestModel = [...leaderboard].sort((a, b) => a.p50_latency_ms - b.p50_latency_ms)[0];
+  const fastestModel =
+    [...leaderboard].filter((x) => x.p50_latency_ms > 0).sort((a, b) => a.p50_latency_ms - b.p50_latency_ms)[0] ||
+    leaderboard[0];
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fade-in">
@@ -44,7 +46,7 @@ export function ModelObservatory() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-7 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] shadow-xs">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F4F5F6] border border-[#CDCECF] text-xs font-mono font-bold text-[#191B1D]">
-            <Activity className="w-3.5 h-3.5 text-[#0F766E]" />
+            <Activity className="w-3.5 h-3.5 text-[#6D0E5A]" />
             <span>DevOps Telemetry & Dynamic Model Routing</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-[#191B1D] tracking-tight mt-1">
@@ -61,12 +63,12 @@ export function ModelObservatory() {
             disabled={loading}
             className="flex items-center gap-2 px-4 py-2 bg-[#FFFFFF] hover:bg-[#F4F5F6] text-[#191B1D] rounded-lg text-xs font-mono font-bold border border-[#CDCECF] transition-all cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-[#0F766E] ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-[#6D0E5A] ${loading ? "animate-spin" : ""}`} />
             Refresh
           </button>
           <div className="text-right font-mono text-xs text-[#5A5D61]">
             <span suppressHydrationWarning className="block">Synced: {lastRefreshed.toLocaleTimeString()}</span>
-            <span className="text-[#0F766E] font-bold">● 30s auto-sync</span>
+            <span className="text-[#6D0E5A] font-bold">● 30s auto-sync</span>
           </div>
         </div>
       </div>
@@ -76,7 +78,7 @@ export function ModelObservatory() {
         <div className="p-5 rounded-xl bg-[#FFFFFF] border border-[#CDCECF] shadow-xs">
           <div className="flex items-center justify-between text-[#5A5D61] mb-2 text-xs font-mono">
             <span>Fastest Inference</span>
-            <Zap className="w-4 h-4 text-[#0F766E]" />
+            <Zap className="w-4 h-4 text-[#6D0E5A]" />
           </div>
           <div className="text-2xl font-black text-[#191B1D] font-mono">
             {fastestModel ? `${fastestModel.p50_latency_ms} ms` : "—"}
@@ -100,9 +102,9 @@ export function ModelObservatory() {
         <div className="p-5 rounded-xl bg-[#FFFFFF] border border-[#CDCECF] shadow-xs">
           <div className="flex items-center justify-between text-[#5A5D61] mb-2 text-xs font-mono">
             <span>Cumulative API Cost</span>
-            <DollarSign className="w-4 h-4 text-[#0F766E]" />
+            <DollarSign className="w-4 h-4 text-[#6D0E5A]" />
           </div>
-          <div className="text-2xl font-black text-[#0F766E] font-mono">
+          <div className="text-2xl font-black text-[#6D0E5A] font-mono">
             ${totalCost.toFixed(5)}
           </div>
           <p className="text-xs text-[#5A5D61] mt-1">Token billing across tiers</p>
@@ -139,7 +141,7 @@ export function ModelObservatory() {
               : "bg-[#FFFFFF] text-[#5A5D61] border-[#CDCECF] hover:text-[#191B1D]"
           }`}
         >
-          <Sparkles className="w-4 h-4 text-[#0F766E]" />
+          <Sparkles className="w-4 h-4 text-[#6D0E5A]" />
           Ask MetaBot (DevOps AI)
         </button>
       </div>
@@ -176,9 +178,9 @@ export function ModelObservatory() {
                         ? "MacroBot 🏛️"
                         : item.model.includes("llama-3.3")
                         ? "GrowthBot 🚀"
-                        : item.model.includes("mistral")
+                        : item.model.includes("llama-3.2") || item.model.includes("cloudflare") || item.model.includes("mistral")
                         ? "RiskBot 🛡️"
-                        : "Self-Hosted 💻";
+                        : "DevOps AI 🤖";
 
                     return (
                       <tr key={idx} className="hover:bg-[#F8F9FA] transition-colors">
@@ -195,7 +197,7 @@ export function ModelObservatory() {
                         <td className="py-3.5 px-4 font-bold text-[#191B1D]">{item.p50_latency_ms} ms</td>
                         <td className="py-3.5 px-4 text-[#5A5D61]">{item.p95_latency_ms} ms</td>
                         <td className="py-3.5 px-4 text-[#191B1D]">{item.avg_tokens_per_response}</td>
-                        <td className="py-3.5 px-4 text-[#0F766E] font-bold">
+                        <td className="py-3.5 px-4 text-[#6D0E5A] font-bold">
                           {item.cost_per_1k_calls === 0 ? "FREE" : `$${item.cost_per_1k_calls.toFixed(4)}`}
                         </td>
                         <td className="py-3.5 px-4 text-[#5A5D61]">{item.call_count}</td>
@@ -212,7 +214,7 @@ export function ModelObservatory() {
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] space-y-4 shadow-xs">
               <div className="flex items-center justify-between border-b border-[#CDCECF] pb-3">
                 <h4 className="text-sm font-bold text-[#191B1D] flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#0F766E]" />
+                  <Clock className="w-4 h-4 text-[#6D0E5A]" />
                   <span>Median Response Latency (p50)</span>
                 </h4>
                 <span className="text-xs font-mono text-[#5A5D61]">Lower is faster</span>
@@ -242,7 +244,7 @@ export function ModelObservatory() {
             <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] space-y-4 shadow-xs">
               <div className="flex items-center justify-between border-b border-[#CDCECF] pb-3">
                 <h4 className="text-sm font-bold text-[#191B1D] flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-[#0F766E]" />
+                  <DollarSign className="w-4 h-4 text-[#6D0E5A]" />
                   <span>Estimated Cost Per 1,000 Inferences</span>
                 </h4>
                 <span className="text-xs font-mono text-[#5A5D61]">Lower is cheaper</span>
@@ -255,13 +257,13 @@ export function ModelObservatory() {
                     <div key={i} className="space-y-1">
                       <div className="flex justify-between text-xs">
                         <span className="text-[#191B1D] font-medium">{m.display_name}</span>
-                        <span className="font-mono font-bold text-[#0F766E]">
+                        <span className="font-mono font-bold text-[#6D0E5A]">
                           {m.cost_per_1k_calls === 0 ? "$0.00 (Self-Hosted)" : `$${m.cost_per_1k_calls.toFixed(4)}`}
                         </span>
                       </div>
                       <div className="w-full bg-[#F4F5F6] rounded-full h-2 overflow-hidden border border-[#CDCECF]">
                         <div
-                          className="bg-[#0F766E] h-2 rounded-full transition-all duration-500"
+                          className="bg-[#6D0E5A] h-2 rounded-full transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>

@@ -346,10 +346,9 @@ class TangentRedisClient:
     async def get_all_metrics(self) -> dict[str, dict[str, Any]]:
         """Fetch comparison metrics for all monitored models."""
         known_models = [
-            "gemini/gemini-2.0-flash",
             "groq/llama-3.3-70b-versatile",
-            "mistral/mistral-small-latest",
-            "ollama/llama3.2:3b",
+            "gemini/gemini-2.0-flash",
+            "cloudflare/@cf/meta/llama-3.2-3b-instruct",
         ]
         results = {}
         for m in known_models:
