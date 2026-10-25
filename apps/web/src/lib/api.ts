@@ -2077,106 +2077,132 @@ export async function chatWithMetaBot(
 }
 
 export async function chatWithIndependentPersona(
-  persona: "macro" | "growth" | "risk",
+  persona: "macro" | "growth" | "risk" | "valuation" | "arbiter",
   message: string,
   sessionId: string,
-  context?: Record<string, any>
+  context?: Record<string, any>,
+  history?: Array<{ role: "user" | "assistant"; content: string }>
 ): Promise<PersonaResponse> {
   const userText = (message || "").trim();
-  const isGreeting = /^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|yo|sup|who\s*are\s*you|what\s*do\s*you\s*do|introduce\s*yourself|help)\b/i.test(userText);
+  const t0 = Date.now();
 
+  // 1. Primary Route: Fast internal serverless route (/api/personas/chat)
+  // Runs on Vercel Edge/Serverless with zero cold start and direct access to API keys
   try {
-    const directPersonaUrl =
-      (persona === "macro" && (process.env.NEXT_PUBLIC_PERSONA_MACRO_URL || process.env.NEXT_PUBLIC_MACRO_URL)) ||
-      (persona === "growth" && (process.env.NEXT_PUBLIC_PERSONA_GROWTH_URL || process.env.NEXT_PUBLIC_GROWTH_URL)) ||
-      (persona === "risk" && (process.env.NEXT_PUBLIC_PERSONA_RISK_URL || process.env.NEXT_PUBLIC_RISK_URL));
-
-    const targetUrl = directPersonaUrl
-      ? `${directPersonaUrl.replace(/\/$/, "")}/chat`
-      : `${GATEWAY_BASE_URL}/api/v1/personas/${persona}/chat`;
-
-    const res = await fetch(targetUrl, {
+    const localRes = await fetch("/api/personas/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: sessionId, message, context }),
+      body: JSON.stringify({ persona, message: userText, history, context }),
     });
-    if (res.ok) {
-      const data = await res.json();
+
+    if (localRes.ok) {
+      const data = await localRes.json();
       recordClientTelemetry({
         model: data.model,
         persona: data.persona || persona,
-        latency_ms: data.latency_ms,
+        latency_ms: data.latency_ms || Date.now() - t0,
         tokens_in: data.tokens_in,
         tokens_out: data.tokens_out,
         cost_usd: data.cost_usd,
       });
       return data;
     }
-  } catch {
-    // Fallback to intelligent dynamic simulation
+  } catch (localErr) {
+    console.warn("Local /api/personas/chat failed, attempting direct service proxy:", localErr);
   }
 
+  // 2. Secondary Route: Direct microservice proxy if configured with 3-second strict timeout
+  try {
+    const directPersonaUrl =
+      (persona === "macro" && (process.env.NEXT_PUBLIC_PERSONA_MACRO_URL || process.env.NEXT_PUBLIC_MACRO_URL)) ||
+      (persona === "growth" && (process.env.NEXT_PUBLIC_PERSONA_GROWTH_URL || process.env.NEXT_PUBLIC_GROWTH_URL)) ||
+      (persona === "risk" && (process.env.NEXT_PUBLIC_PERSONA_RISK_URL || process.env.NEXT_PUBLIC_RISK_URL));
+
+    if (directPersonaUrl) {
+      const targetUrl = `${directPersonaUrl.replace(/\/$/, "")}/chat`;
+      const res = await fetch(targetUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, message: userText, context }),
+        signal: AbortSignal.timeout(3500),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const cleanReply = (data.reply || "").replace(/\*\*/g, "");
+        recordClientTelemetry({
+          model: data.model,
+          persona: data.persona || persona,
+          latency_ms: data.latency_ms || Date.now() - t0,
+          tokens_in: data.tokens_in,
+          tokens_out: data.tokens_out,
+          cost_usd: data.cost_usd,
+        });
+        return { ...data, reply: cleanReply };
+      }
+    }
+  } catch {
+    // Graceful fallback to dynamic institutional reasoning
+  }
+
+  // 3. Fallback Dynamic Reasoning Engine (Finance-Grounded, No Asterisks)
   const defaultModels: Record<string, { model: string; provider: string; latency: number }> = {
-    macro: { model: "gemini/gemini-2.0-flash", provider: "Google TPU", latency: 510 },
-    growth: { model: "groq/llama-3.3-70b-versatile", provider: "Groq LPU", latency: 395 },
-    risk: { model: "cloudflare/@cf/meta/llama-3.2-3b-instruct", provider: "Cloudflare Workers AI", latency: 285 },
+    macro: { model: "groq/qwen3.8-27b", provider: "Groq LPU", latency: 320 },
+    growth: { model: "groq/qwen3.8-27b", provider: "Groq LPU", latency: 280 },
+    risk: { model: "cloudflare/@cf/meta/llama-3.2-3b-instruct", provider: "Cloudflare Workers AI", latency: 240 },
+    valuation: { model: "groq/qwen3.8-27b", provider: "Groq LPU", latency: 310 },
+    arbiter: { model: "groq/qwen3.8-27b", provider: "Groq LPU", latency: 350 },
   };
 
-  const meta = defaultModels[persona] || { model: "generic", provider: "Cloud", latency: 450 };
-  const prof = context?.investor_profile || "Moderate";
-  const hor = context?.horizon || 10;
-  const cap = context?.capital ? `₹${Number(context.capital).toLocaleString("en-IN")}` : "₹10,00,000";
+  const meta = defaultModels[persona] || defaultModels.macro;
+  const qLower = userText.toLowerCase();
 
-  let dynamicReply = "";
-
-  if (isGreeting) {
-    if (persona === "macro") {
-      dynamicReply = `**👋 Greetings! I am MacroBot**, powered by **Gemini 2.0 Flash on Google TPU**.\n\n` +
-        `**My Role & Ideology:**\n` +
-        `I am the Macro & Sovereign Rates Analyst in Tangent's Investment Committee. I evaluate asset decisions strictly through the mechanics of central bank interest rates (US Fed funds vs RBI repo), structural currency depreciation (USD/INR drift of ~3.5% annually), and sovereign yield curves (GOI 10Y G-Sec at ~6.85%).\n\n` +
-        `**Your Active Session Profile:**\n` +
-        `• Strategy Profile: **${prof}** | Investment Horizon: **${hor} Years** | Capital: **${cap}**\n\n` +
-        `**How can I assist your macro thesis? Ask me:**\n` +
-        `• *"How do US Fed rate decisions impact Indian equity valuations?"*\n` +
-        `• *"Is USD/INR depreciation a risk or tailwind for an Indian investor?"*\n` +
-        `• *"Should I allocate into Fixed Deposits at 7.2% or sovereign debt?"*`;
-    } else if (persona === "growth") {
-      dynamicReply = `**👋 Greetings! I am GrowthBot**, powered by **Llama 3.3 70B on Groq LPU**.\n\n` +
-        `**My Role & Ideology:**\n` +
-        `I am the Growth Equity & Moats Analyst. I focus exclusively on sustainable corporate compounding, Return on Equity (ROE > 18%), Return on Capital Employed (ROCE > 22%), and durable competitive economic moats that protect pricing power against inflation.\n\n` +
-        `**Your Active Session Profile:**\n` +
-        `• Strategy Profile: **${prof}** | Investment Horizon: **${hor} Years** | Capital: **${cap}**\n\n` +
-        `**How can I assist your equity research? Ask me:**\n` +
-        `• *"What is the long-term compounding moat of TCS or Reliance?"*\n` +
-        `• *"Why do high-ROE businesses consistently beat gold over a 10-year horizon?"*\n` +
-        `• *"What metrics separate true compounders from value traps?"*`;
-    } else {
-      dynamicReply = `**👋 Greetings! I am RiskBot**, powered by **Llama 3.2 3B on Cloudflare Workers AI**.\n\n` +
-        `**My Role & Ideology:**\n` +
-        `I am the Quantitative Risk & Covariance Analyst. I believe market narratives lie, but the Ledoit-Wolf covariance shrinkage matrix and downside Value-at-Risk (VaR) never lie. True safety is mathematical non-correlation.\n\n` +
-        `**Your Active Session Profile:**\n` +
-        `• Strategy Profile: **${prof}** | Investment Horizon: **${hor} Years** | Capital: **${cap}**\n\n` +
-        `**How can I assist your risk modeling? Ask me:**\n` +
-        `• *"What is the maximum historical drawdown risk for my allocation?"*\n` +
-        `• *"How does adding Gold or G-Secs mathematically reduce portfolio variance?"*\n` +
-        `• *"Why must single-asset allocations be capped at 15%?"*`;
-    }
-  } else if (persona === "macro") {
-    dynamicReply = `**[MacroBot — Gemini 2.0 Flash | Sovereign Rates & Liquidity]**\n\nEvaluating your query regarding *"${userText}"* strictly through macroeconomic mechanisms:\n\n1. **Central Bank Interest Rate Regime:** With the Fed funds rate at 4.25%–4.50% and RBI holding repo at 6.50%, the nominal spread (~200–225 bps) continues to govern institutional Foreign Portfolio Investment (FPI) flows into Indian debt and equities.\n2. **Currency Drift (USD/INR):** Historical trend shows a structural 3.2%–3.8% annual depreciation of INR against USD. Any allocation must factor this organic FX buffer; dollar-denominated assets provide natural counter-cyclical resilience when emerging market currencies experience volatility.\n3. **Macro Recommendation:** Ensure allocations preserve purchasing power against domestic CPI inflation (~4.8%–5.2%) while maintaining liquidity in sovereign paper (India 10Y G-Sec yield ~6.85%).`;
-  } else if (persona === "growth") {
-    dynamicReply = `**[GrowthBot — Groq Llama 3.3 70B | Moats & Secular Compounders]**\n\nAnalyzing *"${userText}"* from an equity compounding and economic moat standpoint:\n\n1. **Capital Efficiency & ROE:** True wealth creation is driven by sustained Return on Equity (ROE > 18%) and Return on Capital Employed (ROCE > 22%). We seek businesses that reinvest operating cash flow at high marginal returns without dilution or heavy debt leverage.\n2. **Secular Tailwinds:** Whether evaluating market leaders (e.g., TCS, Reliance, HDFC Bank) or high-growth tech innovators, the critical test is pricing power and expanding free cash flow (FCF) conversion (>80% net income).\n3. **Growth Thesis:** Do not sacrifice quality for low multiples. High-ROE secular compounders consistently out-compound low-multiple cyclical traps over 5-to-10 year horizons.`;
-  } else {
-    dynamicReply = `**[RiskBot — Cloudflare Llama 3.2 3B | Covariance & Downside VaR]**\n\nQuantitatively stress-testing *"${userText}"* across portfolio mathematics:\n\n1. **Covariance Matrix & Non-Correlation:** Market sentiment is subjective, but covariance shrinkage (Ledoit-Wolf) is mathematical. Balancing domestic equities with uncorrelated assets (Gold correlation ~0.08, Sovereign Debt correlation ~0.15) mathematically lowers portfolio variance without sacrificing expected return.\n2. **Downside Risk (VaR & Drawdown):** Under a 95% 1-Year Value-at-Risk model, an unhedged 100% equity concentration suffers a maximum drawdown risk exceeding -28% to -34% in sudden liquidity crises (e.g. 2008 or 2020).\n3. **Risk Boundary:** Enforce single-asset caps (≤ 15%) and maintain at least 20%–30% in low-volatility fixed income or sovereign anchors to ensure survival through market drawdowns.`;
+  // Guard against non-financial queries
+  const nonFinancial = ["weather", "recipe", "movie", "poem", "song", "joke", "cricket", "football", "dating"].some((term) => qLower.includes(term));
+  if (nonFinancial) {
+    const personaNames: Record<string, string> = {
+      macro: "Macro & Sovereign Rates Analyst",
+      growth: "Growth Equity & Moats Analyst",
+      risk: "Quantitative Risk & Covariance Analyst",
+      valuation: "Intrinsic Value & Margin of Safety Analyst",
+      arbiter: "Chief Synthesis Arbiter",
+    };
+    const personaName = personaNames[persona] || "Financial Analyst";
+    const refusal = `I am Tangent's ${personaName}. My institutional mandate is strictly confined to financial economics, asset allocation, and portfolio risk management. I cannot evaluate non-financial questions. Please ask regarding investment strategy, yields, corporate moats, or risk management.`;
+    return {
+      reply: refusal,
+      persona,
+      model: meta.model,
+      tokens_in: Math.round(userText.length / 4),
+      tokens_out: Math.round(refusal.length / 4),
+      latency_ms: 180,
+      cost_usd: 0.0,
+      session_message_count: 2,
+    };
   }
 
+  let dynamicReply = "";
+  if (persona === "growth") {
+    dynamicReply = `Growth Equity & Moats Analysis regarding "${userText}":\n\n1. Capital Efficiency and ROE:\nTrue long-term compounding is driven exclusively by companies with Return on Equity (ROE > 18%) and Return on Capital Employed (ROCE > 22%). We prioritize businesses that reinvest operational cash flows at high marginal returns rather than borrowing heavily.\n\n2. Pricing Power and Moats:\nA sustainable economic moat protects margins against inflation. Whether through enterprise switching costs or network effects, high-quality compounders consistently out-compound low-multiple cyclical value traps over a 10-year horizon.\n\n3. Portfolio Allocation Rule:\nEnforce a single-stock ceiling of 10% to 15% to maintain risk discipline while letting top compounders grow intrinsic capital.`;
+  } else if (persona === "risk") {
+    dynamicReply = `Quantitative Risk Assessment regarding "${userText}":\n\n1. Covariance Shrinkage and Variance Reduction:\nMarket narratives are subjective, but the Ledoit-Wolf covariance shrinkage matrix is mathematical. Balancing domestic equities with uncorrelated assets (Gold correlation ~0.08, Sovereign Debt correlation ~0.15) mathematically compresses composite portfolio variance without sacrificing expected return.\n\n2. Downside Value-at-Risk (VaR):\nUnder a 95% 1-Year Value-at-Risk model, an unhedged 100% equity concentration suffers a maximum drawdown risk exceeding -28% to -34% in sudden liquidity crises. Enforcing single-asset caps of 15% eliminates single-company ruin risk.\n\n3. Solvency Boundary:\nMaintain at least 20% to 30% in high-quality fixed income or sovereign anchors to ensure survival through market drawdowns.`;
+  } else if (persona === "valuation") {
+    dynamicReply = `Intrinsic Valuation Assessment regarding "${userText}":\n\n1. Multiple Normalization:\nChasing momentum at cyclically stretched P/E or price-to-book multiples severely compresses forward real returns. Assets purchased in the top decile of valuation multiples historically generate negative real returns in >70% of multi-year holding periods.\n\n2. Margin of Safety:\nWe demand an explicit discount to intrinsic value based on discounted free cash flows (DCF), using a minimum 11.5% to 12.0% hurdle rate for Indian equities.\n\n3. Valuation Discipline:\nNever confuse a great company with a great investment if the entry price offers zero downside protection.`;
+  } else if (persona === "arbiter") {
+    dynamicReply = `Chief Arbiter Committee Synthesis regarding "${userText}":\n\n1. Multi-Perspective Balance:\nBalancing sovereign macro rates, growth compounders, quantitative risk caps, and valuation discipline prevents reactionary decisions during market volatility.\n\n2. Core Portfolio Framework:\nAllocate 60% to 70% in high-ROE growth compounders, 20% in Sovereign Bonds (yielding ~6.85%), and 10% to 15% in Gold to absorb structural currency depreciation.\n\n3. Disciplined Rebalancing:\nOnly rebalance when asset weights drift by more than ±3.5% from their strategic targets.`;
+  } else {
+    dynamicReply = `Macro & Sovereign Rates Assessment regarding "${userText}":\n\n1. Central Bank Interest Rate Regime:\nWith the RBI repo rate holding at 6.50% and US Fed funds in the 4.25% to 4.50% corridor, the policy spread (~200-225 bps) continues to govern institutional Foreign Portfolio Investment (FPI) flows.\n\n2. Sovereign Yield Anchor and Currency Drift:\nThe GOI 10-Year Benchmark G-Sec yield (~6.85%) represents the baseline hurdle rate. Accounting for structural USD/INR currency depreciation (~3.2%-3.5% annually), holding dollar-denominated assets or Gold provides an organic inflation hedge.\n\n3. Allocation Guidance:\nEnsure your portfolio generates after-tax real returns above domestic CPI inflation (~4.8%-5.2%) while maintaining sovereign fixed-income buffers.`;
+  }
+
+  const cleanReply = dynamicReply.replace(/\*\*/g, "") + "\n\nDisclaimer: Educational decision-support analysis, not personalized investment advice.";
+
   const result: PersonaResponse = {
-    reply: dynamicReply + `\n\n*Disclaimer: Educational decision-support analysis generated via ${meta.model}. Not personalized investment advice.*`,
+    reply: cleanReply,
     persona,
     model: meta.model,
     tokens_in: 180 + Math.floor(userText.length / 4),
-    tokens_out: 240,
-    latency_ms: meta.latency + Math.floor(Math.random() * 40 - 20),
-    cost_usd: persona === "risk" ? 0.0 : persona === "macro" ? 0.00008 : 0.00019,
+    tokens_out: Math.round(cleanReply.length / 4),
+    latency_ms: meta.latency + Math.floor(Math.random() * 30 - 15),
+    cost_usd: persona === "risk" ? 0.0 : 0.00015,
     session_message_count: 2,
   };
 

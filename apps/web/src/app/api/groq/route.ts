@@ -25,8 +25,9 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content || "";
-    return NextResponse.json({ reply, model: data.model || "groq/qwen3.8-27b" });
+    const replyRaw = data.choices?.[0]?.message?.content || "";
+    const cleanReply = replyRaw.replace(/\*\*/g, "");
+    return NextResponse.json({ reply: cleanReply, model: data.model || "groq/qwen3.8-27b" });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Groq proxy error" }, { status: 500 });
   }

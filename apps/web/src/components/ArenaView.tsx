@@ -146,12 +146,15 @@ export function ArenaView({
   const [copied, setCopied] = useState<boolean>(false);
   const [isLlmEnhanced, setIsLlmEnhanced] = useState<boolean>(false);
 
-  // 1-on-1 Consultation state with active persona
+  // 1-on-1 Consultation state with active persona and persistent session storage
   const [consultPersonaId, setConsultPersonaId] = useState<string>("macro");
-  const [chatMessages, setChatMessages] = useState<PersonaChatMessage[]>([]);
+  const [personaChats, setPersonaChats] = useState<Record<string, PersonaChatMessage[]>>({});
   const [userChatInput, setUserChatInput] = useState<string>("");
   const [isPersonaReplying, setIsPersonaReplying] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<string>("arena_default");
+
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const chatBottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -163,15 +166,22 @@ export function ArenaView({
         sessionStorage.setItem("tangent_arena_session_id", generated);
         setSessionId(generated);
       }
+
+      try {
+        const savedChats = sessionStorage.getItem("tangent_arena_persona_chats_v4");
+        if (savedChats) {
+          const parsed = JSON.parse(savedChats);
+          if (parsed && typeof parsed === "object") {
+            setPersonaChats(parsed);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load saved persona chats from sessionStorage:", e);
+      }
     }
-  }, []);
 
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const chatBottomRef = useRef<HTMLDivElement>(null);
-
-  // Initialize consultation chat on mount so it's always ready
-  useEffect(() => {
-    initPersonaChatGreeting(consultPersonaId, query);
+    ensurePersonaGreeting("macro", query);
   }, []);
 
   useEffect(() => {
@@ -180,11 +190,13 @@ export function ArenaView({
     }
   }, [turns, conclusion]);
 
+  const currentChatMessages = personaChats[consultPersonaId] || [];
+
   useEffect(() => {
-    if (chatBottomRef.current && chatMessages.length > 0) {
+    if (chatBottomRef.current && currentChatMessages.length > 0) {
       chatBottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [chatMessages, isPersonaReplying]);
+  }, [personaChats, consultPersonaId, isPersonaReplying]);
 
   // Deep deterministic fallback engine with real financial data (including deep TCS analysis)
   const getDeterministicDebate = (
@@ -549,33 +561,48 @@ export function ArenaView({
       setConclusion(baseline.debateConclusion);
       setIsDebating(false);
       // Auto-initialize 1-on-1 consultation chat greeting with current selected persona
-      initPersonaChatGreeting(consultPersonaId, qText);
+      ensurePersonaGreeting(consultPersonaId, qText);
     }, (baseline.debateTurns.length + 1) * 650);
   };
 
-  const initPersonaChatGreeting = (personaId: string, currentQuery: string) => {
+  const createInitialGreeting = (personaId: string, currentQuery?: string): PersonaChatMessage => {
     const persona =
       ARENA_PERSONAS.find((p) => p.id === personaId) || ARENA_PERSONAS[0];
     const greetingContext = currentQuery || query;
-    const initialMsg: PersonaChatMessage = {
+    return {
       sender: "persona",
       personaId: persona.id,
       speakerTitle: persona.ideologyTitle,
       avatar: persona.avatar,
       text: greetingContext
-        ? `Greetings. I am strictly bound to the **${persona.ideologyTitle}**. We just concluded our committee debate on: *"${greetingContext}"*.\n\nAsk me any follow-up question or challenge my thesis. I will evaluate your points strictly through my guiding doctrine with empirical facts.`
-        : `Greetings. I am strictly bound to the **${persona.ideologyTitle}**.\n\nOperational Focus: *${persona.coreIdeology}*\n\nAsk me any financial question or consult me on an asset allocation thesis. I will answer strictly through my doctrine with real-world financial data.`,
+        ? `Greetings. I am strictly bound to the ${persona.ideologyTitle}. We just concluded our committee debate on: "${greetingContext}".\n\nAsk me any follow-up question or challenge my thesis. I will evaluate your points strictly through my guiding doctrine with empirical facts.`
+        : `Greetings. I am strictly bound to the ${persona.ideologyTitle}.\n\nOperational Focus: ${persona.coreIdeology}\n\nAsk me any financial question or consult me on an asset allocation thesis. I will answer strictly through my doctrine with real-world financial data.`,
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       }),
     };
-    setChatMessages([initialMsg]);
+  };
+
+  const ensurePersonaGreeting = (personaId: string, currentQuery?: string) => {
+    setPersonaChats((prev) => {
+      if (prev[personaId] && prev[personaId].length > 0) {
+        return prev;
+      }
+      const initialMsg = createInitialGreeting(personaId, currentQuery);
+      const updated = { ...prev, [personaId]: [initialMsg] };
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem("tangent_arena_persona_chats_v4", JSON.stringify(updated));
+        } catch {}
+      }
+      return updated;
+    });
   };
 
   const handleSwitchConsultPersona = (personaId: string) => {
     setConsultPersonaId(personaId);
-    initPersonaChatGreeting(personaId, query);
+    ensurePersonaGreeting(personaId, query);
   };
 
   const handleClearSession = () => {
@@ -584,7 +611,16 @@ export function ArenaView({
       sessionStorage.setItem("tangent_arena_session_id", newId);
     }
     setSessionId(newId);
-    initPersonaChatGreeting(consultPersonaId, query);
+    const initialMsg = createInitialGreeting(consultPersonaId, query);
+    setPersonaChats((prev) => {
+      const updated = { ...prev, [consultPersonaId]: [initialMsg] };
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem("tangent_arena_persona_chats_v4", JSON.stringify(updated));
+        } catch {}
+      }
+      return updated;
+    });
   };
 
   const handleSendPersonaChatMessage = async () => {
@@ -602,7 +638,19 @@ export function ArenaView({
       }),
     };
 
-    setChatMessages((prev) => [...prev, newMsg]);
+    const currentHistory = personaChats[consultPersonaId] || [];
+    const updatedMessages = [...currentHistory, newMsg];
+
+    setPersonaChats((prev) => {
+      const updated = { ...prev, [consultPersonaId]: updatedMessages };
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem("tangent_arena_persona_chats_v4", JSON.stringify(updated));
+        } catch {}
+      }
+      return updated;
+    });
+
     setIsPersonaReplying(true);
 
     const persona =
@@ -612,89 +660,52 @@ export function ArenaView({
     let usedModel: string | undefined = undefined;
     let latencyMs: number | undefined = undefined;
 
-    // 1. For independent persona microservices (macro, growth, risk), route to their dedicated FastAPI services via Gateway
-    if (persona.id === "macro" || persona.id === "growth" || persona.id === "risk") {
-      try {
-        const personaRes = await chatWithIndependentPersona(
-          persona.id as "macro" | "growth" | "risk",
-          userText,
-          sessionId,
-          {
-            query,
-            investor_profile: investorProfileName,
-            horizon,
-            capital,
-            weights,
-            nominalReturn,
-            realReturn,
-            volatility,
-            sharpeRatio,
-            selectedTickers,
-          }
-        );
-        if (personaRes && personaRes.reply) {
-          responseText = personaRes.reply;
-          usedModel = personaRes.model;
-          latencyMs = personaRes.latency_ms;
-          setIsLlmEnhanced(true);
-        }
-      } catch (err) {
-        console.warn(`Independent persona chat for ${persona.id} failed, falling back:`, err);
+    // Convert prior conversation turns into history for the API
+    const historyForApi = currentHistory
+      .filter((m) => m.sender === "user" || m.sender === "persona")
+      .map((m) => ({
+        role: m.sender === "user" ? ("user" as const) : ("assistant" as const),
+        content: m.text,
+      }));
+
+    // 1. Direct serverless route with zero cold start & finance validation
+    try {
+      const personaRes = await chatWithIndependentPersona(
+        persona.id as "macro" | "growth" | "risk" | "valuation" | "arbiter",
+        userText,
+        sessionId,
+        {
+          query,
+          investor_profile: investorProfileName,
+          horizon,
+          capital,
+          weights,
+          nominalReturn,
+          realReturn,
+          volatility,
+          sharpeRatio,
+          selectedTickers,
+        },
+        historyForApi
+      );
+      if (personaRes && personaRes.reply) {
+        responseText = personaRes.reply.replace(/\*\*/g, "").replace(/\*/g, "");
+        usedModel = personaRes.model;
+        latencyMs = personaRes.latency_ms;
+        setIsLlmEnhanced(true);
       }
+    } catch (err) {
+      console.warn(`Persona consultation chat for ${persona.id} failed, falling back:`, err);
     }
 
-    // 2. Fallback to live Groq completion with strict persona prompt if independent persona unavailable or valuation/arbiter
-    if (!responseText) {
-      try {
-        const systemPrompt = `You are an elite institutional financial advisor strictly bound to the ${persona.ideologyTitle}.
-Your Guiding Doctrine: "${persona.coreIdeology}".
-Your Strict Operational Boundaries: "${persona.strictBoundaries}".
-Original user dilemma discussed in the committee: "${query}".
-
-STRICT RULES:
-1. Stay 100% in character. Never break persona or mention you are an AI.
-2. Answer the user's specific follow-up question with hard financial facts, real metrics, and specific numbers.
-3. If asked about a stock (e.g., TCS, Reliance, Infosys), cite actual valuations, debt, revenue, and margins.
-4. Keep your answer focused, authoritative, and concise (under 4-5 sentences).`;
-
-        const apiRes = await fetch("/api/groq", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...chatMessages.map((m) => ({
-                role: m.sender === "user" ? "user" : "assistant",
-                content: m.text,
-              })),
-              { role: "user", content: userText },
-            ],
-            temperature: 0.2,
-            max_tokens: 350,
-          }),
-        });
-
-        if (apiRes.ok) {
-          const data = await apiRes.json();
-          if (data.reply) {
-            responseText = data.reply;
-            usedModel = "groq/llama-3.3-70b-versatile";
-            setIsLlmEnhanced(true);
-          }
-        }
-      } catch (e) {
-        console.warn("Groq proxy unavailable, falling back to deterministic persona engine:", e);
-      }
-    }
-
-    // High-quality deterministic fallback if network/Groq rate limit hits
+    // 2. High-quality finance-grounded fallback if offline (No asterisks)
     if (!responseText) {
       if (persona.id === "macro") {
-        responseText = `From the **${persona.ideologyTitle}** perspective: Looking at your question on "${userText.slice(0, 40)}...", the dominant variable remains sovereign liquidity and the USD/INR currency exchange rate. Indian IT and global equities are transmission vehicles for central bank yield differentials. With US 10-year Treasury yields around 4.2%–4.5% and the RBI keeping repo rates at 6.5%, any capital reallocation must account for foreign institutional capital flows and inflation differentials.`;
+        responseText = `From the ${persona.ideologyTitle} perspective: Looking at your question on "${userText.slice(0, 40)}...", the dominant variable remains sovereign liquidity and the USD/INR currency exchange rate. Indian IT and global equities are transmission vehicles for central bank yield differentials. With US 10-year Treasury yields around 4.2%–4.5% and the RBI keeping repo rates at 6.5%, any capital reallocation must account for foreign institutional capital flows and inflation differentials.`;
       } else if (persona.id === "growth") {
-        responseText = `From the **${persona.ideologyTitle}** perspective: Regarding "${userText.slice(0, 40)}...", competitive moats and capital reinvestment rates are what create generational wealth. Look at return on capital employed (ROCE > 20%), free cash flow generation, and secular runway. High-quality compounders with pricing power consistently outgrow cyclical rate headwinds and market volatility.`;
+        responseText = `From the ${persona.ideologyTitle} perspective: Regarding "${userText.slice(0, 40)}...", competitive moats and capital reinvestment rates are what create generational wealth. Look at return on capital employed (ROCE > 20%), free cash flow generation, and secular runway. High-quality compounders with pricing power consistently outgrow cyclical rate headwinds and market volatility.`;
       } else {
-        responseText = `From the **${persona.ideologyTitle}** perspective: Analyzing "${userText.slice(0, 40)}..." mathematically: Every additional percentage of capital concentrated into a single thesis increases portfolio Value-at-Risk (VaR) and tail drawdown exponentially. To maximize the long-term Sharpe ratio, exposure to any single security must remain capped below 12%–15%, anchored by low-covariance assets like sovereign debt and gold.`;
+        responseText = `From the ${persona.ideologyTitle} perspective: Analyzing "${userText.slice(0, 40)}..." mathematically: Every additional percentage of capital concentrated into a single thesis increases portfolio Value-at-Risk (VaR) and tail drawdown exponentially. To maximize the long-term Sharpe ratio, exposure to any single security must remain capped below 12%–15%, anchored by low-covariance assets like sovereign debt and gold.`;
       }
     }
 
@@ -703,7 +714,7 @@ STRICT RULES:
       personaId: persona.id,
       speakerTitle: persona.ideologyTitle,
       avatar: persona.avatar,
-      text: responseText,
+      text: responseText.replace(/\*\*/g, "").replace(/\*/g, ""),
       model: usedModel,
       latency_ms: latencyMs,
       timestamp: new Date().toLocaleTimeString([], {
@@ -712,7 +723,19 @@ STRICT RULES:
       }),
     };
 
-    setChatMessages((prev) => [...prev, personaReplyMsg]);
+    setPersonaChats((prev) => {
+      const updated = {
+        ...prev,
+        [consultPersonaId]: [...(prev[consultPersonaId] || []), personaReplyMsg],
+      };
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem("tangent_arena_persona_chats_v4", JSON.stringify(updated));
+        } catch {}
+      }
+      return updated;
+    });
+
     setIsPersonaReplying(false);
   };
 
@@ -1111,9 +1134,6 @@ STRICT RULES:
                 </div>
               </div>
               <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 font-mono">
-                <span className="text-xs px-2.5 py-1 rounded bg-[#FFFFFF] border border-[#CDCECF] text-[#5A5D61]">
-                  Session: {sessionId.slice(0, 12)}…
-                </span>
                 <button
                   onClick={handleClearSession}
                   title="Reset session memory for this persona"
@@ -1129,7 +1149,7 @@ STRICT RULES:
 
         {/* Chat Messages Stream */}
         <div className="space-y-3.5 max-h-[440px] overflow-y-auto pr-2">
-          {chatMessages.map((msg, idx) => {
+          {currentChatMessages.map((msg, idx) => {
             const isUser = msg.sender === "user";
             return (
               <div
@@ -1162,7 +1182,7 @@ STRICT RULES:
                       <span className="text-[#5A5D61] shrink-0">{msg.timestamp}</span>
                     </div>
                   )}
-                  <p className="whitespace-pre-line">{msg.text}</p>
+                  <p className="whitespace-pre-line">{msg.text.replace(/\*\*/g, "").replace(/\*/g, "")}</p>
                   {isUser && (
                     <span className="text-xs text-zinc-300 block text-right font-mono mt-1">
                       {msg.timestamp}

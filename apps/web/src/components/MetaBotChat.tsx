@@ -34,7 +34,7 @@ export function MetaBotChat() {
         ...prev,
         {
           role: "assistant",
-          content: res.reply,
+          content: (res.reply || "").replace(/\*\*/g, "").replace(/\*/g, ""),
           meta: {
             model: res.model_used,
             latency: res.latency_ms,
@@ -90,7 +90,7 @@ export function MetaBotChat() {
                   : "bg-[#F8F9FA] text-[#191B1D] border border-[#CDCECF]"
               }`}
             >
-              <div className="whitespace-pre-wrap">{m.content}</div>
+              <div className="whitespace-pre-wrap">{m.content.replace(/\*\*/g, "").replace(/\*/g, "")}</div>
 
               {m.meta && (
                 <div className="mt-3 pt-2.5 border-t border-[#CDCECF] flex items-center gap-4 text-xs text-[#5A5D61] font-mono">
