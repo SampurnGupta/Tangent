@@ -2476,3 +2476,34 @@ export async function chatWithIndependentPersona(
 
   return result;
 }
+
+export interface ArenaDebatePayload {
+  query: string;
+  investor_profile?: string;
+  horizon?: number;
+  capital?: number;
+  weights?: Record<string, number>;
+  selectedTickers?: string[];
+}
+
+export async function fetchArenaDebate(
+  payload: ArenaDebatePayload
+): Promise<{ debateTurns: any[]; debateConclusion: any } | null> {
+  try {
+    const res = await fetch("/api/arena/debate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(12000),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.debateTurns && data.debateTurns.length === 5 && data.debateConclusion) {
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn("fetchArenaDebate call failed, falling back to local heuristic:", err);
+  }
+  return null;
+}
