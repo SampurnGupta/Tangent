@@ -8,6 +8,8 @@ interface MonteCarloProjectionProps {
   expectedReturn?: number;
   volatility?: number;
   horizonYears?: number;
+  initialCapital?: number;
+  monthlySip?: number;
   authToken?: string;
   onProceedToStudio?: () => void;
 }
@@ -16,14 +18,35 @@ export function MonteCarloProjection({
   expectedReturn = 0.12,
   volatility = 0.14,
   horizonYears = 10,
+  initialCapital = 1000000,
+  monthlySip: passedMonthlySip = 25000,
   authToken,
   onProceedToStudio,
 }: MonteCarloProjectionProps) {
-  const [initialInvestment, setInitialInvestment] = useState<number>(500000);
-  const [monthlySip, setMonthlySip] = useState<number>(25000);
+  const [initialInvestment, setInitialInvestment] = useState<number>(initialCapital);
+  const [monthlySip, setMonthlySip] = useState<number>(passedMonthlySip);
   const [horizon, setHorizon] = useState<number>(horizonYears);
   const [loading, setLoading] = useState<boolean>(false);
   const [projection, setProjection] = useState<MonteCarloResponse | null>(null);
+
+  // Synchronize state when earlier step inputs are updated
+  React.useEffect(() => {
+    if (initialCapital !== undefined) {
+      setInitialInvestment(initialCapital);
+    }
+  }, [initialCapital]);
+
+  React.useEffect(() => {
+    if (passedMonthlySip !== undefined) {
+      setMonthlySip(passedMonthlySip);
+    }
+  }, [passedMonthlySip]);
+
+  React.useEffect(() => {
+    if (horizonYears !== undefined) {
+      setHorizon(horizonYears);
+    }
+  }, [horizonYears]);
 
   const handleSimulate = async () => {
     setLoading(true);

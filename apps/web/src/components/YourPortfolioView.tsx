@@ -484,6 +484,8 @@ export function YourPortfolioView({
             expectedReturn={activeNominalReturn}
             volatility={activeVol}
             horizonYears={horizon}
+            initialCapital={initialCapital}
+            monthlySip={monthlySip}
             authToken={authToken}
             onProceedToStudio={handleProceedFromProjections}
           />

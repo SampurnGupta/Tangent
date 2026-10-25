@@ -383,7 +383,31 @@ Your strict operational doctrine:
     let dynamicReply = "";
     const qLower = cleanMsg.toLowerCase();
 
-    // Check specific Indian & Global enterprises
+    // Check specific Indian & Global enterprises or any general stock/company inquiry
+    const hasCompanyQuery =
+      qLower.includes("stock") ||
+      qLower.includes("share") ||
+      qLower.includes("company") ||
+      qLower.includes("tcs") ||
+      qLower.includes("reliance") ||
+      qLower.includes("hdfc") ||
+      qLower.includes("sbi") ||
+      qLower.includes("tata") ||
+      qLower.includes("icici") ||
+      qLower.includes("l&t") ||
+      qLower.includes("itc") ||
+      qLower.includes("airtel") ||
+      qLower.includes("titan") ||
+      qLower.includes("maruti") ||
+      qLower.includes("apple") ||
+      qLower.includes("nvidia") ||
+      qLower.includes("microsoft") ||
+      qLower.includes("tesla") ||
+      qLower.includes("google") ||
+      qLower.includes("amazon") ||
+      qLower.includes("factors affecting") ||
+      qLower.includes("tell me about");
+
     if (qLower.includes("infosys") || qLower.includes("infy")) {
       if (persona === "macro") {
         dynamicReply = `Macroeconomic & Sovereign Assessment of Infosys (INFY):
@@ -419,17 +443,52 @@ Deep integration into core enterprise IT architectures, cloud infrastructure, an
 3. Compounding Runway:
 Infosys reinvests operating earnings into AI capabilities (Topaz suite) and cloud modernization, securing multi-year runway for high risk-adjusted earnings compounding.`;
       }
-    } else if (qLower.includes("tcs") || qLower.includes("reliance") || qLower.includes("hdfc") || qLower.includes("sbi")) {
-      dynamicReply = `Institutional Equity & Balance Sheet Evaluation of ${cleanMsg}:
+    } else if (hasCompanyQuery) {
+      if (persona === "macro") {
+        dynamicReply = `Macroeconomic & Sovereign Assessment on ${cleanMsg}:
 
-1. Return on Capital & Competitive Advantage:
-Elite blue-chip compounders generate sustainable Return on Capital Employed (ROCE > 25%) and dominate domestic or export market shares. Their pricing power protects operating margins from raw input and wage inflation.
+1. Macro Monetary Transmission:
+How sovereign interest rates and liquidity transmission govern this asset: Central bank rate cycles (RBI repo 6.50% vs US Fed 4.25%-4.50%) set the hurdle rate for capital cost. Corporate earnings must generate an equity risk premium of at least 4.5% to 5.5% above the GOI 10Y Benchmark G-Sec yield (~6.85%).
 
-2. Balance Sheet Quality & Leverage:
-Firms with minimal debt leverage withstand tightening monetary liquidity. They fund growth through internal accruals rather than dilutive equity or high-interest corporate debt.
+2. Currency Drift & Capital Flows:
+Foreign Portfolio Investor (FPI/FII) flows heavily drive domestic equity valuations. A weakening rupee (~3.2%-3.5% structural depreciation) benefits exporters while increasing input cost pressures for dollar-import-dependent industries.
 
-3. Allocation Framework:
-Even premier franchises must observe strict diversification limits. Enforce an asset ceiling of 12% to 15% to safeguard long-term capital against regulatory or technological disruption.`;
+3. Portfolio Allocation Rule:
+Institutional prudence dictates pairing growth equities with sovereign debt anchors (GOI G-Secs) and a 10% to 15% allocation in Gold to neutralize macroeconomic drawdowns and purchasing power erosion.`;
+      } else if (persona === "risk") {
+        dynamicReply = `Quantitative Risk & Covariance Assessment on ${cleanMsg}:
+
+1. Covariance Shrinkage & Beta Profile:
+Evaluating through Ledoit-Wolf covariance matrix shrinkage: High single-asset concentrations introduce uncompensated idiosyncratic volatility. True downside protection comes from asset non-correlation rather than attempting to forecast single-stock trajectory.
+
+2. Downside Value-at-Risk (VaR):
+Under a 95% 1-Year Value-at-Risk framework, an unhedged single equity exposure faces tail drawdowns exceeding -25% to -35% in systemic market panics. Balancing equities with uncorrelated assets (Gold correlation ~0.08, Sovereign Debt correlation ~0.15) mathematically lowers portfolio variance without sacrificing expected return.
+
+3. Single-Asset Ceiling:
+Under Tangent's deterministic risk limits, no single corporate equity may exceed a 12% to 15% portfolio cap, and sector weights must remain below 25% to eliminate tail solvency risk.`;
+      } else if (persona === "valuation") {
+        dynamicReply = `Intrinsic Value & Margin of Safety Analysis on ${cleanMsg}:
+
+1. Discounted Cash Flow Hurdle:
+True intrinsic value is the present value of durable future free cash flows discounted at a realistic hurdle rate (at least 11.5% to 12.5% in Indian Rupee terms, given a 6.85% risk-free rate plus equity risk premium).
+
+2. Normalized Multiple Guardrails:
+Warn against multiple-compression traps. When historical P/E or EV/EBITDA multiples trade more than 1.5 standard deviations above their 10-year normalized mean, long-term real returns compress severely regardless of company quality.
+
+3. Margin of Safety Rule:
+Only initiate or expand allocations when market prices offer an explicit discount to normalized intrinsic book and cash compounding value.`;
+      } else {
+        dynamicReply = `Fundamental Corporate Moat Analysis on ${cleanMsg}:
+
+1. Return on Capital & ROE Hurdle:
+Our growth equity doctrine requires businesses to reinvest operating cash flow at high Return on Capital Employed (ROCE > 22%) and Return on Equity (ROE > 18%) with minimal debt leverage.
+
+2. Economic Moats & Pricing Power:
+Durable wealth creation requires structural competitive advantages: institutional switching costs, network effects, or scale cost dominance that protect operating margins against raw input and wage inflation.
+
+3. Reinvestment Runway:
+Prioritize enterprises that convert >80% of net income into free cash flow and possess secular industry tailwinds to compound shareholder book value over your multi-year investment horizon.`;
+      }
     } else if (qLower.includes("gold") || qLower.includes("silver") || qLower.includes("commodity")) {
       dynamicReply = `Sovereign Allocation Perspective on Gold & Commodities:
 
