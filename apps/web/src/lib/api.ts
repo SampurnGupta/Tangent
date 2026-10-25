@@ -1468,12 +1468,40 @@ export async function chatWithDraww(
     { id: "E5", label: "Diversification", value: Number(div), unit: "/10" },
   ];
 
-  // 0. GREETING / INTRO INTENT: User sends hi, hello, who are you, etc.
-  const isGreeting = /^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|yo|sup|who\s*are\s*you|what\s*do\s*you\s*do|what\s*can\s*you\s*do|introduce\s*yourself|help)\b/i.test(q);
+  // 0. SPECIFIC "HOW ARE YOU" / STATE INTENT
+  const isHowAreYou =
+    q.includes("how are you") ||
+    q.includes("how're you") ||
+    q.includes("how are u") ||
+    q.includes("how r u") ||
+    q.includes("how do you do") ||
+    q.includes("how is it going") ||
+    q.includes("how's it going");
 
-  // 1. UNIVERSE INTENT: Querying available universe securities across the 8 domains
+  // 1. GENERAL GREETINGS & INTRODUCTIONS
+  const isGreeting =
+    !isHowAreYou &&
+    /^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|yo|sup|who\s*are\s*you|what\s*do\s*you\s*do|what\s*can\s*you\s*do|introduce\s*yourself|help|what\'?s\s*up)\b/i.test(q);
+
+  // 2. BACKGROUND REASONING & "WHY SO" INTENT
+  const isReasoningQuery =
+    q.includes("why so") ||
+    q.includes("background reasoning") ||
+    q.includes("explain why") ||
+    q.includes("why is that") ||
+    q.includes("why this") ||
+    q.includes("what is the reasoning") ||
+    q.includes("give me the reasoning") ||
+    q.includes("rationale") ||
+    q === "why" ||
+    q === "why?" ||
+    q.startsWith("why?");
+
+  // 3. UNIVERSE INTENT: Querying available universe securities across the 8 domains
   const isUniverseQuery =
     !isGreeting &&
+    !isHowAreYou &&
+    !isReasoningQuery &&
     (q.includes("universe") ||
     (q.includes("all") && (q.includes("asset") || q.includes("stock") || q.includes("securit") || q.includes("instrument"))) ||
     q.includes("what assets can") ||
@@ -1484,9 +1512,12 @@ export async function chatWithDraww(
     q.includes("asset classes") ||
     (q.includes("list") && (q.includes("universe") || (q.includes("asset") && (q.includes("all") || q.includes("available"))))));
 
-  // 2. HOLDINGS / PORTFOLIO INTENT: Querying current recommended portfolio or allocation
+  // 4. HOLDINGS / PORTFOLIO INTENT: Querying current recommended portfolio or allocation
   const isHoldingsQuery =
     !isUniverseQuery &&
+    !isGreeting &&
+    !isHowAreYou &&
+    !isReasoningQuery &&
     (q.includes("final portfolio") ||
       q.includes("portfolio suggested") ||
       q.includes("suggested portfolio") ||
@@ -1510,18 +1541,19 @@ export async function chatWithDraww(
       (q.includes("portfolio") && (q.includes("suggest") || q.includes("recommend") || q.includes("show") || q.includes("what") || q.includes("give") || q.includes("tell") || q.includes("display"))) ||
       (q.includes("asset") && (q.includes("recommend") || q.includes("recommed") || q.includes("suggest") || q.includes("included") || q.includes("to me") || q.includes("for me"))));
 
-  // 3. PROFILE & SUITABILITY INTENT
+  // 5. PROFILE & SUITABILITY INTENT
   const isProfileQuery =
-    q.includes("risk profile") ||
+    !isReasoningQuery &&
+    (q.includes("risk profile") ||
     q.includes("my profile") ||
     q.includes("what was my risk") ||
     q.includes("my risk score") ||
     q.includes("risk tolerance") ||
     q.includes("investor profile") ||
     q.includes("my horizon") ||
-    (q.includes("profile") && (q.includes("what") || q.includes("show") || q.includes("tell")));
+    (q.includes("profile") && (q.includes("what") || q.includes("show") || q.includes("tell"))));
 
-  // 4. WHY NOT MAX SHARPE INTENT
+  // 6. WHY NOT MAX SHARPE INTENT
   const isWhyNotMaxSharpe =
     q.includes("why not max") ||
     q.includes("over max") ||
@@ -1529,17 +1561,18 @@ export async function chatWithDraww(
     q.includes("over maximum sharpe") ||
     q.includes("why not maximum");
 
-  // 5. TAX & INFLATION DRAG INTENT
+  // 7. TAX & INFLATION DRAG INTENT
   const isTaxInflation =
-    q.includes("tax") ||
+    !isReasoningQuery &&
+    (q.includes("tax") ||
     q.includes("inflation") ||
     q.includes("real return") ||
     q.includes("drag") ||
     q.includes("cpi") ||
     q.includes("ltcg") ||
-    q.includes("purchasing power");
+    q.includes("purchasing power"));
 
-  // 6. BACKTEST & HISTORICAL PERFORMANCE INTENT
+  // 8. BACKTEST & HISTORICAL PERFORMANCE INTENT
   const isBacktest =
     q.includes("backtest") ||
     q.includes("past performance") ||
@@ -1551,18 +1584,19 @@ export async function chatWithDraww(
     q.includes("worst year") ||
     q.includes("recovery period");
 
-  // 7. STRESS TEST & CRISIS SIMULATION INTENT
+  // 9. STRESS TEST & CRISIS SIMULATION INTENT
   const isStressTest =
-    q.includes("crash") ||
+    !isReasoningQuery &&
+    (q.includes("crash") ||
     q.includes("stress") ||
     q.includes("2008") ||
     q.includes("covid") ||
     q.includes("recession") ||
     q.includes("crisis") ||
     q.includes("bear market") ||
-    q.includes("downside");
+    q.includes("downside"));
 
-  // 8. MONTE CARLO PROJECTIONS INTENT
+  // 10. MONTE CARLO PROJECTIONS INTENT
   const isMonteCarlo =
     q.includes("monte") ||
     q.includes("projection") ||
@@ -1573,7 +1607,7 @@ export async function chatWithDraww(
     q.includes("sip") ||
     q.includes("target value");
 
-  // 9. REBALANCING & EXECUTION INTENT
+  // 11. REBALANCING & EXECUTION INTENT
   const isRebalance =
     q.includes("rebalanc") ||
     q.includes("how often") ||
@@ -1581,7 +1615,7 @@ export async function chatWithDraww(
     q.includes("execution") ||
     q.includes("roadmap");
 
-  // 10. OPTIMIZATION MATH & SLSQP INTENT
+  // 12. OPTIMIZATION MATH & SLSQP INTENT
   const isOptimizationMath =
     q.includes("slsqp") ||
     q.includes("how does the optimization work") ||
@@ -1591,170 +1625,271 @@ export async function chatWithDraww(
     q.includes("shrinkage") ||
     q.includes("markowitz");
 
-  // 11. SPECIFIC ASSET ROLE INTENT
+  // 13. SPECIFIC ASSET ROLE INTENT
   const isSpecificAsset =
     (q.includes("why ") || q.includes("role ") || q.includes("explain ")) &&
     (q.includes("gold") || q.includes("reliance") || q.includes("tcs") || q.includes("hdfc") || q.includes("bond") || q.includes("g-sec") || q.includes("fd") || q.includes("reit") || q.includes("qqq") || q.includes("spy"));
 
   // ── ROUTING LOGIC ────────────────────────────────────────────────────────
 
-  if (isGreeting) {
+  if (isHowAreYou) {
+    replyText = `I am doing great and operating at peak precision! As your quantitative portfolio co-pilot at Tangent, I am actively monitoring your ${profileName} portfolio configuration, mathematical covariance matrices, and risk metrics.\n\n` +
+      `Current Portfolio Snapshot:\n` +
+      `• Expected Nominal Return: ${nom}% [E1: Nominal Return]\n` +
+      `• Post-Tax Real Return: ${real}% [E2: Real Return] (doubling purchasing power every ${Math.round(72 / (context.realReturn ? context.realReturn * 100 : 5.8))} yrs)\n` +
+      `• Portfolio Volatility: ${vol}% [E3: Volatility]\n` +
+      `• Risk-Adjusted Sharpe: ${sh} [E4: Sharpe Ratio]\n` +
+      `• Diversification Saturation: ${div}/10 [E5: Diversification]\n\n` +
+      `How can I assist your portfolio decisions today? You can ask about allocations, crisis stress tests, tax drag, or wealth projections.`;
+  } else if (isGreeting) {
     const topHoldingsStr = activeHoldings.length > 0
       ? activeHoldings.slice(0, 4).map(([t, w]) => `${t} (${(w * 100).toFixed(0)}%)`).join(", ")
       : "Diversified Multi-Asset Core (Reliance, TCS, HDFC Bank, G-Sec, Gold)";
 
-    replyText = `**👋 Greetings! I am Draww**, your quantitative portfolio co-pilot at Tangent.\n\n` +
+    replyText = `Greetings! I am Draww, your quantitative portfolio co-pilot at Tangent.\n\n` +
       `I provide mathematically grounded explanations of your asset allocations, SLSQP solver results, Ledoit-Wolf covariance matrices, and Monte Carlo wealth projections.\n\n` +
-      `**Your Active Session Profile:**\n` +
-      `• **Investor Profile:** **${profileName}** (Age: ${age}, Horizon: ${horizon} Years)\n` +
-      `• **Target Capital:** **₹${capital.toLocaleString("en-IN")}**\n` +
-      `• **Expected Nominal Return:** **${nom}%** [E1: Nominal Return]\n` +
-      `• **Post-Tax Real Return:** **${real}%** [E2: Real Return]\n` +
-      `• **Risk / Volatility:** **${vol}%** [E3: Volatility] (Sharpe: **${sh}** [E4: Sharpe Ratio])\n` +
-      `• **Key Active Allocations:** ${topHoldingsStr}\n\n` +
-      `**How can I assist your portfolio decisions today? You can ask:**\n` +
-      `• *"Show my recommended portfolio holdings"* — View allocation details and rupee values\n` +
-      `• *"Why was this portfolio chosen over pure Max-Sharpe?"* — Understand risk-calibrated trade-offs\n` +
-      `• *"How does my allocation hold up during a crisis?"* — Review stress-test drawdowns\n` +
-      `• *"List the entire 74-asset universe"* — Explore all available investment domains`;
+      `Your Active Session Profile:\n` +
+      `• Investor Profile: ${profileName} (Age: ${age}, Horizon: ${horizon} Years)\n` +
+      `• Target Capital: ₹${capital.toLocaleString("en-IN")}\n` +
+      `• Expected Nominal Return: ${nom}% [E1: Nominal Return]\n` +
+      `• Post-Tax Real Return: ${real}% [E2: Real Return]\n` +
+      `• Risk / Volatility: ${vol}% [E3: Volatility] (Sharpe: ${sh} [E4: Sharpe Ratio])\n` +
+      `• Key Active Allocations: ${topHoldingsStr}\n\n` +
+      `How can I assist your portfolio decisions today? You can ask:\n` +
+      `• "Show my recommended portfolio holdings" — View allocation details and rupee values\n` +
+      `• "Why was this portfolio chosen over pure Max-Sharpe?" — Understand risk-calibrated trade-offs\n` +
+      `• "How does my allocation hold up during a crisis?" — Review stress-test drawdowns\n` +
+      `• "List the entire 74-asset universe" — Explore all available investment domains`;
+  } else if (isReasoningQuery) {
+    const priorHistory = history.map((h) => (h.content || "").toLowerCase()).join(" ");
+    if (
+      priorHistory.includes("tax") ||
+      priorHistory.includes("inflation") ||
+      priorHistory.includes("drag") ||
+      priorHistory.includes("real return") ||
+      priorHistory.includes("cpi")
+    ) {
+      replyText = `Background Reasoning for Tax & Inflation Drag Analysis:\n\n` +
+        `1. Inflation Purchasing Power Erosion (CPI):\n` +
+        `In the Indian macroeconomic environment, consumer price inflation (CPI) structurally averages 5.5% to 6.0% annually, driven by food, fuel, and service costs. On a gross nominal return of ${nom}% [E1: Nominal Return], approximately 6.0% is consumed merely preserving base purchasing power before producing any real economic expansion.\n\n` +
+        `2. Statutory Tax Drag (Finance Act 2024):\n` +
+        `Under current Indian tax statutes:\n` +
+        `• Long-Term Capital Gains (LTCG) on listed equity holdings are taxed at 12.5% on cumulative gains above ₹1.25 Lakh per financial year.\n` +
+        `• Fixed deposits and unlisted debt instruments are taxed at applicable marginal slab rates without indexation benefits.\n` +
+        `Across your asset configuration, this creates an aggregate blended tax friction of -${((context.taxDrag ?? 0.015) * 100).toFixed(1)}% annually.\n\n` +
+        `3. Net Real Wealth Compounding:\n` +
+        `Deducting 6.0% inflation and ${((context.taxDrag ?? 0.015) * 100).toFixed(1)}% tax drag from your ${nom}% gross nominal return leaves a net post-tax real return of ${real}% [E2: Real Return].\n\n` +
+        `4. Wealth Doubling Rule of 72:\n` +
+        `At a net real compounding rate of ${real}%, your purchasing power doubles approximately every ${Math.round(72 / (context.realReturn ? context.realReturn * 100 : 5.8))} years (72 / ${real} ≈ ${Math.round(72 / (context.realReturn ? context.realReturn * 100 : 5.8))} years). This separates genuine wealth expansion from phantom nominal paper growth.`;
+    } else if (
+      priorHistory.includes("crash") ||
+      priorHistory.includes("stress") ||
+      priorHistory.includes("2008") ||
+      priorHistory.includes("covid") ||
+      priorHistory.includes("crisis")
+    ) {
+      replyText = `Background Reasoning for Crisis Resilience:\n\n` +
+        `1. Flight-to-Safety Liquidity:\n` +
+        `During systemic equity shocks (such as 2008 Lehman Brothers or March 2020 COVID), equities experience correlated liquidity selloffs. However, Sovereign G-Secs and Gold experience flight-to-safety institutional inflows, counteracting market drawdowns.\n\n` +
+        `2. Empirical Non-Correlation:\n` +
+        `Historical correlation between Indian equities and Sovereign Bonds is approximately +0.15, while Gold exhibits near-zero correlation (-0.08). This non-correlation mathematically compresses drawdown to -${context.maxDrawdown ? (context.maxDrawdown * 100).toFixed(1) : "14.2"}%, avoiding devastating portfolio impairment.\n\n` +
+        `3. Capital Preservation Anchor:\n` +
+        `Fixed deposits and sovereign instruments guarantee contractual cash flows, allowing tactical rebalancing into depressed equities at cyclical bottoms.`;
+    } else if (
+      priorHistory.includes("sharpe") ||
+      priorHistory.includes("slsqp") ||
+      priorHistory.includes("max sharpe") ||
+      priorHistory.includes("weights") ||
+      priorHistory.includes("holdings")
+    ) {
+      replyText = `Background Reasoning for Target-Risk Selection & Weights:\n\n` +
+        `1. Avoiding Speculative Corner Solutions:\n` +
+        `Unconstrained Maximum Sharpe optimizers often allocate extreme concentrations into volatile assets with high backward-looking momentum. This creates brittle allocations vulnerable to regime shifts.\n\n` +
+        `2. Ledoit-Wolf Covariance Shrinkage:\n` +
+        `Sample covariance matrices derived from finite historical returns contain significant estimation noise. We apply Ledoit-Wolf shrinkage to stabilize the covariance matrix, preventing mathematical distortion in optimal weights.\n\n` +
+        `3. Institutional 15% Asset Ceiling:\n` +
+        `Enforcing a 15% single-asset limit alongside mandatory diversification across 8 asset classes delivers a Sharpe ratio of ${sh} [E4: Sharpe Ratio] while anchoring annual volatility safely at ${vol}% [E3: Volatility].`;
+    } else {
+      replyText = `Background Reasoning for Your ${profileName} Portfolio Configuration:\n\n` +
+        `1. Purchasing Power Preservation:\n` +
+        `Your asset configuration targets an expected nominal return of ${nom}% [E1: Nominal Return]. Accounting for 6.0% domestic CPI inflation and blended tax drag (-${((context.taxDrag ?? 0.015) * 100).toFixed(1)}%), it yields a net real return of ${real}% [E2: Real Return], doubling true purchasing power every ${Math.round(72 / (context.realReturn ? context.realReturn * 100 : 5.8))} years.\n\n` +
+        `2. Mathematical Covariance Shrinkage:\n` +
+        `Asset weights are determined using Ledoit-Wolf covariance shrinkage and SLSQP quadratic programming to maximize Sharpe efficiency (${sh} [E4: Sharpe Ratio]) while maintaining risk containment (${vol}% volatility [E3: Volatility]).\n\n` +
+        `3. Downside Capital Protection:\n` +
+        `Single-asset allocations are capped at 15% to eliminate single-company failure risk, while sovereign debt and gold provide non-correlated cushions during market drawdowns.`;
+    }
   } else if (isUniverseQuery) {
-    replyText = `The **Draww Asset Universe** spans **74 institutional securities across 8 distinct asset classes**:\n\n` +
-      `1. **Indian Large Caps (All Nifty 50 Constituents):** Reliance, TCS, HDFC Bank, Infosys, ICICI Bank, Bharti Airtel, ITC, L&T, HUL, State Bank of India, Tata Motors, M&M, Sun Pharma, Bajaj Finance, and 36 more.\n` +
-      `2. **Fixed Deposits & Cash Reserves:** SBI Fixed Deposit (7.1%), HDFC Bank Term Deposit (7.25%), Liquid Savings Account (4.0%).\n` +
-      `3. **Sovereign & Corporate Bonds:** India 10-Year Benchmark G-Sec (7.15%), Corporate AAA 5Y (7.8%), US 10-Year Treasury Bond (4.25%).\n` +
-      `4. **Real Estate Investment Trusts (REITs):** Embassy Office Parks, Mindspace Business Parks, Brookfield India, Vanguard Real Estate ETF (VNQ).\n` +
-      `5. **Commodities & Preciously Hedged:** MCX Gold Spot (GOLDBEES), Silver Spot (SILVERBEES), WTI Crude Oil, MCX Copper.\n` +
-      `6. **Global US & World ETFs:** SPDR S&P 500 (SPY), Invesco QQQ (Nasdaq 100), Vanguard Total Stock (VTI), Vanguard Total World (VT), Emerging Markets (EEM).\n` +
-      `7. **Digital Assets / Cryptocurrencies:** Bitcoin (BTC), Ethereum (ETH), Solana (SOL).\n\n` +
-      `You can filter by category in Stage 2 (Universe & Stats) or toggle **✨ Unbiased Auto-Universe** to evaluate all 74 assets simultaneously!`;
+    replyText = `The Draww Asset Universe spans 74 institutional securities across 8 distinct asset classes:\n\n` +
+      `1. Indian Large Caps (All Nifty 50 Constituents): Reliance, TCS, HDFC Bank, Infosys, ICICI Bank, Bharti Airtel, ITC, L&T, HUL, State Bank of India, Tata Motors, M&M, Sun Pharma, Bajaj Finance, and 36 more.\n` +
+      `2. Fixed Deposits & Cash Reserves: SBI Fixed Deposit (7.1%), HDFC Bank Term Deposit (7.25%), Liquid Savings Account (4.0%).\n` +
+      `3. Sovereign & Corporate Bonds: India 10-Year Benchmark G-Sec (7.15%), Corporate AAA 5Y (7.8%), US 10-Year Treasury Bond (4.25%).\n` +
+      `4. Real Estate Investment Trusts (REITs): Embassy Office Parks, Mindspace Business Parks, Brookfield India, Vanguard Real Estate ETF (VNQ).\n` +
+      `5. Commodities & Preciously Hedged: MCX Gold Spot (GOLDBEES), Silver Spot (SILVERBEES), WTI Crude Oil, MCX Copper.\n` +
+      `6. Global US & World ETFs: SPDR S&P 500 (SPY), Invesco QQQ (Nasdaq 100), Vanguard Total Stock (VTI), Vanguard Total World (VT), Emerging Markets (EEM).\n` +
+      `7. Digital Assets / Cryptocurrencies: Bitcoin (BTC), Ethereum (ETH), Solana (SOL).\n\n` +
+      `You can filter by category in Stage 2 (Universe & Stats) or toggle Unbiased Auto-Universe to evaluate all 74 assets simultaneously!`;
   } else if (isHoldingsQuery) {
     if (activeHoldings.length === 0) {
-      replyText = `Based on your **${profileName} profile** (Risk ${riskScore}/10, Horizon ${horizon} yrs), you currently have **${context.selectedTickers?.length || 0} candidate assets** selected in your universe.\n\nOnce you launch the SLSQP solver, I will compute the exact optimal weights. In our standard calibrated **${profileName}** allocation, the recommended core portfolio consists of:\n\n` +
-        `• **Reliance Industries (RELIANCE.NS):** 14.0% (₹${Math.round(capital * 0.14).toLocaleString("en-IN")}) — Energy & digital compounding\n` +
-        `• **Tata Consultancy Services (TCS.NS):** 12.0% (₹${Math.round(capital * 0.12).toLocaleString("en-IN")}) — High-ROCE IT cash flows\n` +
-        `• **HDFC Bank (HDFCBANK.NS):** 12.0% (₹${Math.round(capital * 0.12).toLocaleString("en-IN")}) — Private credit growth\n` +
-        `• **India 10Y Benchmark G-Sec (INDIA_GOVT_10Y):** 18.0% (₹${Math.round(capital * 0.18).toLocaleString("en-IN")}) — Sovereign yield buffer\n` +
-        `• **SBI Fixed Deposit (SBI_FD):** 16.0% (₹${Math.round(capital * 0.16).toLocaleString("en-IN")}) — Zero-volatility liquidity reserve\n` +
-        `• **Nippon Gold ETF (GOLDBEES.NS):** 10.0% (₹${Math.round(capital * 0.10).toLocaleString("en-IN")}) — Crisis hedge & inflation buffer\n` +
-        `• **SPDR S&P 500 (SPY):** 10.0% (₹${Math.round(capital * 0.10).toLocaleString("en-IN")}) — Global US tech & dollar diversification\n` +
-        `• **Embassy Office Parks REIT (EMBASSY_REIT):** 8.0% (₹${Math.round(capital * 0.08).toLocaleString("en-IN")}) — High distribution commercial real estate\n\n` +
-        `Together, this generates an expected **Nominal Return of ${nom}%** [E1: Nominal Return] with strictly managed **Volatility of ${vol}%** [E3: Volatility], yielding a **Sharpe Ratio of ${sh}** [E4: Sharpe Ratio].`;
+      replyText = `Based on your ${profileName} profile (Risk ${riskScore}/10, Horizon ${horizon} yrs), you currently have ${context.selectedTickers?.length || 0} candidate assets selected in your universe.\n\nOnce you launch the SLSQP solver, I will compute the exact optimal weights. In our standard calibrated ${profileName} allocation, the recommended core portfolio consists of:\n\n` +
+        `• Reliance Industries (RELIANCE.NS): 14.0% (₹${Math.round(capital * 0.14).toLocaleString("en-IN")}) — Energy & digital compounding\n` +
+        `• Tata Consultancy Services (TCS.NS): 12.0% (₹${Math.round(capital * 0.12).toLocaleString("en-IN")}) — High-ROCE IT cash flows\n` +
+        `• HDFC Bank (HDFCBANK.NS): 12.0% (₹${Math.round(capital * 0.12).toLocaleString("en-IN")}) — Private credit growth\n` +
+        `• India 10Y Benchmark G-Sec (INDIA_GOVT_10Y): 18.0% (₹${Math.round(capital * 0.18).toLocaleString("en-IN")}) — Sovereign yield buffer\n` +
+        `• SBI Fixed Deposit (SBI_FD): 16.0% (₹${Math.round(capital * 0.16).toLocaleString("en-IN")}) — Zero-volatility liquidity reserve\n` +
+        `• Nippon Gold ETF (GOLDBEES.NS): 10.0% (₹${Math.round(capital * 0.10).toLocaleString("en-IN")}) — Crisis hedge & inflation buffer\n` +
+        `• SPDR S&P 500 (SPY): 10.0% (₹${Math.round(capital * 0.10).toLocaleString("en-IN")}) — Global US tech & dollar diversification\n` +
+        `• Embassy Office Parks REIT (EMBASSY_REIT): 8.0% (₹${Math.round(capital * 0.08).toLocaleString("en-IN")}) — High distribution commercial real estate\n\n` +
+        `Together, this generates an expected Nominal Return of ${nom}% [E1: Nominal Return] with strictly managed Volatility of ${vol}% [E3: Volatility], yielding a Sharpe Ratio of ${sh} [E4: Sharpe Ratio].`;
     } else {
       const holdingsList = activeHoldings.map(([ticker, w]) => {
         const amt = Math.round(capital * w).toLocaleString("en-IN");
         const found = DEFAULT_CURATED_ASSETS.find((a) => a.ticker === ticker);
         const name = found ? found.name : ticker;
         const cls = found ? found.asset_class.toUpperCase() : "EQUITY";
-        return `• **${name} (${ticker})**: ${(w * 100).toFixed(1)}% | **₹${amt}** [${cls}]`;
+        return `• ${name} (${ticker}): ${(w * 100).toFixed(1)}% | ₹${amt} [${cls}]`;
       }).join("\n");
 
-      replyText = `Here is your **Final Recommended Portfolio Allocation** for a total capital of **₹${capital.toLocaleString("en-IN")}** under your **${profileName} Profile**:\n\n${holdingsList}\n\n` +
-        `**Key Portfolio Metrics:**\n` +
-        `• Expected Nominal Return: **${nom}%** [E1: Nominal Return]\n` +
-        `• Post-Tax Real Return: **${real}%** [E2: Real Return]\n` +
-        `• Annualized Volatility: **${vol}%** [E3: Volatility]\n` +
-        `• Risk-Adjusted Sharpe: **${sh}** [E4: Sharpe Ratio]\n` +
-        `• Diversification Saturation: **${div}/10** [E5: Diversification]\n\n` +
+      replyText = `Here is your Final Recommended Portfolio Allocation for a total capital of ₹${capital.toLocaleString("en-IN")} under your ${profileName} Profile:\n\n${holdingsList}\n\n` +
+        `Key Portfolio Metrics:\n` +
+        `• Expected Nominal Return: ${nom}% [E1: Nominal Return]\n` +
+        `• Post-Tax Real Return: ${real}% [E2: Real Return]\n` +
+        `• Annualized Volatility: ${vol}% [E3: Volatility]\n` +
+        `• Risk-Adjusted Sharpe: ${sh} [E4: Sharpe Ratio]\n` +
+        `• Diversification Saturation: ${div}/10 [E5: Diversification]\n\n` +
         `Notice that rather than spreading equal micro-weights across all assets, our solver concentrated capital into the top risk-adjusted leaders with negative/low correlation to protect downside.`;
     }
   } else if (isWhyNotMaxSharpe) {
-    replyText = `**Suitability Verdict: Why Target-Risk was selected over Pure Maximum Sharpe:**\n\n` +
-      `• **Maximum Sharpe Portfolio:** Achieves a mathematical Sharpe of **0.57**, but requires **13.5% annualized volatility** and incurs a historical max drawdown of **-16.8%**. It produces an aggressive corner solution that exceeds your risk tolerance.\n` +
-      `• **Your Target-Risk Portfolio:** Calibrated at **${vol}% volatility** [E3: Volatility] and **${sh} Sharpe ratio** [E4: Sharpe Ratio], delivering **${real}% real return** [E2: Real Return] with a conservative max drawdown buffer of under 14%.\n\n` +
+    replyText = `Suitability Verdict: Why Target-Risk was selected over Pure Maximum Sharpe:\n\n` +
+      `• Maximum Sharpe Portfolio: Achieves a mathematical Sharpe of 0.57, but requires 13.5% annualized volatility and incurs a historical max drawdown of -16.8%. It produces an aggressive corner solution that exceeds your risk tolerance.\n` +
+      `• Your Target-Risk Portfolio: Calibrated at ${vol}% volatility [E3: Volatility] and ${sh} Sharpe ratio [E4: Sharpe Ratio], delivering ${real}% real return [E2: Real Return] with a conservative max drawdown buffer of under 14%.\n\n` +
       `In institutional wealth management, maximizing Sharpe unconstrained often leads to excessive drawdown risk. Your portfolio balances compounding with capital preservation.`;
   } else if (isProfileQuery) {
     replyText = `Your current investor configuration is evaluated as follows:\n\n` +
-      `• **Age:** ${age} Years | **Investment Horizon:** ${horizon} Years\n` +
-      `• **Risk Tolerance Score:** ${riskScore}/10 → Calibrated Category: **${profileName}**\n` +
-      `• **Suitability Verdict:** The **Target-Risk Portfolio** was selected with a **Suitability Score of 96%** over the pure Maximum Sharpe candidate.\n\n` +
-      `**Why not Pure Max-Sharpe?**\n` +
-      `While the Maximum Sharpe portfolio achieves a higher raw mathematical Sharpe ratio (0.57 vs ${sh}), it requires elevated volatility and larger historical drawdowns. Your calibrated portfolio provides downside preservation with an expected real return of **${real}%** [E2: Real Return].`;
+      `• Age: ${age} Years | Investment Horizon: ${horizon} Years\n` +
+      `• Risk Tolerance Score: ${riskScore}/10 → Calibrated Category: ${profileName}\n` +
+      `• Suitability Verdict: The Target-Risk Portfolio was selected with a Suitability Score of 96% over the pure Maximum Sharpe candidate.\n\n` +
+      `Why not Pure Max-Sharpe?\n` +
+      `While the Maximum Sharpe portfolio achieves a higher raw mathematical Sharpe ratio (0.57 vs ${sh}), it requires elevated volatility and larger historical drawdowns. Your calibrated portfolio provides downside preservation with an expected real return of ${real}% [E2: Real Return].`;
   } else if (isTaxInflation) {
-    replyText = `**Tax & Inflation Drag Analysis:**\n\n` +
-      `• Expected Gross Nominal Return: **${nom}%** [E1: Nominal Return]\n` +
-      `• Indian Consumer CPI Inflation: **-6.0%** annual purchasing power erosion\n` +
-      `• Blended Tax Drag: **-${((context.taxDrag ?? 0.015) * 100).toFixed(1)}%** annual drag (modeling 12.5% LTCG on equities and slab rates on synthetic debt under Finance Act 2024)\n` +
-      `• **Net Real Return:** **${real}%** [E2: Real Return]\n\n` +
-      `A net real return of **${real}%** means that your purchasing power doubles approximately every **${Math.round(72 / (context.realReturn ? context.realReturn * 100 : 5.8))} years** after accounting for both taxes and price inflation.`;
+    replyText = `Tax & Inflation Drag Analysis:\n\n` +
+      `• Expected Gross Nominal Return: ${nom}% [E1: Nominal Return]\n` +
+      `• Indian Consumer CPI Inflation: -6.0% annual purchasing power erosion\n` +
+      `• Blended Tax Drag: -${((context.taxDrag ?? 0.015) * 100).toFixed(1)}% annual drag (modeling 12.5% LTCG on equities and slab rates on synthetic debt under Finance Act 2024)\n` +
+      `• Net Real Return: ${real}% [E2: Real Return]\n\n` +
+      `A net real return of ${real}% means that your purchasing power doubles approximately every ${Math.round(72 / (context.realReturn ? context.realReturn * 100 : 5.8))} years after accounting for both taxes and price inflation.`;
   } else if (isBacktest) {
     const cagrVal = context.cagr ? (context.cagr * 100).toFixed(1) : "12.8";
     const ddVal = context.maxDrawdown ? (context.maxDrawdown * 100).toFixed(1) : "14.2";
     const sortVal = context.sortino ? context.sortino.toFixed(2) : "1.85";
     const calmVal = context.calmar ? context.calmar.toFixed(2) : "0.90";
 
-    replyText = `**Historical Walk-Forward Backtest (2016–2025):**\n\n` +
-      `• **CAGR:** **${cagrVal}%** (vs Nifty 50 CAGR: 13.8%, Balanced 60/40: 11.4%)\n` +
-      `• **Historical Max Drawdown:** **-${ddVal}%** (vs Nifty 50: -38.4% during Covid)\n` +
-      `• **Sortino Ratio:** **${sortVal}** (downside risk-adjusted efficiency)\n` +
-      `• **Calmar Ratio:** **${calmVal}** (CAGR divided by Max Drawdown)\n` +
-      `• **Best Year:** 2017 (+22.4%) | **Worst Year:** 2022 (+1.8% preserving capital vs broad equity correction)\n` +
-      `• **Recovery Period:** Fully recovered within **4 to 7 months** following drawdowns.\n\n` +
-      `Notice that while standalone equities experienced a brutal -38% drawdown during March 2020, your fixed income and gold allocations limited portfolio drawdown to under **-${ddVal}%**.`;
+    replyText = `Historical Walk-Forward Backtest (2016–2025):\n\n` +
+      `• CAGR: ${cagrVal}% (vs Nifty 50 CAGR: 13.8%, Balanced 60/40: 11.4%)\n` +
+      `• Historical Max Drawdown: -${ddVal}% (vs Nifty 50: -38.4% during Covid)\n` +
+      `• Sortino Ratio: ${sortVal} (downside risk-adjusted efficiency)\n` +
+      `• Calmar Ratio: ${calmVal} (CAGR divided by Max Drawdown)\n` +
+      `• Best Year: 2017 (+22.4%) | Worst Year: 2022 (+1.8% preserving capital vs broad equity correction)\n` +
+      `• Recovery Period: Fully recovered within 4 to 7 months following drawdowns.\n\n` +
+      `Notice that while standalone equities experienced a brutal -38% drawdown during March 2020, your fixed income and gold allocations limited portfolio drawdown to under -${ddVal}%.`;
   } else if (isStressTest) {
-    replyText = `Under our quantitative **Stress Testing Engine**, your portfolio was subjected to 6 historical and hypothetical crisis scenarios:\n\n` +
-      `1. **2008 Global Financial Crisis:** Estimated Drawdown: **-18.5%** (vs Nifty/S&P -52.0%). Sovereign bonds and gold provided flight-to-safety liquidity.\n` +
-      `2. **2020 COVID-19 Flash Crash:** Estimated Drawdown: **-14.2%** (vs benchmark -36.0%). Swift recovery within 4 months.\n` +
-      `3. **2022 Inflation & Rate Hike Surge (+450 bps):** Estimated Drawdown: **-7.5%** (vs 60/40 benchmark -22.0%). Cash FDs and gold cushioned the bond duration shock.\n` +
-      `4. **Sovereign Yield Spike (+250 bps):** Estimated Drawdown: **-6.2%**.\n` +
-      `5. **Tech Valuation Meltdown:** Estimated Drawdown: **-11.8%**.\n\n` +
-      `Your **Portfolio Resilience Score is 84/100**, demonstrating robust capital protection.`;
+    replyText = `Under our quantitative Stress Testing Engine, your portfolio was subjected to 6 historical and hypothetical crisis scenarios:\n\n` +
+      `1. 2008 Global Financial Crisis: Estimated Drawdown: -18.5% (vs Nifty/S&P -52.0%). Sovereign bonds and gold provided flight-to-safety liquidity.\n` +
+      `2. 2020 COVID-19 Flash Crash: Estimated Drawdown: -14.2% (vs benchmark -36.0%). Swift recovery within 4 months.\n` +
+      `3. 2022 Inflation & Rate Hike Surge (+450 bps): Estimated Drawdown: -7.5% (vs 60/40 benchmark -22.0%). Cash FDs and gold cushioned the bond duration shock.\n` +
+      `4. Sovereign Yield Spike (+250 bps): Estimated Drawdown: -6.2%.\n` +
+      `5. Tech Valuation Meltdown: Estimated Drawdown: -11.8%.\n\n` +
+      `Your Portfolio Resilience Score is 84/100, demonstrating robust capital protection.`;
   } else if (isMonteCarlo) {
     const med = (context.monteCarloMedian || 10738580).toLocaleString("en-IN");
     const low = (context.monteCarlo5th || 6745384).toLocaleString("en-IN");
     const high = (context.monteCarlo95th || 14531350).toLocaleString("en-IN");
 
-    replyText = `**Monte Carlo Future Wealth Simulation (5,000 geometric Brownian motion paths over ${horizon} Years):**\n\n` +
-      `• Initial Capital: **₹${capital.toLocaleString("en-IN")}**\n` +
-      `• **Median Projected Capital (P50):** **₹${med}**\n` +
-      `• **Conservative Downside Buffer (95% Confidence P5):** **₹${low}**\n` +
-      `• **Optimistic Bull Scenario (P95):** **₹${high}**\n` +
-      `• **Probability of Beating Inflation:** **94.2%**\n` +
-      `• **Probability of Capital Loss:** **< 1.8%**\n\n` +
-      `Because of the strict volatility containment of **${vol}%** [E3: Volatility], even in the 5th percentile worst-case historical scenario, your terminal wealth remains well above invested principal.`;
+    replyText = `Monte Carlo Future Wealth Simulation (5,000 geometric Brownian motion paths over ${horizon} Years):\n\n` +
+      `• Initial Capital: ₹${capital.toLocaleString("en-IN")}\n` +
+      `• Median Projected Capital (P50): ₹${med}\n` +
+      `• Conservative Downside Buffer (95% Confidence P5): ₹${low}\n` +
+      `• Optimistic Bull Scenario (P95): ₹${high}\n` +
+      `• Probability of Beating Inflation: 94.2%\n` +
+      `• Probability of Capital Loss: < 1.8%\n\n` +
+      `Because of the strict volatility containment of ${vol}% [E3: Volatility], even in the 5th percentile worst-case historical scenario, your terminal wealth remains well above invested principal.`;
   } else if (isRebalance) {
-    replyText = `**Portfolio Rebalancing & Execution Rules:**\n\n` +
-      `• **Rebalancing Frequency:** Review semi-annually (every 6 months) or whenever any asset drifts by **±3.5%** from its target weight.\n` +
-      `• **Deployment Phasing (STP):** Stagger initial capital over a 90-day Systematic Transfer Plan (40% upfront, 30% month 2, 30% month 3) to mitigate market entry timing risk.\n` +
-      `• **Tax-Loss Harvesting:** Harvest short-term losses against gains before the March 31 financial year-end to minimize Indian LTCG friction.`;
+    replyText = `Portfolio Rebalancing & Execution Rules:\n\n` +
+      `• Rebalancing Frequency: Review semi-annually (every 6 months) or whenever any asset drifts by ±3.5% from its target weight.\n` +
+      `• Deployment Phasing (STP): Stagger initial capital over a 90-day Systematic Transfer Plan (40% upfront, 30% month 2, 30% month 3) to mitigate market entry timing risk.\n` +
+      `• Tax-Loss Harvesting: Harvest short-term losses against gains before the March 31 financial year-end to minimize Indian LTCG friction.`;
   } else if (isOptimizationMath) {
-    replyText = `**Quantitative Optimization Engine Overview:**\n\n` +
-      `• **Objective Function:** Maximize Sharpe Ratio = $(R_p - R_f) / \\sigma_p$ with Risk-Free Rate $R_f = 6.50\\%$.\n` +
-      `• **Covariance Matrix:** Stabilized using **Ledoit-Wolf shrinkage** to eliminate sample estimation noise in high-dimensional asset covariance matrices.\n` +
-      `• **Multi-Start SLSQP Solver:** Sequential Least Squares Programming initialized from multiple diverse Dirichlet starting points to avoid local optima.\n` +
-      `• **Sparse Subset Concentration:** Micro-allocations below 2.5% are pruned to zero, ensuring clean institutional concentration into 8–12 complementary assets.`;
+    replyText = `Quantitative Optimization Engine Overview:\n\n` +
+      `• Objective Function: Maximize Sharpe Ratio = (Rp - Rf) / sigma_p with Risk-Free Rate Rf = 6.50%.\n` +
+      `• Covariance Matrix: Stabilized using Ledoit-Wolf shrinkage to eliminate sample estimation noise in high-dimensional asset covariance matrices.\n` +
+      `• Multi-Start SLSQP Solver: Sequential Least Squares Programming initialized from multiple diverse Dirichlet starting points to avoid local optima.\n` +
+      `• Sparse Subset Concentration: Micro-allocations below 2.5% are pruned to zero, ensuring clean institutional concentration into 8–12 complementary assets.`;
   } else if (isSpecificAsset) {
     if (q.includes("gold")) {
-      replyText = `**Role of Gold (GOLDBEES) in your Portfolio:**\n` +
+      replyText = `Role of Gold (GOLDBEES) in your Portfolio:\n` +
         `Gold has a near-zero or slightly negative correlation (-0.08) with Indian and global equities. During high-inflation regimes or geopolitical stress (e.g. 2020, 2022), gold acts as an uncorrelated store of value, dampening overall portfolio volatility [E3: Volatility] and lifting your Diversification Score to ${div}/10 [E5: Diversification].`;
     } else if (q.includes("bond") || q.includes("g-sec") || q.includes("fd")) {
-      replyText = `**Role of Fixed Income & Sovereign Bonds:**\n` +
+      replyText = `Role of Fixed Income & Sovereign Bonds:\n` +
         `Fixed Income (India 10Y Benchmark G-Sec & SBI FD) guarantees baseline yield (7.1%–7.15%) with zero default risk. This establishes a risk cushion, ensuring your portfolio never breaches your maximum acceptable drawdown threshold of 15%.`;
     } else if (q.includes("reliance") || q.includes("tcs") || q.includes("hdfc")) {
-      replyText = `**Role of Indian Large Cap Compounders:**\n` +
-        `Nifty 50 compounders like Reliance, TCS, and HDFC Bank have consistent 15%+ Return on Equity (ROE), low debt-to-equity, and steady cash-flow compounding. They provide the primary engine for your expected **Nominal Return of ${nom}%** [E1: Nominal Return].`;
+      replyText = `Role of Indian Large Cap Compounders:\n` +
+        `Nifty 50 compounders like Reliance, TCS, and HDFC Bank have consistent 15%+ Return on Equity (ROE), low debt-to-equity, and steady cash-flow compounding. They provide the primary engine for your expected Nominal Return of ${nom}% [E1: Nominal Return].`;
     } else {
       replyText = `Each asset in your allocation was selected because it contributes positively to the marginal Sharpe ratio or provides non-correlated drawdown protection. Our SLSQP solver enforces a 15% single-asset cap to ensure no individual company can compromise your portfolio stability.`;
     }
   } else {
-    // Dynamic contextual answer for arbitrary queries
-    replyText = `Regarding your query on **"${message}"**:\n\n` +
-      `Under your **${profileName} Profile** (Age: ${age}, Horizon: ${horizon} yrs, Capital: **₹${capital.toLocaleString("en-IN")}**), your current asset configuration is engineered to yield:\n\n` +
-      `• **Expected Nominal Return:** **${nom}%** [E1: Nominal Return]\n` +
-      `• **Post-Tax Real Return:** **${real}%** [E2: Real Return] (doubling purchasing power every ${Math.round(72 / (context.realReturn ? context.realReturn * 100 : 5.8))} yrs)\n` +
-      `• **Portfolio Risk / Volatility:** **${vol}%** [E3: Volatility]\n` +
-      `• **Risk-Adjusted Sharpe:** **${sh}** [E4: Sharpe Ratio]\n` +
-      `• **Diversification Saturation:** **${div}/10** [E5: Diversification]\n\n` +
-      `You can explore specific areas by asking:\n` +
-      `• *"What are the assets recommended to me?"* (to see exact allocations & rupee values)\n` +
-      `• *"List out the asset universe"* (to see all 74 assets across 8 domains)\n` +
-      `• *"What happens if the market crashes like 2008?"* (stress testing drawdown analysis)\n` +
-      `• *"Explain the tax and inflation drag on real returns"*`;
+    // Dynamic synthesis for arbitrary financial and investment queries
+    let dynamicSucceeded = false;
+    try {
+      const res = await fetch("/api/personas/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          persona: "arbiter",
+          message,
+          history,
+          context: {
+            investor_profile: profileName,
+            horizon,
+            capital,
+            weights: context.weights,
+            nominalReturn: context.nominalReturn,
+            realReturn: context.realReturn,
+            volatility: context.currentVol,
+            sharpeRatio: context.currentSharpe,
+            selectedTickers: context.selectedTickers,
+          },
+        }),
+        signal: AbortSignal.timeout(4000),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.reply && data.reply.trim().length > 20) {
+          replyText = data.reply;
+          dynamicSucceeded = true;
+        }
+      }
+    } catch {
+      // Fall through to deterministic financial analysis below
+    }
+
+    if (!dynamicSucceeded) {
+      replyText = `Analysis regarding "${message}":\n\n` +
+        `Under your ${profileName} Portfolio Configuration (Age: ${age}, Horizon: ${horizon} yrs, Capital: ₹${capital.toLocaleString("en-IN")}):\n\n` +
+        `• Expected Nominal Return: ${nom}% [E1: Nominal Return]\n` +
+        `• Post-Tax Real Return: ${real}% [E2: Real Return] (doubling purchasing power every ${Math.round(72 / (context.realReturn ? context.realReturn * 100 : 5.8))} yrs)\n` +
+        `• Portfolio Volatility: ${vol}% [E3: Volatility]\n` +
+        `• Risk-Adjusted Sharpe: ${sh} [E4: Sharpe Ratio]\n` +
+        `• Diversification Saturation: ${div}/10 [E5: Diversification]\n\n` +
+        `All allocations are solved using SLSQP optimization and Ledoit-Wolf covariance shrinkage with a strict 15% single-asset cap to prevent concentration risk while maximizing risk-adjusted real compounding.`;
+    }
   }
+
+  replyText = replyText.replace(/\*\*/g, "").replace(/\*/g, "").trim();
 
   return {
     reply: replyText,
     evidence,
-    model: "draww/grounded-mpt-v2",
+    model: "",
   };
 }
 

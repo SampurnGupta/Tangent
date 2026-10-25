@@ -98,7 +98,6 @@ export function AIChatConcierge({
         { id: "E2", kind: "metric", label: "Real Return", value: Number((realReturn * 100).toFixed(1)), unit: "%", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh02" },
         { id: "E3", kind: "metric", label: "Sharpe Ratio", value: Number(currentSharpe.toFixed(2)), unit: "ratio", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh03" },
       ],
-      model: "MetaBot Dynamic Router",
     },
   ]);
 
@@ -163,10 +162,9 @@ export function AIChatConcierge({
       const assistantMsg: ChatMessage = {
         id: `m-${Date.now() + 1}`,
         sender: "assistant",
-        text: response.reply,
+        text: (response.reply || "").replace(/\*\*/g, "").replace(/\*/g, ""),
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         evidenceItems: response.evidence_items || (response.evidence as any),
-        model: response.model_used || response.model,
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
@@ -196,13 +194,13 @@ export function AIChatConcierge({
           { id: "E2", kind: "metric", label: "Real Return", value: Number((realReturn * 100).toFixed(1)), unit: "%", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh02" },
           { id: "E3", kind: "metric", label: "Sharpe Ratio", value: Number(currentSharpe.toFixed(2)), unit: "ratio", as_of: "2026-10-06T00:00:00Z", source_service: "quant", params_hash: "hsh03" },
         ],
-        model: "MetaBot Dynamic Router",
       },
     ]);
   };
 
   const renderTextWithBadges = (text: string, items?: EvidenceItem[]) => {
-    const parts = text.split(/(\[[^\]]+\])/g);
+    const cleanText = (text || "").replace(/\*\*/g, "").replace(/\*/g, "");
+    const parts = cleanText.split(/(\[[^\]]+\])/g);
     return parts.map((part, i) => {
       if (part.startsWith("[") && part.endsWith("]")) {
         const clean = part.slice(1, -1);
@@ -333,7 +331,6 @@ export function AIChatConcierge({
 
                     <div className="mt-2.5 flex items-center justify-between text-xs text-[#5A5D61] font-mono">
                       <span>{m.timestamp}</span>
-                      {m.model && <span>{m.model}</span>}
                     </div>
                   </div>
                 </div>

@@ -28,7 +28,7 @@ function isNonFinancialQuery(text: string): boolean {
   const lower = text.toLowerCase().trim();
   // Allow greetings and identity questions
   if (
-    /^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|yo|sup|who\s*are\s*you|what\s*do\s*you\s*do|introduce\s*yourself|help)\b/i.test(
+    /^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|yo|sup|who\s*are\s*you|what\s*do\s*you\s*do|what\s*can\s*you\s*do|how\s*are\s*you|how\s*r\s*u|how\'?re\s*you|how\s*do\s*you\s*do|how\s*is\s*it\s*going|what\'?s\s*up|introduce\s*yourself|help)\b/i.test(
       lower
     )
   ) {
@@ -46,7 +46,8 @@ function isNonFinancialQuery(text: string): boolean {
     "cash flow", "earnings", "margin", "liquidity", "diversif", "horizon", "rupee", "dollar",
     "money", "market", "bull", "bear", "recession", "growth", "value", "hedge", "arbitrage",
     "loss", "profit", "split", "buy", "sell", "hold", "weight", "cap", "sector", "balance sheet",
-    "it", "tech", "fii", "fpi", "benchmark"
+    "it", "tech", "fii", "fpi", "benchmark", "why", "reason", "explain", "background",
+    "rationale", "logic", "slsqp", "ledoit", "markowitz", "fisher", "drag"
   ];
 
   const hasFinancialContext = financialTerms.some((term) => lower.includes(term));
