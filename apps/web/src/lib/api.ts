@@ -2067,8 +2067,8 @@ export function recordClientTelemetry(metric: {
   try {
     const raw = localStorage.getItem("tangent_telemetry_live");
     let records: ClientTelemetryRecord[] = raw ? JSON.parse(raw) : [];
-    // Discard any past contaminated cold start records
-    records = records.filter((r) => r.latency_ms > 0 && r.latency_ms < 1500);
+    // Discard only invalid or timed-out connections (>30s)
+    records = records.filter((r) => r.latency_ms > 10 && r.latency_ms < 30000);
     records.push(entry);
     if (records.length > 100) records.shift();
     localStorage.setItem("tangent_telemetry_live", JSON.stringify(records));
@@ -2127,15 +2127,15 @@ export async function fetchObservatoryLeaderboard(): Promise<ModelLeaderboardIte
     });
   }
 
-  // Merge client-side live telemetry from localStorage (cold starts purged)
+  // Merge client-side live telemetry from localStorage
   if (typeof window !== "undefined") {
     try {
       const raw = localStorage.getItem("tangent_telemetry_live");
       if (raw) {
         const records: ClientTelemetryRecord[] = JSON.parse(raw);
         if (Array.isArray(records) && records.length > 0) {
-          // Purge cold-start spikes (>1500ms) to ensure warm matrix metrics
-          const warmRecords = records.filter((r) => r.latency_ms > 0 && r.latency_ms < 1500);
+          // Keep active requests under 30s timeout threshold
+          const warmRecords = records.filter((r) => r.latency_ms > 10 && r.latency_ms < 30000);
           if (warmRecords.length !== records.length) {
             localStorage.setItem("tangent_telemetry_live", JSON.stringify(warmRecords));
           }

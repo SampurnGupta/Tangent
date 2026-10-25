@@ -69,10 +69,23 @@ class ObservatoryService:
             base = BASELINE_METRICS[model]
 
             if calls > 0:
-                # Live telemetry exists from Redis
-                avg_lat = m.get("avg_latency_ms") or base["avg_latency_ms"]
-                p50_lat = m.get("p50_latency_ms") or base["p50_latency_ms"]
-                p95_lat = m.get("p95_latency_ms") or base["p95_latency_ms"]
+                # Live telemetry exists from Redis: dynamically blend live percentiles with baseline
+                live_p50 = m.get("p50_latency_ms", 0.0)
+                live_p95 = m.get("p95_latency_ms", 0.0)
+                live_avg = m.get("avg_latency_ms", 0.0)
+
+                w_live = min(0.85, calls / (calls + 8.0))
+                w_base = 1.0 - w_live
+
+                avg_lat = w_base * base["avg_latency_ms"] + w_live * (
+                    live_avg or base["avg_latency_ms"]
+                )
+                p50_lat = w_base * base["p50_latency_ms"] + w_live * (
+                    live_p50 or base["p50_latency_ms"]
+                )
+                p95_lat = w_base * base["p95_latency_ms"] + w_live * (
+                    live_p95 or base["p95_latency_ms"]
+                )
                 tokens_in = m.get("tokens_in", 0) + base["tokens_in"]
                 tokens_out = m.get("tokens_out", 0) + base["tokens_out"]
                 total_cost = round(m.get("total_cost_usd", 0.0) + base["total_cost_usd"], 6)
