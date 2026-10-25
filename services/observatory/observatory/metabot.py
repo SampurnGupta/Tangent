@@ -17,7 +17,7 @@ class MetaBotEngine:
         self.llm_client = ResilientLLMClient(
             LLMConfig(
                 primary_model="groq/qwen3.8-27b",
-                secondary_model="gemini/gemini-3.8-flash",
+                secondary_model="gemini/gemini-flash-lite-latest",
                 temperature=0.3,
             )
         )

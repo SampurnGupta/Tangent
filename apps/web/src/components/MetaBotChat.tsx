@@ -9,7 +9,7 @@ export function MetaBotChat() {
     {
       role: "assistant",
       content:
-        "Greetings! I am MetaBot, Tangent's Lead DevOps and Telemetry Intelligence Analyst.\n\nI monitor real-time inference latency, token velocity, and cost economics across Tangent's 10 microservices and multi-LLM fleet (Groq LPU, Google TPU, Cloudflare Workers AI).\n\nAsk me about our decoupled microservice architecture, hardware acceleration (Groq LPUs vs GPUs), or why quantitative math is strictly decoupled from LLMs!",
+        "Greetings! I am MetaBot, Tangent's Lead DevOps and Telemetry Intelligence Analyst.\n\nI monitor real-time inference latency, token velocity, and cost economics across Tangent's multi-LLM fleet and independent persona microservices (Groq LPU, Google TPU, Cloudflare Workers AI).\n\nAsk me about our decoupled microservice architecture, hardware acceleration (Groq LPUs vs GPUs), or why quantitative math is strictly decoupled from LLMs!",
     },
   ]);
   const [input, setInput] = useState("");

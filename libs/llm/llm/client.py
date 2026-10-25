@@ -226,12 +226,12 @@ class ResilientLLMClient:
         low_prompt = (prompt + (system_prompt or "")).lower()
         low_system = (system_prompt or "").lower()
 
-        # Check only the latest user question, NOT the accumulated chat history
-        user_query = (
-            prompt.split("Investor Question:")[-1].strip().lower()
-            if "Investor Question:" in prompt
-            else prompt.strip().lower()
-        )
+        # Extract the pure user query regardless of prompt formatting
+        user_query = prompt.strip().lower()
+        if "user question:" in user_query:
+            user_query = user_query.split("user question:")[-1].split("\n")[0].strip()
+        elif "investor question:" in user_query:
+            user_query = user_query.split("investor question:")[-1].split("\n")[0].strip()
 
         is_greeting = any(
             re.search(rf"\b{g}\b", user_query)
@@ -246,6 +246,8 @@ class ResilientLLMClient:
                 "what do you do",
                 "introduce yourself",
                 "help",
+                "how are you",
+                "how r u",
             ]
         )
 
@@ -278,8 +280,8 @@ class ResilientLLMClient:
             elif effective_persona == "metabot":
                 text = (
                     "👋 Greetings! I am MetaBot, Tangent's DevOps & Multi-LLM Telemetry Intelligence Analyst.\n\n"
-                    "I monitor real-time latency, token velocity, error rates, and costs across our 3 independent persona microservices (Groq, Gemini, Cloudflare).\n\n"
-                    "Ask me about inference latency, token economics, or dynamic latency routing!"
+                    "I monitor real-time inference latency, token velocity, error rates, and cost economics across Tangent's multi-LLM fleet and independent persona microservices (Groq LPU, Google TPU, Cloudflare Workers AI).\n\n"
+                    "Ask me about inference latency, token economics, hardware acceleration (Groq LPUs vs GPUs), or why quantitative math is strictly decoupled from LLMs!"
                 )
             elif effective_persona == "macro":
                 text = (
@@ -318,10 +320,70 @@ class ResilientLLMClient:
             )
         elif effective_persona == "metabot":
             if (
-                "architecture" in low_prompt
-                or "microservice" in low_prompt
-                or "render" in low_prompt
-                or "vercel" in low_prompt
+                "covariance" in user_query
+                or "quant" in user_query
+                or "math" in user_query
+                or "slsqp" in user_query
+                or "optimal" in user_query
+                or "var" in user_query
+                or "matrix" in user_query
+                or "calculation" in user_query
+            ):
+                text = (
+                    "Architectural Invariant: Deterministic Math vs LLM Explanations:\n\n"
+                    "1. Rule #2 of Tangent Architecture:\n"
+                    "Numbers come from deterministic code only. LLMs explain and cite — they never calculate or produce financial metrics. An LLM should never be trusted to compute a covariance matrix, Value-at-Risk, or portfolio Sharpe ratio.\n\n"
+                    "2. Execution Pipeline:\n"
+                    "Quantitative calculations are executed entirely inside the 'quant' and 'market-data' microservices using SciPy's Sequential Least Squares Programming (SLSQP) solver and Ledoit-Wolf covariance shrinkage. The LLM personas only receive the verified numeric evidence pack and explain the intuition behind the math.\n\n"
+                    "3. RiskBot Role:\n"
+                    "RiskBot uses Cloudflare Workers AI Llama 3.2 3B specifically to explain the deterministic risk metrics (VaR -21.4%, max drawdown recovery 5.2 months) in plain, pedagogical language at sub-250ms edge latency without hallucinating figures."
+                )
+            elif (
+                "cost" in user_query
+                or "100,000" in user_query
+                or "100000" in user_query
+                or "gemini vs groq" in user_query
+                or "price" in user_query
+                or "cheap" in user_query
+                or "economic" in user_query
+            ):
+                text = (
+                    "Comparative Cost Economics for 100,000 Inferences (Production Rates):\n\n"
+                    "1. Cloudflare Workers AI (@cf/meta/llama-3.2-3b-instruct — RiskBot):\n"
+                    "Cost: ~$5.50 per 100,000 calls ($0.0550 / 1k calls). Edge serverless architecture makes high-frequency mathematical and risk validation exceptionally cost-efficient.\n\n"
+                    "2. Google Gemini (gemini-flash-lite-latest / 2.0 Flash — MacroBot):\n"
+                    "Cost: ~$17.00 per 100,000 calls ($0.1700 / 1k calls). High input token context bandwidth and fast TPU processing for sovereign rate curves and macroeconomic documents.\n\n"
+                    "3. Groq LPU (qwen3.8-27b / llama-3.3-70b — GrowthBot):\n"
+                    "Cost: ~$53.17 per 100,000 calls ($0.5317 / 1k calls). Blistering sub-200ms latency on deterministic SRAM for deep fundamental corporate moat analysis.\n\n"
+                    "4. Hybrid Dynamic Routing Savings:\n"
+                    "Routing high-frequency risk queries to Cloudflare edge and reserving Groq LPU for corporate deep dives yields over 74% enterprise cost savings compared to uniform GPT-4o deployments."
+                )
+            elif (
+                "hardware" in user_query
+                or "lpu" in user_query
+                or "gpu" in user_query
+                or "fast" in user_query
+                or "latency" in user_query
+                or "sram" in user_query
+                or "bandwidth" in user_query
+            ):
+                text = (
+                    "Hardware Architecture Analysis: Groq LPU vs Traditional GPUs:\n\n"
+                    "1. Memory Bandwidth Architecture:\n"
+                    "Traditional GPUs (Nvidia H100/A100) are memory-bandwidth constrained during auto-regressive token generation, constantly shuttling weights between off-chip HBM and compute cores. In contrast, Groq's Language Processing Unit (LPU) utilizes deterministic on-chip SRAM with 80 TB/s memory bandwidth, eliminating off-chip DRAM latency.\n\n"
+                    "2. Operational Latency:\n"
+                    "In warm operational telemetry, Groq achieves a median p50 latency of ~88ms to 210ms, compared to 1,200ms–2,500ms for equivalent GPU clusters.\n\n"
+                    "3. Dynamic Routing Policy:\n"
+                    "MetaBot routes latency-critical corporate queries to Groq LPU, high-volume risk checks to Cloudflare edge, and macro documents to Google Gemini TPU."
+                )
+            elif (
+                "architecture" in user_query
+                or "microservice" in user_query
+                or "render" in user_query
+                or "vercel" in user_query
+                or "docker" in user_query
+                or "topology" in user_query
+                or "decoupled" in user_query
             ):
                 text = (
                     "Tangent System Architecture (v2.0 DevOps Analysis):\n\n"
@@ -342,49 +404,16 @@ class ResilientLLMClient:
                     "• Render Container Fleet: Dockerized Python microservices execute heavy SLSQP math and multi-agent debate pipelines.\n"
                     "• Data Infrastructure: Upstash Redis handles sub-millisecond session memory and latency sorted sets; PostgreSQL manages relational persistence with schema-per-service isolation."
                 )
-            elif (
-                "cost" in low_prompt
-                or "100,000" in low_prompt
-                or "100000" in low_prompt
-                or "gemini vs groq" in low_prompt
-                or "price" in low_prompt
-            ):
-                text = (
-                    "Comparative Cost Economics for 100,000 Inferences (Production Rates):\n\n"
-                    "1. Cloudflare Workers AI (@cf/meta/llama-3.2-3b-instruct):\n"
-                    "Cost: ~$5.50 per 100,000 calls ($0.0550 / 1k calls). Edge serverless architecture makes high-frequency mathematical and risk validation exceptionally cost-efficient.\n\n"
-                    "2. Google Gemini (gemini-3.8-flash):\n"
-                    "Cost: ~$17.00 per 100,000 calls ($0.1700 / 1k calls). High input token context bandwidth and fast TPU processing for sovereign rate curves and macroeconomic documents.\n\n"
-                    "3. Groq LPU (qwen3.8-27b / llama-3.3-70b):\n"
-                    "Cost: ~$53.17 per 100,000 calls ($0.5317 / 1k calls). Blistering sub-200ms latency on deterministic SRAM for deep fundamental corporate moat analysis.\n\n"
-                    "4. Hybrid Dynamic Routing Savings:\n"
-                    "Routing high-frequency risk queries to Cloudflare edge and reserving Groq LPU for corporate deep dives yields over 74% enterprise cost savings compared to uniform GPT-4o deployments."
-                )
-            elif (
-                "hardware" in low_prompt
-                or "lpu" in low_prompt
-                or "gpu" in low_prompt
-                or "fast" in low_prompt
-            ):
-                text = (
-                    "Hardware Architecture Analysis: Groq LPU vs Traditional GPUs:\n\n"
-                    "1. Memory Bandwidth Architecture:\n"
-                    "Traditional GPUs (Nvidia H100/A100) are memory-bandwidth constrained during auto-regressive token generation, constantly shuttling weights between off-chip HBM and compute cores. In contrast, Groq's Language Processing Unit (LPU) utilizes deterministic on-chip SRAM with 80 TB/s memory bandwidth, eliminating off-chip DRAM latency.\n\n"
-                    "2. Operational Latency:\n"
-                    "In warm operational telemetry, Groq achieves a median p50 latency of ~88ms to 210ms, compared to 1,200ms–2,500ms for equivalent GPU clusters.\n\n"
-                    "3. Dynamic Routing Policy:\n"
-                    "MetaBot routes latency-critical corporate queries to Groq LPU, high-volume risk checks to Cloudflare edge, and macro documents to Google Gemini TPU."
-                )
             else:
                 text = (
                     "MetaBot Telemetry & Architectural Insights:\n\n"
-                    "1. Dynamic Model Allocation:\n"
-                    "Tangent balances model latency and token economy across distinct specialized AI providers:\n"
-                    "• MacroBot: Google Gemini (gemini-3.8-flash) on TPU for sovereign yields and inflation drift.\n"
-                    "• GrowthBot: Groq LPU (qwen3.8-27b) for sub-200ms corporate moat analysis.\n"
+                    "1. Multi-LLM Fleet Monitoring:\n"
+                    "Tangent Observatory monitors inference latency, token velocity, and cost economics across our 3 specialized persona microservices:\n"
+                    "• MacroBot: Google Gemini on TPU for sovereign yields and inflation drift.\n"
+                    "• GrowthBot: Groq LPU (Qwen 27B / Llama 3.3 70B) for sub-200ms corporate moat analysis.\n"
                     "• RiskBot: Cloudflare Workers AI (Llama 3.2 3B) for covariance shrinkage and downside VaR.\n\n"
-                    "2. Latency & Economics Summary:\n"
-                    "Live Redis telemetry monitors p50/p95 latency and token consumption, routing every request to the optimal cost-performance frontier."
+                    "2. Deterministic Core Decoupling:\n"
+                    "Our 6 core backend microservices (Gateway, Market-Data, Quant, Sentiment, Agent, Portfolio) run deterministic math and persist data independently without generating LLM token overhead."
                 )
         elif "bull" in low_prompt:
             text = (

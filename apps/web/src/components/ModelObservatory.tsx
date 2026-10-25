@@ -172,7 +172,7 @@ export function ModelObservatory() {
                 </span>
               </div>
               <p className="text-xs text-[#5A5D61] mt-1 leading-relaxed max-w-2xl">
-                Have questions about inference latency, Groq LPU vs GPU memory bandwidth, or how our 10 microservices communicate? MetaBot analyzes live Redis sorted sets and architectural trade-offs in real time.
+                Have questions about inference latency, Groq LPU vs GPU memory bandwidth, or how our decoupled microservices communicate? MetaBot analyzes live Redis sorted sets, multi-LLM telemetry, and architectural trade-offs in real time.
               </p>
             </div>
           </div>

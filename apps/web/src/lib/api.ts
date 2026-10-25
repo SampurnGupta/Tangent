@@ -2231,18 +2231,12 @@ export async function chatWithMetaBot(
   if (isGreeting) {
     const res: MetaBotResponse = {
       reply: `Greetings! I am MetaBot, Tangent's Lead DevOps and Multi-LLM Telemetry Intelligence Analyst.\n\n` +
+        `I monitor real-time inference latency, token velocity, error rates, and cost economics across Tangent's multi-LLM fleet and independent persona microservices (Groq LPU, Google TPU, Cloudflare Workers AI).\n\n` +
         `Tangent System Architecture (v2.0):\n` +
         `Tangent runs 10 decoupled microservices across a hybrid Vercel + Render cloud model:\n` +
-        `1. Gateway: Central reverse proxy with sliding-window IP rate limiting and JWT auth.\n` +
-        `2. Market Data: 74-asset daily price engine with 24h Redis cache and Ledoit-Wolf covariance.\n` +
-        `3. Quant: SciPy SLSQP constrained optimization solver and Monte Carlo stochastic projections.\n` +
-        `4. Sentiment: Financial RSS news ingest and FinBERT/VADER sentiment scoring.\n` +
-        `5. Agent: Multi-agent committee orchestrator with deterministic Critic verification.\n` +
-        `6. Portfolio: Persistence layer, drawdown analytics, and investor export engine.\n` +
-        `7. Persona-Macro: Independent MacroBot (Gemini 3.8 Flash on Google TPU) for sovereign rates and USD/INR drift.\n` +
-        `8. Persona-Growth: Independent GrowthBot (Groq LPU Qwen 27B) for corporate moats and ROCE.\n` +
-        `9. Persona-Risk: Independent RiskBot (Cloudflare Workers AI Llama 3.2 3B) for covariance shrinkage and downside VaR.\n` +
-        `10. Observatory: Live Redis latency sorted sets, token velocity counters, and dynamic model router.\n\n` +
+        `• 6 Deterministic Core Services (Gateway, Market-Data, Quant, Sentiment, Agent, Portfolio): Run numerical optimization (SciPy SLSQP, Ledoit-Wolf covariance shrinkage), data persistence, and proxy routing without LLM token overhead.\n` +
+        `• 3 Independent Persona Microservices (MacroBot, GrowthBot, RiskBot): Powered by Google TPU, Groq LPU, and Cloudflare Workers AI.\n` +
+        `• 1 DevOps Observatory (Observatory): Live Redis latency sorted sets, token velocity counters, and dynamic model router.\n\n` +
         `Live Telemetry Status:\n` +
         `Current fastest inference: ${fastest.display_name} (${fastest.p50_latency_ms}ms p50).\n` +
         `Most economical tier: ${lowestCost.display_name} ($${lowestCost.cost_per_1k_calls.toFixed(4)} / 1k queries).\n\n` +
@@ -2267,15 +2261,15 @@ export async function chatWithMetaBot(
 
   let analysis = "";
 
-  if (qLower.includes("groq") || qLower.includes("lpu") || qLower.includes("gpu") || qLower.includes("fast")) {
-    analysis = `Hardware Architecture Analysis: Why Groq LPUs Outpace Traditional GPUs:\n\n` +
-      `1. Memory Bandwidth Architecture:\n` +
-      `Traditional GPUs (Nvidia H100/A100) are memory-bandwidth constrained when generating auto-regressive tokens one by one. They constantly move weights from High Bandwidth Memory (HBM) to compute cores. In contrast, Groq's Language Processing Unit (LPU) uses deterministic on-chip SRAM with 80 TB/s memory bandwidth, eliminating off-chip DRAM latency.\n\n` +
-      `2. Measured Telemetry Across Tangent:\n` +
-      `In Tangent's warm operational telemetry, Groq achieves a median p50 latency of ~88ms to 180ms for 27B/70B parameter models, compared to 1,200ms–2,500ms for equivalent GPU clusters. This makes Groq optimal for GrowthBot's deep fundamental corporate moat analysis.\n\n` +
-      `3. Routing Recommendation:\n` +
-      `Use Groq for interactive corporate moat reasoning where sub-second latency is required without sacrificing model parameter depth.`;
-  } else if (qLower.includes("cost") || qLower.includes("100,000") || qLower.includes("100000") || qLower.includes("price") || qLower.includes("cheap")) {
+  if (qLower.includes("covariance") || qLower.includes("quant") || qLower.includes("math") || qLower.includes("slsqp") || qLower.includes("var") || qLower.includes("optimal")) {
+    analysis = `Architectural Invariant: Deterministic Math vs LLM Explanations:\n\n` +
+      `1. Rule #2 of Tangent Architecture:\n` +
+      `Numbers come from deterministic code only. LLMs explain and cite — they never calculate or produce financial metrics. An LLM should never be trusted to compute a covariance matrix, Value-at-Risk, or portfolio Sharpe ratio.\n\n` +
+      `2. Execution Pipeline:\n` +
+      `Quantitative calculations are executed entirely inside the 'quant' and 'market-data' microservices using SciPy's Sequential Least Squares Programming (SLSQP) solver and Ledoit-Wolf covariance shrinkage. The LLM personas only receive the verified numeric evidence pack and explain the intuition behind the math.\n\n` +
+      `3. RiskBot Role:\n` +
+      `RiskBot uses Cloudflare Workers AI Llama 3.2 3B specifically to explain the deterministic risk metrics (VaR -21.4%, max drawdown recovery 5.2 months) in plain, pedagogical language at sub-250ms edge latency without hallucinating figures.`;
+  } else if (qLower.includes("cost") || qLower.includes("100,000") || qLower.includes("100000") || qLower.includes("price") || qLower.includes("cheap") || qLower.includes("economic")) {
     const geminiCost100k = (0.1700 * 100).toFixed(2);
     const groqCost100k = (0.6000 * 100).toFixed(2);
     const cfCost100k = (0.0550 * 100).toFixed(2);
@@ -2288,15 +2282,15 @@ export async function chatWithMetaBot(
       `Estimated Cost for 100,000 requests: ~$${groqCost100k} ($0.6000 / 1k calls). Premium 27B parameter corporate moat and financial statement reasoning at a fraction of proprietary closed-source API rates.\n\n` +
       `4. Blended Routing Architecture Optimization:\n` +
       `By routing high-frequency risk validations to Cloudflare edge and reserving Groq LPU for deep corporate analysis, Tangent compresses composite enterprise inference costs by over 74% compared to uniform GPT-4o deployments.`;
-  } else if (qLower.includes("covariance") || qLower.includes("quant") || qLower.includes("math") || qLower.includes("slsqp") || qLower.includes("var")) {
-    analysis = `Architectural Invariant: Deterministic Math vs LLM Explanations:\n\n` +
-      `1. Rule #2 of Tangent Architecture:\n` +
-      `Numbers come from deterministic code only. LLMs explain and cite; they never produce financial metrics. An LLM should never be trusted to compute a covariance matrix, Value-at-Risk, or portfolio Sharpe ratio.\n\n` +
-      `2. Execution Pipeline:\n` +
-      `Quantitative calculations are executed entirely inside the 'quant' microservice using SciPy's Sequential Least Squares Programming (SLSQP) solver and Ledoit-Wolf covariance shrinkage. The LLM personas only receive the verified numeric evidence pack and explain the intuition behind the math.\n\n` +
-      `3. RiskBot Role:\n` +
-      `RiskBot uses Cloudflare Workers AI Llama 3.2 3B specifically to explain the deterministic risk metrics (VaR -21.4%, max drawdown recovery 5.2 months) in plain, pedagogical language without hallucinating figures.`;
-  } else if (qLower.includes("architecture") || qLower.includes("microservice") || qLower.includes("render") || qLower.includes("vercel") || qLower.includes("docker")) {
+  } else if (qLower.includes("groq") || qLower.includes("lpu") || qLower.includes("gpu") || qLower.includes("fast") || qLower.includes("latency") || qLower.includes("sram")) {
+    analysis = `Hardware Architecture Analysis: Why Groq LPUs Outpace Traditional GPUs:\n\n` +
+      `1. Memory Bandwidth Architecture:\n` +
+      `Traditional GPUs (Nvidia H100/A100) are memory-bandwidth constrained when generating auto-regressive tokens one by one. They constantly move weights from High Bandwidth Memory (HBM) to compute cores. In contrast, Groq's Language Processing Unit (LPU) uses deterministic on-chip SRAM with 80 TB/s memory bandwidth, eliminating off-chip DRAM latency.\n\n` +
+      `2. Measured Telemetry Across Tangent:\n` +
+      `In Tangent's warm operational telemetry, Groq achieves a median p50 latency of ~88ms to 180ms for 27B/70B parameter models, compared to 1,200ms–2,500ms for equivalent GPU clusters. This makes Groq optimal for GrowthBot's deep fundamental corporate moat analysis.\n\n` +
+      `3. Routing Recommendation:\n` +
+      `Use Groq for interactive corporate moat reasoning where sub-second latency is required without sacrificing model parameter depth.`;
+  } else if (qLower.includes("architecture") || qLower.includes("microservice") || qLower.includes("render") || qLower.includes("vercel") || qLower.includes("docker") || qLower.includes("topology")) {
     analysis = `Tangent Production Architecture Overview (v2.0):\n\n` +
       `1. Decoupled Microservice Topology:\n` +
       `Tangent consists of 10 microservices: 6 core services (Gateway, Market-Data, Quant, Sentiment, Agent, Portfolio), 3 independent Persona microservices (MacroBot, GrowthBot, RiskBot), and the DevOps Observatory.\n\n` +

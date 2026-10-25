@@ -251,7 +251,7 @@ export function HeroHomepage({
                   LLM Observatory & MetaBot
                 </h3>
                 <p className="text-sm text-[#5A5D61] mt-1.5 leading-relaxed">
-                  Real-time telemetry leaderboard monitoring inference latency (p50/p95), token velocity, and cost economics across 4 microservices with MetaBot dynamically routing queries.
+                  Real-time telemetry leaderboard monitoring inference latency (p50/p95), token velocity, and cost economics across our multi-LLM fleet with MetaBot dynamically routing queries.
                 </p>
               </div>
 
