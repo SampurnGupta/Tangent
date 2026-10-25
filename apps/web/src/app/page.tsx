@@ -43,8 +43,13 @@ export default function Home() {
   // Selected candidate portfolio (bubbled from Stage 8 & 9)
   const [selectedCandidate, setSelectedCandidate] = useState<CandidatePortfolio | null>(null);
 
-  // Authenticate guest and restore persistent state on mount
+  // Authenticate guest, restore persistent state, and wake sleeping microservices on mount
   useEffect(() => {
+    // Non-blocking activation request to wake sleeping Render microservices
+    try {
+      fetch("/api/warmup").catch(() => {});
+    } catch {}
+
     async function initGuest() {
       const session = await fetchGuestSession();
       setUserId(session.user_id);

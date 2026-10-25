@@ -6,6 +6,7 @@ from typing import Any, AsyncGenerator
 import pandas as pd
 from common.config import BaseAppSettings
 from common.logging import get_logger, setup_logging
+from common.metrics import ServiceMetricsTracker
 from common.middleware import RequestIdMiddleware
 from contracts.backtest import BacktestRequest, BacktestResponse
 from contracts.marginal import MarginalImpactRequest, MarginalImpactResponse
@@ -59,9 +60,19 @@ def create_app() -> FastAPI:
 
     app.add_middleware(RequestIdMiddleware)
 
+    metrics = ServiceMetricsTracker(settings.service_name)
+    metrics.set_custom_metric("optimizations_solved", 0)
+    metrics.set_custom_metric("monte_carlo_runs", 0)
+
     @app.get("/health", status_code=status.HTTP_200_OK, tags=["monitoring"])
     async def health() -> dict[str, Any]:
         return {"status": "ok", "service": settings.service_name}
+
+    @app.get("/metrics", tags=["monitoring"])
+    @app.get("/api/v1/quant/metrics", tags=["monitoring"])
+    async def get_metrics() -> dict[str, Any]:
+        """Return standardized quant optimization performance and solver metrics."""
+        return metrics.get_summary()
 
     @app.get("/ready", status_code=status.HTTP_200_OK, tags=["monitoring"])
     async def ready() -> dict[str, Any]:

@@ -9,6 +9,7 @@ from common.logging import (
     set_request_id,
     setup_logging,
 )
+from common.metrics import ServiceMetricsTracker
 from common.middleware import RequestIdMiddleware
 from common.redis_client import TangentRedisClient, get_redis_client
 
@@ -23,4 +24,5 @@ __all__ = [
     "ResilientAsyncClient",
     "TangentRedisClient",
     "get_redis_client",
+    "ServiceMetricsTracker",
 ]

@@ -5,6 +5,7 @@ from typing import Any, AsyncGenerator, Optional
 
 import httpx
 from common.logging import get_logger, setup_logging
+from common.metrics import ServiceMetricsTracker
 from common.middleware import RequestIdMiddleware
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -78,10 +79,18 @@ def create_app() -> FastAPI:
                 )
         return await call_next(request)
 
+    metrics = ServiceMetricsTracker(settings.service_name)
+
     # Health & Readiness
     @app.get("/health", status_code=status.HTTP_200_OK, tags=["monitoring"])
     async def health() -> dict[str, Any]:
         return {"status": "ok", "service": settings.service_name}
+
+    @app.get("/metrics", tags=["monitoring"])
+    @app.get("/api/v1/gateway/metrics", tags=["monitoring"])
+    async def get_metrics() -> dict[str, Any]:
+        """Return standardized gateway routing and performance metrics."""
+        return metrics.get_summary()
 
     @app.get("/ready", status_code=status.HTTP_200_OK, tags=["monitoring"])
     async def ready() -> JSONResponse:

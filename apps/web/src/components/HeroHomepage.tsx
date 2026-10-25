@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ArrowRight,
   Sparkles,
@@ -28,6 +28,13 @@ export function HeroHomepage({
   capital = 1000000,
   sharpeRatio = 0.57,
 }: HeroHomepageProps) {
+  useEffect(() => {
+    // Non-blocking activation request to wake sleeping Render microservices
+    try {
+      fetch("/api/warmup").catch(() => {});
+    } catch {}
+  }, []);
+
   const formattedCapital = new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",

@@ -81,10 +81,23 @@ def create_app() -> FastAPI:
     async def health() -> dict[str, str]:
         return {"status": "ok", "service": "tangent-observatory"}
 
+    @app.get("/metrics", tags=["monitoring"])
     @app.get("/api/v1/observatory/metrics", tags=["observatory"])
     async def get_metrics() -> dict[str, Any]:
-        """Fetch raw model telemetry metrics from Redis."""
-        return await observatory.get_raw_metrics()
+        """Fetch raw model telemetry metrics and leaderboard from Redis."""
+        raw = await observatory.get_raw_metrics()
+        board = await observatory.get_leaderboard()
+        total_calls = sum(item.get("call_count", 0) for item in board)
+        total_cost = sum(item.get("total_cost_usd", 0.0) for item in board)
+        return {
+            "service": "tangent-observatory",
+            "status": "healthy",
+            "monitored_models_count": len(board),
+            "total_inferences": total_calls,
+            "total_cost_usd": round(total_cost, 6),
+            "leaderboard": board,
+            "raw_metrics": raw,
+        }
 
     @app.get("/api/v1/observatory/leaderboard", tags=["observatory"])
     async def get_leaderboard() -> list[dict[str, Any]]:

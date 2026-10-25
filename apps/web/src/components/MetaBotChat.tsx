@@ -9,15 +9,16 @@ export function MetaBotChat() {
     {
       role: "assistant",
       content:
-        "Greetings! I am MetaBot, the DevOps & AI Observability Intelligence Analyst for Tangent.\n\nI monitor real-time inference latency, token velocity, and cost economics across the 3 independent persona microservices (Groq Llama 3.3 70B, Gemini 2.0 Flash, and Cloudflare Workers AI Llama 3.2 3B).\n\nAsk me about architecture bottlenecks, cost optimizations, or why specific models differ in latency and verbosity!",
+        "Greetings! I am MetaBot, Tangent's Lead DevOps and Telemetry Intelligence Analyst.\n\nI monitor real-time inference latency, token velocity, and cost economics across Tangent's 10 microservices and multi-LLM fleet (Groq LPU, Google TPU, Cloudflare Workers AI).\n\nAsk me about our decoupled microservice architecture, hardware acceleration (Groq LPUs vs GPUs), or why quantitative math is strictly decoupled from LLMs!",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   const suggestedPrompts = [
+    "Explain Tangent's 10-microservice architecture",
     "Why is Groq LPU faster than standard GPU inference?",
-    "Compare cost of 100,000 queries on Gemini vs Groq.",
+    "Compare cost of 100,000 queries on Gemini vs Groq",
     "Which model is optimal for quantitative covariance calculations?",
   ];
 
@@ -57,22 +58,27 @@ export function MetaBotChat() {
   };
 
   return (
-    <div className="flex flex-col h-[540px] bg-[#FFFFFF] rounded-2xl border border-[#CDCECF] overflow-hidden shadow-xs">
+    <div className="flex flex-col h-[600px] bg-[#FFFFFF] rounded-2xl border border-[#CDCECF] overflow-hidden shadow-xs">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-[#CDCECF] bg-[#F8F9FA] flex items-center justify-between">
+      <div className="px-6 py-4 border-b border-[#CDCECF] bg-[#F8F9FA] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[#191B1D] flex items-center justify-center text-white shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-[#6D0E5A] flex items-center justify-center text-white shadow-sm shadow-[#6D0E5A]/25">
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
             <h4 className="text-sm font-bold text-[#191B1D] flex items-center gap-2">
-              MetaBot Observability Assistant
-              <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#F4F5F6] text-[#6D0E5A] border border-[#CDCECF] font-bold">
+              MetaBot DevOps & Telemetry Analyst
+              <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#6D0E5A]/10 text-[#6D0E5A] border border-[#6D0E5A]/30 font-bold">
                 DevOps AI
               </span>
             </h4>
-            <p className="text-xs text-[#5A5D61]">Interprets live Redis telemetry and multi-LLM trade-offs</p>
+            <p className="text-xs text-[#5A5D61]">Interprets live Redis telemetry and 10-microservice architecture</p>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs text-[#0F766E] font-bold bg-[#FFFFFF] px-3 py-1.5 rounded-lg border border-[#CDCECF]">
+          <span className="w-2 h-2 rounded-full bg-[#0F766E] animate-pulse" />
+          <span>Telemetry Active (10 Services)</span>
         </div>
       </div>
 

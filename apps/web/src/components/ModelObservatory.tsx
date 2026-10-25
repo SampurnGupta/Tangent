@@ -12,6 +12,8 @@ import {
   RefreshCw,
   Layers,
   Sparkles,
+  Bot,
+  ArrowRight,
 } from "lucide-react";
 
 export function ModelObservatory() {
@@ -115,18 +117,81 @@ export function ModelObservatory() {
             <span>Active Microservices</span>
             <Cpu className="w-4 h-4 text-[#191B1D]" />
           </div>
-          <div className="text-2xl font-black text-[#191B1D] font-mono">4 Services</div>
-          <p className="text-xs text-[#5A5D61] mt-1">3 Personas + MetaBot</p>
+          <div className="text-2xl font-black text-[#191B1D] font-mono">10 Services</div>
+          <p className="text-xs text-[#5A5D61] mt-1">Full Decoupled Architecture</p>
+        </div>
+      </div>
+
+      {/* ── METABOT PROMINENT SPOTLIGHT BANNER ── */}
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-[#FFFFFF] via-[#FDF8FC] to-[#FFFFFF] border-2 border-[#6D0E5A]/30 shadow-xs relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#6D0E5A]/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-[#6D0E5A] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#6D0E5A]/25">
+              <Bot className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <span className="font-black text-lg text-[#191B1D]">MetaBot DevOps & Telemetry Analyst</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#6D0E5A]/10 text-[#6D0E5A] border border-[#6D0E5A]/30 text-xs font-mono font-bold">
+                  Interactive AI Observer
+                </span>
+                <span className="flex items-center gap-1.5 text-xs font-mono text-[#0F766E] font-bold">
+                  <span className="w-2 h-2 rounded-full bg-[#0F766E] animate-pulse" />
+                  Live Redis Telemetry Active
+                </span>
+              </div>
+              <p className="text-xs text-[#5A5D61] mt-1 leading-relaxed max-w-2xl">
+                Have questions about inference latency, Groq LPU vs GPU memory bandwidth, or how our 10 microservices communicate? MetaBot analyzes live Redis sorted sets and architectural trade-offs in real time.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 w-full lg:w-auto shrink-0">
+            <button
+              onClick={() => setActiveSubTab("metabot")}
+              className={`w-full lg:w-auto px-5 py-2.5 rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm ${
+                activeSubTab === "metabot"
+                  ? "bg-[#6D0E5A] text-white shadow-[#6D0E5A]/30"
+                  : "bg-[#191B1D] hover:bg-[#6D0E5A] text-white shadow-xs"
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-white" />
+              <span>{activeSubTab === "metabot" ? "Viewing MetaBot Chat" : "Consult MetaBot Analyst"}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Question Chips */}
+        <div className="mt-4 pt-3.5 border-t border-[#CDCECF]/60 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <span className="text-[11px] font-mono font-bold text-[#5A5D61] shrink-0">Quick Consult:</span>
+          {[
+            "Explain Tangent's 10-microservice architecture",
+            "Why is Groq LPU faster than standard GPU inference?",
+            "Compare cost of 100,000 queries on Gemini vs Groq",
+            "Which model is optimal for quantitative covariance calculations?",
+          ].map((promptText, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                setActiveSubTab("metabot");
+              }}
+              className="text-[11px] px-3 py-1 bg-[#FFFFFF] hover:bg-[#F4F5F6] text-[#191B1D] hover:text-[#6D0E5A] rounded-md border border-[#CDCECF] whitespace-nowrap transition-all cursor-pointer font-mono shrink-0 shadow-2xs"
+            >
+              {promptText}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Sub-Tab Navigation */}
-      <div className="flex items-center gap-2 border-b border-[#CDCECF] pb-2">
+      <div className="flex items-center gap-3 border-b border-[#CDCECF] pb-2">
         <button
           onClick={() => setActiveSubTab("leaderboard")}
           className={`px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-2 border cursor-pointer ${
             activeSubTab === "leaderboard"
-              ? "bg-[#191B1D] text-white border-[#191B1D]"
+              ? "bg-[#191B1D] text-white border-[#191B1D] shadow-xs"
               : "bg-[#FFFFFF] text-[#5A5D61] border-[#CDCECF] hover:text-[#191B1D]"
           }`}
         >
@@ -137,12 +202,13 @@ export function ModelObservatory() {
           onClick={() => setActiveSubTab("metabot")}
           className={`px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-2 border cursor-pointer ${
             activeSubTab === "metabot"
-              ? "bg-[#191B1D] text-white border-[#191B1D]"
-              : "bg-[#FFFFFF] text-[#5A5D61] border-[#CDCECF] hover:text-[#191B1D]"
+              ? "bg-[#6D0E5A] text-white border-[#6D0E5A] shadow-sm shadow-[#6D0E5A]/25"
+              : "bg-[#FFFFFF] text-[#6D0E5A] border-[#6D0E5A]/40 hover:bg-[#6D0E5A]/5 font-black"
           }`}
         >
           <Sparkles className="w-4 h-4 text-[#6D0E5A]" />
-          Ask MetaBot (DevOps AI)
+          <span>Ask MetaBot (DevOps AI)</span>
+          <span className="px-1.5 py-0.5 rounded bg-[#6D0E5A]/15 text-[10px] font-bold">Featured</span>
         </button>
       </div>
 
