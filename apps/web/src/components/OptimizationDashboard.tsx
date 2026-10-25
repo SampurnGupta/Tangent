@@ -38,9 +38,7 @@ export function OptimizationDashboard({
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   React.useEffect(() => {
-    if (initialResult && !result) {
-      setResult(initialResult);
-    }
+    setResult(initialResult || null);
   }, [initialResult]);
 
   const handleOptimize = async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RiskProfilerWizard } from "@/components/RiskProfilerWizard";
 import { AssetSelector } from "@/components/AssetSelector";
 import { OptimizationDashboard } from "@/components/OptimizationDashboard";
@@ -22,6 +22,8 @@ import {
   ShieldAlert,
   FileCheck2,
   Lock,
+  AlertTriangle,
+  RotateCcw,
 } from "lucide-react";
 
 export type PortfolioWorkflowStep =
@@ -51,9 +53,9 @@ interface YourPortfolioViewProps {
   authToken?: string;
   riskProfile: RiskProfile;
   optimizationResult: OptimizationResponse | null;
-  setOptimizationResult: (res: OptimizationResponse) => void;
+  setOptimizationResult: (res: OptimizationResponse | null) => void;
   selectedCandidate: CandidatePortfolio | null;
-  setSelectedCandidate: (cand: CandidatePortfolio) => void;
+  setSelectedCandidate: (cand: CandidatePortfolio | null) => void;
   activeWeights: Record<string, number>;
   activeSharpe: number;
   activeNominalReturn: number;
@@ -106,8 +108,196 @@ export function YourPortfolioView({
 }: YourPortfolioViewProps) {
   // Always begin sequentially from Profile
   const [currentStep, setCurrentStep] = useState<PortfolioWorkflowStep>("profile");
+
   // Furthest step unlocked by running previous steps sequentially
-  const [unlockedIndex, setUnlockedIndex] = useState<number>(0);
+  const [unlockedIndex, setUnlockedIndex] = useState<number>(() => {
+    if (optimizationResult && selectedCandidate) return 6;
+    if (optimizationResult) return 3;
+    return 0;
+  });
+
+  // Confirmed snapshot of inputs at the time the user progressed past each step
+  const [confirmedStep1, setConfirmedStep1] = useState<{
+    age: number;
+    horizon: number;
+    riskScore: number;
+    initialCapital: number;
+    monthlySip: number;
+    liquidityTier: string;
+  }>({
+    age,
+    horizon,
+    riskScore,
+    initialCapital,
+    monthlySip,
+    liquidityTier,
+  });
+
+  const [confirmedStep2, setConfirmedStep2] = useState<{
+    selectedTickers: string[];
+  }>({
+    selectedTickers: [...selectedTickers].sort(),
+  });
+
+  const [invalidatedNotice, setInvalidatedNotice] = useState<{
+    step: number;
+    stepName: string;
+    message: string;
+  } | null>(null);
+
+  // 1. Detect changes made to Step 1 (Profile) parameters when user navigates back
+  useEffect(() => {
+    if (unlockedIndex > 0) {
+      const isChanged =
+        confirmedStep1.age !== age ||
+        confirmedStep1.horizon !== horizon ||
+        confirmedStep1.riskScore !== riskScore ||
+        confirmedStep1.initialCapital !== initialCapital ||
+        confirmedStep1.monthlySip !== monthlySip ||
+        confirmedStep1.liquidityTier !== liquidityTier;
+
+      if (isChanged) {
+        // Reset unlocked progress and wipe downstream calculations
+        setUnlockedIndex(0);
+        setOptimizationResult(null);
+        setSelectedCandidate(null);
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("tangent_opt_result");
+          localStorage.removeItem("tangent_selected_candidate");
+        }
+        setInvalidatedNotice({
+          step: 1,
+          stepName: "Profile & Risk Calibration",
+          message:
+            "You modified demographic, risk tolerance, or capital inputs. All downstream optimization, solver allocations, candidate portfolios, and wealth projections have been reset to guarantee mathematical integrity. Please click 'Proceed to Asset Universe' to restart your sequential run.",
+        });
+      }
+    }
+  }, [
+    age,
+    horizon,
+    riskScore,
+    initialCapital,
+    monthlySip,
+    liquidityTier,
+    confirmedStep1,
+    unlockedIndex,
+    setOptimizationResult,
+    setSelectedCandidate,
+  ]);
+
+  // 2. Detect changes made to Step 2 (Asset Universe) when user navigates back
+  useEffect(() => {
+    if (unlockedIndex > 1) {
+      const curList = [...selectedTickers].sort().join(",");
+      const confList = [...confirmedStep2.selectedTickers].sort().join(",");
+
+      if (curList !== confList) {
+        // Reset unlocked progress from Solver onwards
+        setUnlockedIndex(1);
+        setOptimizationResult(null);
+        setSelectedCandidate(null);
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("tangent_opt_result");
+          localStorage.removeItem("tangent_selected_candidate");
+        }
+        setInvalidatedNotice({
+          step: 2,
+          stepName: "Asset Universe",
+          message:
+            "You modified the candidate asset universe. Downstream SLSQP optimization weights, candidate portfolios, and simulations have been reset. Please click 'Proceed to SLSQP Solver' and re-execute the optimizer on your new asset selection.",
+        });
+      }
+    }
+  }, [
+    selectedTickers,
+    confirmedStep2,
+    unlockedIndex,
+    setOptimizationResult,
+    setSelectedCandidate,
+  ]);
+
+  // 3. Handler when solver re-optimizes in Step 3
+  const handleOptimizationDone = (res: OptimizationResponse) => {
+    setOptimizationResult(res);
+    // If user previously reached Suitability or further, invalidate downstream steps
+    if (unlockedIndex > 2) {
+      setUnlockedIndex(2);
+      setSelectedCandidate(null);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("tangent_selected_candidate");
+      }
+      setInvalidatedNotice({
+        step: 3,
+        stepName: "SLSQP Frontier Solver",
+        message:
+          "New optimization computed. Downstream suitability, projections, and studio briefs have been reset. Click 'Compare Candidate Portfolios & Suitability' to update your allocation.",
+      });
+    }
+  };
+
+  // 4. Handler when candidate portfolio is selected in Step 4
+  const handleSelectCandidate = (cand: CandidatePortfolio) => {
+    setSelectedCandidate(cand);
+    // If user previously reached Projections or further, invalidate downstream steps
+    if (unlockedIndex > 3) {
+      setUnlockedIndex(3);
+      setInvalidatedNotice({
+        step: 4,
+        stepName: "Candidate Suitability",
+        message:
+          `Portfolio candidate switched to ${cand.name}. Downstream Monte Carlo wealth projections and crisis stress tests have been reset. Click 'Proceed to 10-Year Monte Carlo Projections'.`,
+      });
+    }
+  };
+
+  // Step Progression Actions
+  const handleProceedFromProfile = () => {
+    setConfirmedStep1({
+      age,
+      horizon,
+      riskScore,
+      initialCapital,
+      monthlySip,
+      liquidityTier,
+    });
+    setInvalidatedNotice(null);
+    setUnlockedIndex((prev) => Math.max(prev, 1));
+    setCurrentStep("universe");
+  };
+
+  const handleProceedFromUniverse = () => {
+    setConfirmedStep2({
+      selectedTickers: [...selectedTickers].sort(),
+    });
+    setInvalidatedNotice(null);
+    setUnlockedIndex((prev) => Math.max(prev, 2));
+    setCurrentStep("solver");
+  };
+
+  const handleProceedFromSolver = () => {
+    setInvalidatedNotice(null);
+    setUnlockedIndex((prev) => Math.max(prev, 3));
+    setCurrentStep("suitability");
+  };
+
+  const handleProceedFromSuitability = () => {
+    setInvalidatedNotice(null);
+    setUnlockedIndex((prev) => Math.max(prev, 4));
+    setCurrentStep("projections");
+  };
+
+  const handleProceedFromProjections = () => {
+    setInvalidatedNotice(null);
+    setUnlockedIndex((prev) => Math.max(prev, 5));
+    setCurrentStep("stresstest");
+  };
+
+  const handleProceedFromStressTest = () => {
+    setInvalidatedNotice(null);
+    setUnlockedIndex((prev) => Math.max(prev, 6));
+    setCurrentStep("studio");
+  };
 
   const currentIndex = STEPS.findIndex((s) => s.id === currentStep);
 
@@ -160,7 +350,7 @@ export function YourPortfolioView({
                     <div>
                       <span className="text-sm block leading-tight font-medium text-[#85888C]">{step.title}</span>
                       <span className="text-xs block leading-tight font-mono text-[#85888C]">
-                        Locked
+                        Locked 🔒
                       </span>
                     </div>
                   </div>
@@ -203,6 +393,36 @@ export function YourPortfolioView({
         </div>
       </section>
 
+      {/* ── PARAMETER INVALIDATION ALERT BANNER ── */}
+      {invalidatedNotice && (
+        <div className="bg-[#FFFBEB] border-2 border-[#F59E0B]/50 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs animate-fade-in">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/15 text-[#B45309] flex items-center justify-center shrink-0 mt-0.5 border border-[#F59E0B]/30">
+              <AlertTriangle className="w-5 h-5 text-[#B45309]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h4 className="text-sm font-bold text-[#92400E]">
+                  Earlier Parameter Change Detected — Downstream Run Required
+                </h4>
+                <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#F59E0B]/20 text-[#92400E] font-bold border border-[#F59E0B]/30">
+                  Step {invalidatedNotice.step}: {invalidatedNotice.stepName}
+                </span>
+              </div>
+              <p className="text-xs text-[#78350F] mt-1 leading-relaxed max-w-3xl">
+                {invalidatedNotice.message}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setInvalidatedNotice(null)}
+            className="text-xs font-mono font-bold text-[#92400E] hover:text-[#78350F] px-3 py-1.5 rounded-lg border border-[#F59E0B]/40 hover:bg-[#F59E0B]/10 transition-all cursor-pointer whitespace-nowrap shrink-0"
+          >
+            Acknowledge & Continue
+          </button>
+        </div>
+      )}
+
       {/* ── PERSISTENT STEP CONTAINERS (NEVER UNMOUNT DATA) ── */}
       <div>
         {/* Step 1: Profile & Constraints */}
@@ -220,10 +440,7 @@ export function YourPortfolioView({
             setMonthlySip={setMonthlySip}
             liquidityTier={liquidityTier}
             setLiquidityTier={setLiquidityTier}
-            onProceed={() => {
-              setUnlockedIndex((prev) => Math.max(prev, 1));
-              setCurrentStep("universe");
-            }}
+            onProceed={handleProceedFromProfile}
           />
         </div>
 
@@ -232,10 +449,7 @@ export function YourPortfolioView({
           <AssetSelector
             selectedTickers={selectedTickers}
             setSelectedTickers={setSelectedTickers}
-            onProceed={() => {
-              setUnlockedIndex((prev) => Math.max(prev, 2));
-              setCurrentStep("solver");
-            }}
+            onProceed={handleProceedFromUniverse}
           />
         </div>
 
@@ -246,11 +460,8 @@ export function YourPortfolioView({
             riskProfile={riskProfile}
             authToken={authToken}
             initialResult={optimizationResult}
-            onOptimizationDone={(res) => setOptimizationResult(res)}
-            onProceedToProjections={() => {
-              setUnlockedIndex((prev) => Math.max(prev, 3));
-              setCurrentStep("suitability");
-            }}
+            onOptimizationDone={handleOptimizationDone}
+            onProceedToProjections={handleProceedFromSolver}
           />
         </div>
 
@@ -262,11 +473,8 @@ export function YourPortfolioView({
             horizon={horizon}
             initialCapital={initialCapital}
             initialCandidateId={selectedCandidate?.id}
-            onSelectPortfolio={(cand) => setSelectedCandidate(cand)}
-            onProceed={() => {
-              setUnlockedIndex((prev) => Math.max(prev, 4));
-              setCurrentStep("projections");
-            }}
+            onSelectPortfolio={handleSelectCandidate}
+            onProceed={handleProceedFromSuitability}
           />
         </div>
 
@@ -277,10 +485,7 @@ export function YourPortfolioView({
             volatility={activeVol}
             horizonYears={horizon}
             authToken={authToken}
-            onProceedToStudio={() => {
-              setUnlockedIndex((prev) => Math.max(prev, 5));
-              setCurrentStep("stresstest");
-            }}
+            onProceedToStudio={handleProceedFromProjections}
           />
         </div>
 
@@ -290,10 +495,7 @@ export function YourPortfolioView({
             weights={activeWeights}
             horizon={horizon}
             initialCapital={initialCapital}
-            onProceed={() => {
-              setUnlockedIndex((prev) => Math.max(prev, 6));
-              setCurrentStep("studio");
-            }}
+            onProceed={handleProceedFromStressTest}
           />
         </div>
 

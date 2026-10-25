@@ -96,9 +96,13 @@ export default function Home() {
       localStorage.setItem("tangent_selected_tickers", JSON.stringify(selectedTickers));
       if (optimizationResult) {
         localStorage.setItem("tangent_opt_result", JSON.stringify(optimizationResult));
+      } else {
+        localStorage.removeItem("tangent_opt_result");
       }
       if (selectedCandidate) {
         localStorage.setItem("tangent_selected_candidate", JSON.stringify(selectedCandidate));
+      } else {
+        localStorage.removeItem("tangent_selected_candidate");
       }
     } catch {
       // quota or private browsing
