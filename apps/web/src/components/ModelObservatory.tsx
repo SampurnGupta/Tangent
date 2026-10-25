@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { fetchObservatoryLeaderboard, clearObservatoryTelemetryCache, ModelLeaderboardItem, triggerMicroserviceWarmup } from "@/lib/api";
+import { fetchObservatoryLeaderboard, clearObservatoryTelemetryCache, ModelLeaderboardItem, triggerMicroserviceWarmup, OBSERVATORY_BASE_URL } from "@/lib/api";
 import { MetaBotChat } from "./MetaBotChat";
 import {
   Activity,
@@ -36,12 +36,7 @@ export function ModelObservatory() {
     setClearing(true);
     clearObservatoryTelemetryCache();
     try {
-      const observatoryBase =
-        process.env.NEXT_PUBLIC_OBSERVATORY_URL ||
-        (process.env.NEXT_PUBLIC_GATEWAY_URL
-          ? `${process.env.NEXT_PUBLIC_GATEWAY_URL}/api/v1/observatory`
-          : "/api/v1/observatory");
-      await fetch(`${observatoryBase.replace(/\/$/, "")}/api/v1/observatory/reset`, {
+      await fetch(`${OBSERVATORY_BASE_URL}/api/v1/observatory/reset`, {
         method: "POST",
       }).catch(() => {});
     } catch {

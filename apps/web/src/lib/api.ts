@@ -3,8 +3,13 @@
  * Implements deterministic fallback data when gateway/backend services are starting up.
  */
 
-export const GATEWAY_BASE_URL =
-  process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:8000";
+export const GATEWAY_BASE_URL = (
+  process.env.NEXT_PUBLIC_GATEWAY_URL || "https://tangent-gateway.onrender.com"
+).trim().replace(/\/$/, "");
+
+export const OBSERVATORY_BASE_URL = (
+  process.env.NEXT_PUBLIC_OBSERVATORY_URL || "https://tangent-observatory.onrender.com"
+).trim().replace(/\/$/, "");
 
 /**
  * Dispatches non-blocking activation requests to both Vercel serverless warmup
@@ -17,11 +22,12 @@ export function triggerMicroserviceWarmup(): void {
   } catch {}
 
   const renderTargets = [
-    "https://tangent-observatory.onrender.com/health",
-    "https://tangent-gateway.onrender.com/health",
+    `${OBSERVATORY_BASE_URL}/health`,
+    `${OBSERVATORY_BASE_URL}/api/v1/observatory/leaderboard`,
     "https://tangent-persona-growth.onrender.com/health",
     "https://tangent-persona-macro.onrender.com/health",
     "https://tangent-persona-risk.onrender.com/health",
+    "https://tangent-gateway.onrender.com/health",
   ];
   renderTargets.forEach((url) => {
     try {
@@ -2072,13 +2078,7 @@ export function recordClientTelemetry(metric: {
 
   // Fire-and-forget sync to Observatory backend if reachable
   try {
-    const observatoryBase =
-      process.env.NEXT_PUBLIC_OBSERVATORY_URL ||
-      (process.env.NEXT_PUBLIC_GATEWAY_URL
-        ? `${process.env.NEXT_PUBLIC_GATEWAY_URL}/api/v1/observatory`
-        : `${GATEWAY_BASE_URL}/api/v1/observatory`);
-
-    fetch(`${observatoryBase.replace(/\/$/, "")}/api/v1/observatory/telemetry`, {
+    fetch(`${OBSERVATORY_BASE_URL}/api/v1/observatory/telemetry`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(entry),
@@ -2093,13 +2093,7 @@ export function recordClientTelemetry(metric: {
 export async function fetchObservatoryLeaderboard(): Promise<ModelLeaderboardItem[]> {
   let backendData: ModelLeaderboardItem[] | null = null;
   try {
-    const observatoryBase =
-      process.env.NEXT_PUBLIC_OBSERVATORY_URL ||
-      (process.env.NEXT_PUBLIC_GATEWAY_URL
-        ? `${process.env.NEXT_PUBLIC_GATEWAY_URL}/api/v1/observatory`
-        : `${GATEWAY_BASE_URL}/api/v1/observatory`);
-
-    const res = await fetch(`${observatoryBase.replace(/\/$/, "")}/api/v1/observatory/leaderboard`, {
+    const res = await fetch(`${OBSERVATORY_BASE_URL}/api/v1/observatory/leaderboard`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
@@ -2226,13 +2220,7 @@ export async function chatWithMetaBot(
   sessionId: string = "observatory-session"
 ): Promise<MetaBotResponse> {
   try {
-    const observatoryBase =
-      process.env.NEXT_PUBLIC_OBSERVATORY_URL ||
-      (process.env.NEXT_PUBLIC_GATEWAY_URL
-        ? `${process.env.NEXT_PUBLIC_GATEWAY_URL}/api/v1/observatory`
-        : `${GATEWAY_BASE_URL}/api/v1/observatory`);
-
-    const res = await fetch(`${observatoryBase.replace(/\/$/, "")}/api/v1/observatory/metabot/chat`, {
+    const res = await fetch(`${OBSERVATORY_BASE_URL}/api/v1/observatory/metabot/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, session_id: sessionId }),

@@ -10,17 +10,21 @@ const DEFAULT_TARGETS = [
 ];
 
 export async function GET() {
+  const sanitize = (val?: string) => (val || "").trim().replace(/\/$/, "");
+
   const envTargets = [
-    process.env.OBSERVATORY_URL && `${process.env.OBSERVATORY_URL.replace(/\/$/, "")}/health`,
-    process.env.NEXT_PUBLIC_OBSERVATORY_URL && `${process.env.NEXT_PUBLIC_OBSERVATORY_URL.replace(/\/$/, "")}/health`,
-    process.env.PERSONA_MACRO_URL && `${process.env.PERSONA_MACRO_URL.replace(/\/$/, "")}/health`,
-    process.env.PERSONA_GROWTH_URL && `${process.env.PERSONA_GROWTH_URL.replace(/\/$/, "")}/health`,
-    process.env.PERSONA_RISK_URL && `${process.env.PERSONA_RISK_URL.replace(/\/$/, "")}/health`,
-    process.env.GATEWAY_URL && `${process.env.GATEWAY_URL.replace(/\/$/, "")}/health`,
-    process.env.NEXT_PUBLIC_GATEWAY_URL && `${process.env.NEXT_PUBLIC_GATEWAY_URL.replace(/\/$/, "")}/health`,
+    process.env.OBSERVATORY_URL && `${sanitize(process.env.OBSERVATORY_URL)}/health`,
+    process.env.OBSERVATORY_URL && `${sanitize(process.env.OBSERVATORY_URL)}/api/v1/observatory/leaderboard`,
+    process.env.NEXT_PUBLIC_OBSERVATORY_URL && `${sanitize(process.env.NEXT_PUBLIC_OBSERVATORY_URL)}/health`,
+    process.env.NEXT_PUBLIC_OBSERVATORY_URL && `${sanitize(process.env.NEXT_PUBLIC_OBSERVATORY_URL)}/api/v1/observatory/leaderboard`,
+    process.env.PERSONA_MACRO_URL && `${sanitize(process.env.PERSONA_MACRO_URL)}/health`,
+    process.env.PERSONA_GROWTH_URL && `${sanitize(process.env.PERSONA_GROWTH_URL)}/health`,
+    process.env.PERSONA_RISK_URL && `${sanitize(process.env.PERSONA_RISK_URL)}/health`,
+    process.env.GATEWAY_URL && `${sanitize(process.env.GATEWAY_URL)}/health`,
+    process.env.NEXT_PUBLIC_GATEWAY_URL && `${sanitize(process.env.NEXT_PUBLIC_GATEWAY_URL)}/health`,
   ].filter(Boolean) as string[];
 
-  const allTargets = Array.from(new Set([...DEFAULT_TARGETS, ...envTargets]));
+  const allTargets = Array.from(new Set([...DEFAULT_TARGETS, ...envTargets])).map((u) => u.trim());
 
   // Dispatched in background to wake up cold sleeping Render containers
   const pings = allTargets.map(async (url) => {
@@ -36,8 +40,11 @@ export async function GET() {
     }
   });
 
-  // Keep background promise settling without blocking client return
-  Promise.allSettled(pings).catch(() => {});
+  // Keep serverless runtime alive for up to 2 seconds to ensure outbound TCP/TLS handshakes transmit over the wire
+  await Promise.race([
+    Promise.allSettled(pings),
+    new Promise((resolve) => setTimeout(resolve, 2000)),
+  ]);
 
   return NextResponse.json({
     status: "activation_sent",
