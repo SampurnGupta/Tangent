@@ -3,7 +3,7 @@
 from typing import Any, Optional
 
 PERSONA_NAME = "macro"
-MODEL_NAME = "gemini/gemini-2.0-flash"
+MODEL_NAME = "gemini/gemini-3.8-flash"
 
 SYSTEM_PROMPT = """You are MacroBot, an elite institutional economist specializing in
 sovereign interest rates, central bank policy (RBI, US Federal Reserve, ECB), currency depreciation,

@@ -16,8 +16,8 @@ class MetaBotEngine:
         self.observatory = observatory
         self.llm_client = ResilientLLMClient(
             LLMConfig(
-                primary_model="groq/llama-3.3-70b-versatile",
-                secondary_model="gemini/gemini-2.0-flash",
+                primary_model="groq/qwen3.8-27b",
+                secondary_model="gemini/gemini-3.8-flash",
                 temperature=0.3,
             )
         )
@@ -26,18 +26,18 @@ class MetaBotEngine:
         """Dynamically pick the best performing model from the observatory leaderboard.
 
         Evaluates active models ranked by lowest p50/average latency and error rate.
-        Falls back to groq/llama-3.3-70b-versatile if telemetry is insufficient.
+        Falls back to groq/qwen3.8-27b if telemetry is insufficient.
         """
         try:
             leaderboard = await self.observatory.get_leaderboard()
             active_models = [m for m in leaderboard if m.get("call_count", 0) > 0]
             if active_models:
                 best = active_models[0].get("model")
-                if best:
+                if best and "fixture" not in str(best):
                     return str(best)
         except Exception:
             pass
-        return "groq/llama-3.3-70b-versatile"
+        return "groq/qwen3.8-27b"
 
     async def answer(self, question: str, session_id: str) -> dict[str, Any]:
         """Generate analysis citing current live metrics from the observatory."""

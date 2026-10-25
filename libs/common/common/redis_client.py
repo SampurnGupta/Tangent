@@ -129,12 +129,15 @@ class TangentRedisClient:
     """Async Redis manager with targeted scopes: session memory, prices, and LLM metrics."""
 
     def __init__(self, redis_url: Optional[str] = None) -> None:
-        self.redis_url = (
+        url = (
             redis_url
             or os.getenv("UPSTASH_REDIS_URL")
             or os.getenv("REDIS_URL")
             or "redis://localhost:6379/0"
         )
+        if url.startswith("redis://") and "upstash.io" in url:
+            url = url.replace("redis://", "rediss://", 1)
+        self.redis_url = url
         self._client: Optional[aioredis.Redis] = None
         self._fallback = InMemoryFallbackStorage()
         self._connected: Optional[bool] = None
@@ -377,18 +380,13 @@ class TangentRedisClient:
         client = await self._get_client()
         if client:
             try:
-                known_models = [
-                    "groq/llama-3.3-70b-versatile",
-                    "gemini/gemini-2.0-flash",
-                    "cloudflare/@cf/meta/llama-3.2-3b-instruct",
-                ]
-                pipe = client.pipeline()
-                for m in known_models:
-                    pipe.delete(f"llm:metrics:{m}")
-                    pipe.delete(f"llm:latency:{m}")
-                pipe.delete("llm:recent_calls")
-                await pipe.execute()
-                logger.info("Successfully reset LLM metrics cache in Redis")
+                keys = await client.keys("llm:*")
+                if keys:
+                    await client.delete(*keys)
+                logger.info(
+                    "Successfully reset LLM metrics cache in Redis (deleted %d keys)",
+                    len(keys) if keys else 0,
+                )
                 return True
             except Exception as ex:
                 logger.warning("Redis reset_llm_metrics error: %s", ex)

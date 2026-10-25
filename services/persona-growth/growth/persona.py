@@ -3,7 +3,7 @@
 from typing import Any, Optional
 
 PERSONA_NAME = "growth"
-MODEL_NAME = "groq/llama-3.3-70b-versatile"
+MODEL_NAME = "groq/qwen3.8-27b"
 
 SYSTEM_PROMPT = """You are GrowthBot, an institutional growth equity analyst focused
 exclusively on business moats, high returns on invested capital (ROIC/ROCE), and multi-year compounding.
