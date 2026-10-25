@@ -70,9 +70,9 @@ class ObservatoryService:
 
             if calls > 0:
                 # Live telemetry exists from Redis
-                avg_lat = m.get("avg_latency_ms", base["avg_latency_ms"])
-                p50_lat = m.get("p50_latency_ms", base["p50_latency_ms"])
-                p95_lat = m.get("p95_latency_ms", base["p95_latency_ms"])
+                avg_lat = m.get("avg_latency_ms") or base["avg_latency_ms"]
+                p50_lat = m.get("p50_latency_ms") or base["p50_latency_ms"]
+                p95_lat = m.get("p95_latency_ms") or base["p95_latency_ms"]
                 tokens_in = m.get("tokens_in", 0) + base["tokens_in"]
                 tokens_out = m.get("tokens_out", 0) + base["tokens_out"]
                 total_cost = round(m.get("total_cost_usd", 0.0) + base["total_cost_usd"], 6)

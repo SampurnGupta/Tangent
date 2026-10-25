@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { fetchObservatoryLeaderboard, clearObservatoryTelemetryCache, ModelLeaderboardItem } from "@/lib/api";
+import { fetchObservatoryLeaderboard, clearObservatoryTelemetryCache, ModelLeaderboardItem, triggerMicroserviceWarmup } from "@/lib/api";
 import { MetaBotChat } from "./MetaBotChat";
 import {
   Activity,
@@ -52,6 +52,7 @@ export function ModelObservatory() {
   };
 
   useEffect(() => {
+    triggerMicroserviceWarmup();
     loadData();
     const interval = setInterval(loadData, 30000);
     return () => clearInterval(interval);
@@ -144,11 +145,11 @@ export function ModelObservatory() {
 
         <div className="p-5 rounded-xl bg-[#FFFFFF] border border-[#CDCECF] shadow-xs">
           <div className="flex items-center justify-between text-[#5A5D61] mb-2 text-xs font-mono">
-            <span>Active Microservices</span>
+            <span>Monitored Inference Fleet</span>
             <Cpu className="w-4 h-4 text-[#191B1D]" />
           </div>
-          <div className="text-2xl font-black text-[#191B1D] font-mono">10 Services</div>
-          <p className="text-xs text-[#5A5D61] mt-1">Full Decoupled Architecture</p>
+          <div className="text-2xl font-black text-[#191B1D] font-mono">Multi-LLM Fleet</div>
+          <p className="text-xs text-[#5A5D61] mt-1">3 Personas + MetaBot Dynamic Router</p>
         </div>
       </div>
 

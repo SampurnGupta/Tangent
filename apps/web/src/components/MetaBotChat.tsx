@@ -72,13 +72,13 @@ export function MetaBotChat() {
                 DevOps AI
               </span>
             </h4>
-            <p className="text-xs text-[#5A5D61]">Interprets live Redis telemetry and 10-microservice architecture</p>
+            <p className="text-xs text-[#5A5D61]">Interprets live Redis telemetry across multi-LLM fleet & decoupled microservices</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs text-[#0F766E] font-bold bg-[#FFFFFF] px-3 py-1.5 rounded-lg border border-[#CDCECF]">
           <span className="w-2 h-2 rounded-full bg-[#0F766E] animate-pulse" />
-          <span>Telemetry Active (10 Services)</span>
+          <span>Telemetry Active (Multi-LLM Fleet)</span>
         </div>
       </div>
 

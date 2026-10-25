@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Activity,
 } from "lucide-react";
+import { triggerMicroserviceWarmup } from "@/lib/api";
 
 interface HeroHomepageProps {
   onNavigate: (tabId: string) => void;
@@ -30,9 +31,7 @@ export function HeroHomepage({
 }: HeroHomepageProps) {
   useEffect(() => {
     // Non-blocking activation request to wake sleeping Render microservices
-    try {
-      fetch("/api/warmup").catch(() => {});
-    } catch {}
+    triggerMicroserviceWarmup();
   }, []);
 
   const formattedCapital = new Intl.NumberFormat("en-IN", {

@@ -266,6 +266,17 @@ class TangentRedisClient:
     # ───────────────────────────────────────────────────────────────────────────
     # 3. Use Case 3: LLM Metrics & Telemetry for Observatory
     # ───────────────────────────────────────────────────────────────────────────
+    @staticmethod
+    def _normalize_model(model: str) -> str:
+        m = (model or "").lower()
+        if "groq" in m or "qwen" in m or "llama-3.3" in m:
+            return "groq/llama-3.3-70b-versatile"
+        if "cloudflare" in m or "llama-3.2" in m or "@cf" in m:
+            return "cloudflare/@cf/meta/llama-3.2-3b-instruct"
+        if "gemini" in m or "google" in m or "tpu" in m:
+            return "gemini/gemini-2.0-flash"
+        return model
+
     async def record_llm_metric(
         self,
         call_id: str,
@@ -287,33 +298,33 @@ class TangentRedisClient:
             "cost_usd": round(cost_usd, 6),
             "timestamp": time.time(),
         }
+        canonical = self._normalize_model(model)
+        models_to_update = {model, canonical}
         client = await self._get_client()
         if client:
             try:
-                # 1. Update cumulative hash
-                metrics_key = f"llm:metrics:{model}"
                 pipe = client.pipeline()
-                pipe.hincrby(metrics_key, "call_count", 1)
-                pipe.hincrby(metrics_key, "tokens_in", tokens_in)
-                pipe.hincrby(metrics_key, "tokens_out", tokens_out)
-                pipe.hincrbyfloat(metrics_key, "total_cost_usd", cost_usd)
-                pipe.hincrbyfloat(metrics_key, "total_latency_ms", latency_ms)
+                for target_m in models_to_update:
+                    metrics_key = f"llm:metrics:{target_m}"
+                    pipe.hincrby(metrics_key, "call_count", 1)
+                    pipe.hincrby(metrics_key, "tokens_in", tokens_in)
+                    pipe.hincrby(metrics_key, "tokens_out", tokens_out)
+                    pipe.hincrbyfloat(metrics_key, "total_cost_usd", cost_usd)
+                    pipe.hincrbyfloat(metrics_key, "total_latency_ms", latency_ms)
+                    pipe.zadd(f"llm:latency:{target_m}", {call_id: latency_ms})
+                    pipe.zremrangebyrank(f"llm:latency:{target_m}", 0, -201)
 
-                # 2. Append call to rolling list of recent calls (keep 500)
+                # Append call to rolling list of recent calls (keep 500)
                 pipe.lpush("llm:recent_calls", json.dumps(call_record))
                 pipe.ltrim("llm:recent_calls", 0, 499)
-
-                # 3. Add to sorted set for percentile latency ranking
-                pipe.zadd(f"llm:latency:{model}", {call_id: latency_ms})
-                # Retain last 200 items in zset
-                pipe.zremrangebyrank(f"llm:latency:{model}", 0, -201)
 
                 await pipe.execute()
                 return call_record
             except Exception as ex:
                 logger.warning("Redis record_llm_metric error: %s", ex)
 
-        self._fallback.record_metric(model, call_record)
+        for target_m in models_to_update:
+            self._fallback.record_metric(target_m, call_record)
         return call_record
 
     async def get_model_metrics(self, model: str) -> dict[str, Any]:

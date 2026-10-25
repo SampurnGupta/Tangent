@@ -8,7 +8,7 @@ import { ArenaView } from "@/components/ArenaView";
 import { HeroHomepage } from "@/components/HeroHomepage";
 import { ModelObservatory } from "@/components/ModelObservatory";
 import { AIChatConcierge } from "@/components/AIChatConcierge";
-import { CandidatePortfolio, fetchGuestSession, getRiskProfile, OptimizationResponse } from "@/lib/api";
+import { CandidatePortfolio, fetchGuestSession, getRiskProfile, OptimizationResponse, triggerMicroserviceWarmup } from "@/lib/api";
 import { ShieldCheck, Database, Cpu } from "lucide-react";
 
 export default function Home() {
@@ -46,9 +46,7 @@ export default function Home() {
   // Authenticate guest, restore persistent state, and wake sleeping microservices on mount
   useEffect(() => {
     // Non-blocking activation request to wake sleeping Render microservices
-    try {
-      fetch("/api/warmup").catch(() => {});
-    } catch {}
+    triggerMicroserviceWarmup();
 
     async function initGuest() {
       const session = await fetchGuestSession();

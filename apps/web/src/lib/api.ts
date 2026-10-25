@@ -6,6 +6,30 @@
 export const GATEWAY_BASE_URL =
   process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:8000";
 
+/**
+ * Dispatches non-blocking activation requests to both Vercel serverless warmup
+ * and direct edge pings to wake up sleeping Render containers without blocking UI.
+ */
+export function triggerMicroserviceWarmup(): void {
+  if (typeof window === "undefined") return;
+  try {
+    fetch("/api/warmup").catch(() => {});
+  } catch {}
+
+  const renderTargets = [
+    "https://tangent-observatory.onrender.com/health",
+    "https://tangent-gateway.onrender.com/health",
+    "https://tangent-persona-growth.onrender.com/health",
+    "https://tangent-persona-macro.onrender.com/health",
+    "https://tangent-persona-risk.onrender.com/health",
+  ];
+  renderTargets.forEach((url) => {
+    try {
+      fetch(url, { mode: "no-cors" }).catch(() => {});
+    } catch {}
+  });
+}
+
 export interface AssetItem {
   ticker: string;
   name: string;
@@ -2126,25 +2150,61 @@ export async function fetchObservatoryLeaderboard(): Promise<ModelLeaderboardIte
             const map = new Map<string, ModelLeaderboardItem>();
             baseList.forEach((item) => map.set(item.model, { ...item }));
 
-            for (const rec of warmRecords) {
-              let found = map.get(rec.model);
-              if (!found) {
-                // Try prefix match (e.g. groq vs groq/llama-3.3-70b-versatile)
-                const matchedKey = Array.from(map.keys()).find((k) => k.includes(rec.model) || rec.model.includes(k));
-                if (matchedKey) found = map.get(matchedKey);
+            const matchKey = (model: string): string => {
+              const m = (model || "").toLowerCase();
+              if (m.includes("groq") || m.includes("qwen") || m.includes("llama-3.3")) {
+                return "groq/llama-3.3-70b-versatile";
               }
+              if (m.includes("cloudflare") || m.includes("llama-3.2") || m.includes("@cf")) {
+                return "cloudflare/@cf/meta/llama-3.2-3b-instruct";
+              }
+              if (m.includes("gemini") || m.includes("google") || m.includes("tpu")) {
+                return "gemini/gemini-2.0-flash";
+              }
+              return model;
+            };
 
-              if (found) {
-                found.call_count += 1;
-                found.tokens_in += rec.tokens_in;
-                found.tokens_out += rec.tokens_out;
-                found.total_cost_usd = Number((found.total_cost_usd + rec.cost_usd).toFixed(6));
-                found.avg_latency_ms = Math.round(
-                  (found.avg_latency_ms * (found.call_count - 1) + rec.latency_ms) / found.call_count
-                );
-                found.p50_latency_ms = Math.round(found.p50_latency_ms * 0.85 + rec.latency_ms * 0.15);
-                found.avg_tokens_per_response = Number((found.tokens_out / found.call_count).toFixed(1));
-                found.cost_per_1k_calls = Number(((found.total_cost_usd / found.call_count) * 1000).toFixed(4));
+            // Group warmRecords by matched model key
+            const grouped = new Map<string, ClientTelemetryRecord[]>();
+            for (const rec of warmRecords) {
+              const key = matchKey(rec.model);
+              if (!grouped.has(key)) grouped.set(key, []);
+              grouped.get(key)!.push(rec);
+            }
+
+            for (const [key, recordsForModel] of grouped.entries()) {
+              const item = map.get(key);
+              if (item) {
+                const liveCount = recordsForModel.length;
+                const totalTokensIn = recordsForModel.reduce((sum, r) => sum + (r.tokens_in || 0), 0);
+                const totalTokensOut = recordsForModel.reduce((sum, r) => sum + (r.tokens_out || 0), 0);
+                const totalCostLive = recordsForModel.reduce((sum, r) => sum + (r.cost_usd || 0), 0);
+
+                // Build latency distribution: seed with baseline points and append all live measurements
+                const seedLatencies = [
+                  Math.round(item.p50_latency_ms * 0.92),
+                  item.p50_latency_ms,
+                  Math.round(item.p50_latency_ms * 1.05),
+                  Math.round(item.p95_latency_ms * 0.95),
+                  item.p95_latency_ms,
+                ];
+                const liveLatencies = recordsForModel.map((r) => r.latency_ms);
+                const combinedLatencies = [...seedLatencies, ...liveLatencies].sort((a, b) => a - b);
+                const numLats = combinedLatencies.length;
+
+                const p50 = combinedLatencies[Math.floor(numLats * 0.50)];
+                const p95 = combinedLatencies[Math.min(numLats - 1, Math.floor(numLats * 0.95))];
+                const avg = Math.round(combinedLatencies.reduce((a, b) => a + b, 0) / numLats);
+
+                item.call_count += liveCount;
+                item.tokens_in += totalTokensIn;
+                item.tokens_out += totalTokensOut;
+                item.total_cost_usd = Number((item.total_cost_usd + totalCostLive).toFixed(6));
+                item.avg_latency_ms = avg;
+                item.p50_latency_ms = p50;
+                item.p95_latency_ms = p95;
+                item.avg_tokens_per_response = Number((item.tokens_out / item.call_count).toFixed(1));
+                item.cost_per_1k_calls = Number(((item.total_cost_usd / item.call_count) * 1000).toFixed(4));
               }
             }
             baseList = Array.from(map.values());
