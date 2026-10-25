@@ -29,9 +29,9 @@ MODEL_PRICING_PER_1M: dict[str, dict[str, float]] = {
     "gemini/gemini-1.5-flash": {"in": 0.075, "out": 0.30},
     "gemini/gemini-1.5-pro": {"in": 1.25, "out": 5.00},
     "mistral/mistral-small-latest": {"in": 0.10, "out": 0.30},
-    "cloudflare/@cf/meta/llama-3.2-3b-instruct": {"in": 0.0, "out": 0.0},
-    "cloudflare/@cf/meta/llama-3.1-8b-instruct": {"in": 0.0, "out": 0.0},
-    "ollama/llama3.2:3b": {"in": 0.0, "out": 0.0},
+    "cloudflare/@cf/meta/llama-3.2-3b-instruct": {"in": 0.05, "out": 0.06},
+    "cloudflare/@cf/meta/llama-3.1-8b-instruct": {"in": 0.10, "out": 0.15},
+    "ollama/llama3.2:3b": {"in": 0.05, "out": 0.06},
 }
 
 

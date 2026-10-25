@@ -119,6 +119,11 @@ class InMemoryFallbackStorage:
     def get_recent_calls(self, limit: int = 50) -> list[dict[str, Any]]:
         return list(self._calls[:limit])
 
+    def reset_metrics(self) -> None:
+        """Clear all in-memory telemetry metrics and recent calls."""
+        self._metrics.clear()
+        self._calls.clear()
+
 
 class TangentRedisClient:
     """Async Redis manager with targeted scopes: session memory, prices, and LLM metrics."""
@@ -366,6 +371,29 @@ class TangentRedisClient:
             except Exception as ex:
                 logger.warning("Redis get_recent_calls error: %s", ex)
         return self._fallback.get_recent_calls(limit=limit)
+
+    async def reset_llm_metrics(self) -> bool:
+        """Clear cached LLM metrics and latency sorted sets from Redis to eliminate cold-start data."""
+        client = await self._get_client()
+        if client:
+            try:
+                known_models = [
+                    "groq/llama-3.3-70b-versatile",
+                    "gemini/gemini-2.0-flash",
+                    "cloudflare/@cf/meta/llama-3.2-3b-instruct",
+                ]
+                pipe = client.pipeline()
+                for m in known_models:
+                    pipe.delete(f"llm:metrics:{m}")
+                    pipe.delete(f"llm:latency:{m}")
+                pipe.delete("llm:recent_calls")
+                await pipe.execute()
+                logger.info("Successfully reset LLM metrics cache in Redis")
+                return True
+            except Exception as ex:
+                logger.warning("Redis reset_llm_metrics error: %s", ex)
+        self._fallback.reset_metrics()
+        return True
 
     async def close(self) -> None:
         """Close Redis connection pool cleanly."""

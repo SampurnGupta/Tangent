@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { fetchObservatoryLeaderboard, ModelLeaderboardItem } from "@/lib/api";
+import { fetchObservatoryLeaderboard, clearObservatoryTelemetryCache, ModelLeaderboardItem } from "@/lib/api";
 import { MetaBotChat } from "./MetaBotChat";
 import {
   Activity,
@@ -10,6 +10,7 @@ import {
   DollarSign,
   Cpu,
   RefreshCw,
+  RotateCcw,
   Layers,
   Sparkles,
   Bot,
@@ -19,6 +20,7 @@ import {
 export function ModelObservatory() {
   const [leaderboard, setLeaderboard] = useState<ModelLeaderboardItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [clearing, setClearing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [activeSubTab, setActiveSubTab] = useState<"leaderboard" | "metabot">("leaderboard");
 
@@ -28,6 +30,25 @@ export function ModelObservatory() {
     setLeaderboard(data);
     setLastRefreshed(new Date());
     setLoading(false);
+  };
+
+  const handleClearCache = async () => {
+    setClearing(true);
+    clearObservatoryTelemetryCache();
+    try {
+      const observatoryBase =
+        process.env.NEXT_PUBLIC_OBSERVATORY_URL ||
+        (process.env.NEXT_PUBLIC_GATEWAY_URL
+          ? `${process.env.NEXT_PUBLIC_GATEWAY_URL}/api/v1/observatory`
+          : "/api/v1/observatory");
+      await fetch(`${observatoryBase.replace(/\/$/, "")}/api/v1/observatory/reset`, {
+        method: "POST",
+      }).catch(() => {});
+    } catch {
+      // Ignore network errors on local reset
+    }
+    await loadData();
+    setClearing(false);
   };
 
   useEffect(() => {
@@ -61,9 +82,18 @@ export function ModelObservatory() {
 
         <div className="flex items-center gap-3">
           <button
+            onClick={handleClearCache}
+            disabled={loading || clearing}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#FFFFFF] hover:bg-[#F4F5F6] text-[#5A5D61] hover:text-[#191B1D] rounded-lg text-xs font-mono font-bold border border-[#CDCECF] transition-all cursor-pointer shadow-2xs"
+            title="Clear cached matrix data and purge cold-start latency records"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 text-[#6D0E5A] ${clearing ? "animate-spin" : ""}`} />
+            <span>Clear Matrix Cache</span>
+          </button>
+          <button
             onClick={loadData}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-[#FFFFFF] hover:bg-[#F4F5F6] text-[#191B1D] rounded-lg text-xs font-mono font-bold border border-[#CDCECF] transition-all cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 bg-[#FFFFFF] hover:bg-[#F4F5F6] text-[#191B1D] rounded-lg text-xs font-mono font-bold border border-[#CDCECF] transition-all cursor-pointer shadow-2xs"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-[#6D0E5A] ${loading ? "animate-spin" : ""}`} />
             Refresh
@@ -109,7 +139,7 @@ export function ModelObservatory() {
           <div className="text-2xl font-black text-[#6D0E5A] font-mono">
             ${totalCost.toFixed(5)}
           </div>
-          <p className="text-xs text-[#5A5D61] mt-1">Token billing across tiers</p>
+          <p className="text-xs text-[#5A5D61] mt-1">Enterprise scaling projection</p>
         </div>
 
         <div className="p-5 rounded-xl bg-[#FFFFFF] border border-[#CDCECF] shadow-xs">
@@ -220,7 +250,7 @@ export function ModelObservatory() {
             <div className="px-6 py-4 border-b border-[#CDCECF] bg-[#F8F9FA] flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-[#191B1D]">Cross-Model Latency & Economics Matrix</h3>
-                <p className="text-xs text-[#5A5D61]">Comparing inference times, token usage, and unit economics</p>
+                <p className="text-xs text-[#5A5D61]">Warm inference benchmarks and commercial scaling unit economics</p>
               </div>
             </div>
 
@@ -264,7 +294,7 @@ export function ModelObservatory() {
                         <td className="py-3.5 px-4 text-[#5A5D61]">{item.p95_latency_ms} ms</td>
                         <td className="py-3.5 px-4 text-[#191B1D]">{item.avg_tokens_per_response}</td>
                         <td className="py-3.5 px-4 text-[#6D0E5A] font-bold">
-                          {item.cost_per_1k_calls === 0 ? "FREE" : `$${item.cost_per_1k_calls.toFixed(4)}`}
+                          ${item.cost_per_1k_calls.toFixed(4)}
                         </td>
                         <td className="py-3.5 px-4 text-[#5A5D61]">{item.call_count}</td>
                       </tr>
@@ -324,7 +354,7 @@ export function ModelObservatory() {
                       <div className="flex justify-between text-xs">
                         <span className="text-[#191B1D] font-medium">{m.display_name}</span>
                         <span className="font-mono font-bold text-[#6D0E5A]">
-                          {m.cost_per_1k_calls === 0 ? "$0.00 (Self-Hosted)" : `$${m.cost_per_1k_calls.toFixed(4)}`}
+                          ${m.cost_per_1k_calls.toFixed(4)}
                         </span>
                       </div>
                       <div className="w-full bg-[#F4F5F6] rounded-full h-2 overflow-hidden border border-[#CDCECF]">

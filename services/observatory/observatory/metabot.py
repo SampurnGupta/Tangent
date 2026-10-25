@@ -42,7 +42,7 @@ class MetaBotEngine:
     async def answer(self, question: str, session_id: str) -> dict[str, Any]:
         """Generate analysis citing current live metrics from the observatory."""
         leaderboard = await self.observatory.get_leaderboard()
-        recent_calls = await self.observatory.redis_client.get_recent_calls(limit=10)
+        recent_calls = (await self.observatory.redis_client.get_recent_calls(limit=10)) or []
         selected_model = await self._select_best_model()
 
         context_data = {

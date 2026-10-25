@@ -120,6 +120,12 @@ def create_app() -> FastAPI:
         )
         return {"status": "recorded", "model": req.model}
 
+    @app.post("/api/v1/observatory/reset", tags=["observatory"])
+    async def reset_telemetry() -> dict[str, str]:
+        """Clear cached telemetry and latency sorted sets from Redis to purge cold starts."""
+        await redis_c.reset_llm_metrics()
+        return {"status": "cleared", "message": "Telemetry metrics cache reset successfully"}
+
     @app.post(
         "/api/v1/observatory/metabot/chat",
         response_model=MetaBotChatResponse,

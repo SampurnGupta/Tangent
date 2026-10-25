@@ -252,7 +252,7 @@ Your strict operational doctrine:
               tokens_in: Math.round(JSON.stringify(llmMessages).length / 4),
               tokens_out: Math.round(cleanReply.length / 4),
               latency_ms: Date.now() - t0,
-              cost_usd: 0.0,
+              cost_usd: 0.000055,
               session_message_count: history.length + 2,
             });
           }
