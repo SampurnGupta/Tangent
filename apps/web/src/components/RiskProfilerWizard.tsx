@@ -55,10 +55,6 @@ export function RiskProfilerWizard({
     <div className="max-w-5xl mx-auto space-y-8 py-6">
       {/* Section Header */}
       <div className="space-y-2 text-center sm:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#FFFFFF] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-bold">
-          <Gauge className="w-3.5 h-3.5 text-[#0F766E]" />
-          <span>Profile & Capital Allocation Calibration</span>
-        </div>
         <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D]">
           Calibrate Profile & Optimizer Constraints
         </h2>

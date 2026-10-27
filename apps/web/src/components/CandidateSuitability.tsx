@@ -61,10 +61,6 @@ export function CandidateSuitability({
     <div className="max-w-6xl mx-auto space-y-8 py-6 animate-fade-in">
       {/* Header */}
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#FFFFFF] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-bold">
-          <Award className="w-3.5 h-3.5 text-[#0F766E]" />
-          <span>Candidate Portfolios & Suitability Layer</span>
-        </div>
         <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D]">
           Candidate Evaluation & Suitability Matching
         </h2>

@@ -66,7 +66,7 @@ class MetaBotEngine:
         prompt = (
             f"[Live Telemetry Data from Redis]:\n{context_summary}\n\n"
             f"User Question: {question}\n\n"
-            "Provide a rigorous, metric-backed analysis citing the exact latency, token, and cost data above."
+            "Directly and concisely answer the User Question above. Cite only the specific metrics relevant to the question. Do not append unrelated boilerplate sections or unprompted fleet summaries."
         )
 
         resp: LLMResponse = await self.llm_client.complete(

@@ -202,11 +202,7 @@ export function DecisionStudio({
       <div className="p-7 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] shadow-xs space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F4F5F6] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-bold">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#0F766E]" />
-              <span>Institutional Verdict & Decision Studio</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D] mt-2">
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D]">
               Recommended Investor Allocation & Audit Pack
             </h2>
             <p className="text-sm text-[#5A5D61] mt-1">
@@ -351,11 +347,7 @@ export function DecisionStudio({
       {/* SECTION B: Marginal Impact Evaluation & Grounded Brief */}
       <div className="p-7 rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] shadow-xs space-y-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F4F5F6] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-bold">
-            <BrainCircuit className="w-3.5 h-3.5 text-[#0F766E]" />
-            <span>Parallel Multi-Agent Deliberation</span>
-          </div>
-          <h3 className="text-xl font-black text-[#191B1D] mt-2">
+          <h3 className="text-xl font-black text-[#191B1D]">
             Marginal Impact Evaluation & Grounded Decision Brief
           </h3>
           <p className="text-sm text-[#5A5D61] mt-1">

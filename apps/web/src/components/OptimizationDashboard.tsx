@@ -70,11 +70,7 @@ export function OptimizationDashboard({
       {/* Header and Solver Control */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#FFFFFF] p-7 rounded-2xl border border-[#CDCECF] shadow-xs">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F4F5F6] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-bold">
-            <Activity className="w-3.5 h-3.5 text-[#0F766E]" />
-            <span>Deterministic SLSQP Solver</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D] mt-2">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D]">
             Efficient Frontier & Max-Sharpe Optimization
           </h2>
           <p className="text-sm text-[#5A5D61] mt-1 max-w-xl">

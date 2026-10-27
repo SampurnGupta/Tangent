@@ -2278,17 +2278,9 @@ export async function chatWithMetaBot(
 
   if (isGreeting) {
     const res: MetaBotResponse = {
-      reply: `Greetings! I am MetaBot, Tangent's Lead DevOps and Multi-LLM Telemetry Intelligence Analyst.\n\n` +
-        `I monitor real-time inference latency, token velocity, error rates, and cost economics across Tangent's multi-LLM fleet and independent persona microservices (Groq LPU, Google TPU, Cloudflare Workers AI).\n\n` +
-        `Tangent System Architecture (v2.0):\n` +
-        `Tangent runs 10 decoupled microservices across a hybrid Vercel + Render cloud model:\n` +
-        `• 6 Deterministic Core Services (Gateway, Market-Data, Quant, Sentiment, Agent, Portfolio): Run numerical optimization (SciPy SLSQP, Ledoit-Wolf covariance shrinkage), data persistence, and proxy routing without LLM token overhead.\n` +
-        `• 3 Independent Persona Microservices (MacroBot, GrowthBot, RiskBot): Powered by Google TPU, Groq LPU, and Cloudflare Workers AI.\n` +
-        `• 1 DevOps Observatory (Observatory): Live Redis latency sorted sets, token velocity counters, and dynamic model router.\n\n` +
-        `Live Telemetry Status:\n` +
-        `Current fastest inference: ${fastest.display_name} (${fastest.p50_latency_ms}ms p50).\n` +
-        `Most economical tier: ${lowestCost.display_name} ($${lowestCost.cost_per_1k_calls.toFixed(4)} / 1k queries).\n\n` +
-        `Ask me about architectural trade-offs, Groq vs GPU latency bottlenecks, or cloud deployment economics.`,
+      reply: `Greetings! I am MetaBot, Tangent's Lead DevOps and Telemetry Intelligence Analyst.\n\n` +
+        `I monitor real-time inference latency, token velocity, and cost economics across Tangent's multi-LLM fleet (Groq LPU, Google TPU, Cloudflare Workers AI).\n\n` +
+        `Ask me about our decoupled microservice architecture, hardware acceleration (Groq LPUs vs GPUs), or why quantitative math is strictly decoupled from LLMs!`,
       model_used: "groq/qwen3.8-27b",
       tokens_in: 210,
       tokens_out: 220,

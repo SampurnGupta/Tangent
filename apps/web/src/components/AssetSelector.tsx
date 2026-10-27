@@ -132,11 +132,7 @@ export function AssetSelector({
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#FFFFFF] border border-[#CDCECF] text-[#191B1D] text-xs font-mono font-bold">
-            <Layers className="w-3.5 h-3.5 text-[#0F766E]" />
-            <span>Universal Multi-Asset Universe</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D] mt-2">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#191B1D]">
             Asset Universe & Statistical Baseline
           </h2>
           <p className="text-sm text-[#5A5D61] mt-1">

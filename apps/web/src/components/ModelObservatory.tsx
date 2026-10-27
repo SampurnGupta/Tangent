@@ -239,8 +239,7 @@ export function ModelObservatory() {
       </div>
 
       {/* Content based on sub-tab */}
-      {activeSubTab === "leaderboard" ? (
-        <div className="space-y-6">
+      <div className={activeSubTab === "leaderboard" ? "space-y-6" : "hidden"}>
           {/* Detailed Leaderboard Table */}
           <div className="rounded-2xl bg-[#FFFFFF] border border-[#CDCECF] overflow-hidden shadow-xs">
             <div className="px-6 py-4 border-b border-[#CDCECF] bg-[#F8F9FA] flex items-center justify-between">
@@ -363,12 +362,13 @@ export function ModelObservatory() {
                   );
                 })}
               </div>
-            </div>
           </div>
         </div>
-      ) : (
+      </div>
+
+      <div className={activeSubTab === "metabot" ? "block" : "hidden"}>
         <MetaBotChat />
-      )}
+      </div>
     </div>
   );
 }
