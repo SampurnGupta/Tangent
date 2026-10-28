@@ -8,10 +8,15 @@ Every service exposes standardized `/health` and `/ready` endpoints:
 
 | Endpoint | Service | Purpose | Healthy Response |
 |---|---|---|---|
-| `GET /health` | All Services | Process liveness check | `{"status": "ok", "service": "..."}` |
-| `GET /ready` | gateway | Downstream readiness aggregator | `{"status": "ready", "checks": {...}}` |
-| `GET /ready` | market-data | Postgres & external provider connectivity | `{"status": "ready", "checks": {"db": "ok"}}` |
-| `GET /ready` | portfolio | Postgres migrations check | `{"status": "ready", "checks": {"db": "ok"}}` |
+| `GET /health` | All 10 Services | Process liveness check | `{"status": "ok", "service": "..."}` |
+| `GET /ready` | gateway (8000) | Downstream readiness aggregator | `{"status": "ready", "checks": {...}}` |
+| `GET /ready` | market-data (8001) | Postgres & external provider connectivity | `{"status": "ready", "checks": {"db": "ok"}}` |
+| `GET /ready` | portfolio (8003) | Postgres migrations check | `{"status": "ready", "checks": {"db": "ok"}}` |
+| `GET /health` | persona-macro (8006) | Gemini 2.0 Flash engine liveness | `{"status": "ok", "service": "tangent-persona-macro"}` |
+| `GET /health` | persona-growth (8007) | Groq Llama 3.3 70B engine liveness | `{"status": "ok", "service": "tangent-persona-growth"}` |
+| `GET /health` | persona-risk (8008) | Cloudflare Workers AI engine liveness | `{"status": "ok", "service": "tangent-persona-risk"}` |
+| `GET /health` | observatory (8009) | Redis sorted set telemetry liveness | `{"status": "ok", "service": "tangent-observatory"}` |
+| `GET /api/v1/observatory/microservices` | observatory | Cluster metrics (Status, Latency, Hits, Payload) | Array of 6 core service metric objects |
 
 ### Quick Diagnostic Command
 
@@ -103,3 +108,37 @@ Tangent v2 is designed to run 100% free across managed tiers:
    - Create Always-Free Ubuntu ARM instance on Oracle Cloud.
    - Run `bash scripts/setup-oracle-vm.sh`.
    - Set `OLLAMA_API_BASE=http://<VM_IP>:11434` in Render.
+
+---
+
+## 6. Scheduled Daily Market Settlement Sync Operations
+
+Tangent runs automated post-close price synchronization via GitHub Actions:
+- **Workflow:** `.github/workflows/market-sync.yml`
+- **Schedule:** Runs Mon–Fri at 22:30 UTC (04:00 AM IST) after Indian and US exchanges settle.
+- **Manual Trigger via GitHub CLI:**
+  ```powershell
+  gh workflow run market-sync.yml
+  ```
+- **Manual Direct Invocation via curl:**
+  ```powershell
+  curl -X POST "https://tangent-gateway.onrender.com/api/v1/market-data/sync" `
+       --connect-timeout 60 --max-time 120
+  ```
+- **Operational Verification:**
+  - Check the response JSON for `"status": "synchronized"` and `"synced_count": 7`.
+  - Verify in the Web UI under `Observatory -> Microservices` that `Market Data Engine` shows fresh request hits and an `Up` status.
+
+---
+
+## 7. LLM Observatory & Telemetry Management
+
+### Clear Telemetry Cache & Cold-Start Latency
+When containers experience cold starts, initial latency outliers (e.g. 5,000–12,000ms) can temporarily distort p50/p95 calculations.
+- To purge cold-start latency records:
+  - In the UI, click **"Clear Matrix Cache"** in the Observatory header.
+  - Or via API:
+    ```powershell
+    curl -X POST "https://tangent-observatory.onrender.com/api/v1/observatory/reset"
+    ```
+- Warm inference runs will immediately repopulate the Redis sorted sets (`tangent:telemetry:*`) with clean production benchmarks.

@@ -32,29 +32,31 @@ This file is project context for AI coding assistants. Read it at the start of e
 - **v1.0 Core**: Completed (SLSQP solver, 24h cache, Ledoit-Wolf, walk-forward backtest, multi-agent briefs with Critic).
 - **v1.1 Advanced Suite**: Completed (Animated Hero Homepage, 5-persona Expert Arena + always-on 1-on-1 consultation, Draww co-pilot, 74-asset universe, unbiased all-asset mode, crisis stress testing, CSV/JSON investor export).
 - **v2.0 DevOps, Multi-LLM & Cloud Deployment**: Completed (Phase A: Critical Math Fixes; Phase B: Scoped Redis; Phase C: Independent Persona Chatbots; Phase D: LLM Observatory & MetaBot; Phase E: Free-Tier Cloud Deployment; Architecture Cleanup & Docker Cache Optimization).
+- **v2.1 Telemetry & CI/CD Market Sync**: Completed (Scheduled post-close daily GitHub Actions workflow `.github/workflows/market-sync.yml` calling `POST /api/v1/market-data/sync`, Observatory Microservices live telemetry sub-dashboard with Status/Latency/Hits/Payload Transfer, top cluster metrics bar, and MetaBot cluster awareness).
 See `docs/v2-implementation-plan.md`, `docs/scope.md`, and `CHANGELOG.md` for full detail.
 
 ## Repo Layout
 ```
 tangent/
-  apps/web/                    # Next.js 16 frontend (HeroHomepage, ArenaView, Draww, Decision Studio)
+  apps/web/                    # Next.js 16 frontend (HeroHomepage, ArenaView, Draww, Decision Studio, Observatory)
   services/
-    gateway/                   # Central reverse proxy, JWT auth, rate limiting
-    market-data/               # Asset prices, returns, Ledoit-Wolf covariance
-    quant/                     # SciPy SLSQP optimizer, Monte Carlo projections
-    sentiment/                 # Financial news sentiment scoring
-    agent/                     # Multi-agent brief orchestration with Critic
-    portfolio/                 # Portfolio persistence, analytics & export
-    persona-macro/             # Independent MacroBot (Gemini 2.0 Flash)
-    persona-growth/            # Independent GrowthBot (Groq Llama 3.3 70B)
-    persona-risk/              # Independent RiskBot (Cloudflare Workers AI Llama 3.2 3B)
-    observatory/               # LLM telemetry leaderboard & MetaBot dynamic analyst
+    gateway/                   # Central reverse proxy, JWT auth, rate limiting (port 8000)
+    market-data/               # Asset prices, returns, Ledoit-Wolf covariance, daily sync (port 8001)
+    quant/                     # SciPy SLSQP optimizer, Monte Carlo projections (port 8002)
+    sentiment/                 # Financial news sentiment scoring (port 8004)
+    agent/                     # Multi-agent brief orchestration with Critic (port 8005)
+    portfolio/                 # Portfolio persistence, analytics & export (port 8003)
+    persona-macro/             # Independent MacroBot (Gemini 2.0 Flash, port 8006)
+    persona-growth/            # Independent GrowthBot (Groq Llama 3.3 70B, port 8007)
+    persona-risk/              # Independent RiskBot (Cloudflare Workers AI Llama 3.2 3B, port 8008)
+    observatory/               # LLM telemetry leaderboard, microservices monitor & MetaBot (port 8009)
   libs/{contracts,common,llm}/
   infra/{compose,db/migrations,deploy}/
   tests/e2e/
   legacy/finmaths/             # read-only reference
   docs/{adr/,api/,architecture.md,scope.md,runbook.md,evaluation.md,archive/}
   .github/workflows/
+    market-sync.yml            # Automated daily settlement sync at 22:30 UTC Mon-Fri
   .env.example  justfile  AGENTS.md  README.md  CHANGELOG.md  DISCLAIMER.md
 ```
 

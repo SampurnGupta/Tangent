@@ -7,7 +7,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ---
 
 ## [Unreleased]
- 
+
+---
+
+## [2.1.0] - 2026-10-28
+
+### Added
+- **Automated Daily Market Settlement Sync via Scheduled GitHub Actions**:
+  - Implemented `.github/workflows/market-sync.yml` running automatically on cron `30 22 * * 1-5` (22:30 UTC Mon–Fri / 04:00 AM IST next day).
+  - Synchronizes daily settlement closes post-market when both Indian exchanges (NSE/BSE at 10:00 UTC) and US exchanges (NYSE/NASDAQ at 21:00 UTC) have settled.
+  - Implemented `POST /api/v1/market-data/sync` on `services/market-data` with curl retry flags (`--max-time 120 --retry 3 --retry-delay 15`) to gracefully tolerate Render free-tier cold starts.
+  - Reverse-proxied the sync endpoint through central API Gateway (`/api/v1/market-data/sync`).
+- **Observatory Microservices Telemetry Sub-Dashboard (`ModelObservatory.tsx`)**:
+  - Added a dedicated 3rd sub-dashboard in Observatory: **"Microservices"** positioned between "Live Model Leaderboard" and "Ask MetaBot".
+  - Exclusively displays the 6 deterministic core microservices (Gateway, Market-Data, Quant, Portfolio, Sentiment, Agent) with strictly 4 live metrics:
+    1. **Status**: Live traffic-light indicators (`Up` 🟢, `Starting` 🟡, `Down` 🔴).
+    2. **Response Latency**: Round-trip response time in milliseconds.
+    3. **Request Hits**: Cumulative production request hits per service.
+    4. **Payload Transfer**: Real-time network bytes transferred in KB / MB.
+  - Real-time 30-second background polling paired with an explicit manual **"Sync Metrics"** button with a loading spinner and last-synced timestamp.
+- **Observatory Cluster Top Stat Cards**:
+  - Added **Core Microservices** (`6/6 Up`) and **Cluster Data Transfer** (`KB/MB`) metric cards to the top summary bar alongside model inference metrics.
+- **MetaBot Architecture Grounding**:
+  - Injected real-time microservice status, latency, request volume, and payload snapshots into MetaBot's prompt context, enabling MetaBot to accurately explain the 10-microservice cluster topology.
+- **Endpoint `GET /api/v1/observatory/microservices`**:
+  - Built endpoint in `services/observatory` to aggregate live service metrics from Redis or provide deterministic local baselines.
+
+### Changed
+- In the **Cross-Model Latency & Economics Matrix** table: renamed `Tokens/Response` column header to **`Avg. Tokens/Response`** for clarity.
+- Preserved in-session conversation history in MetaBot when toggling between sub-dashboards using non-destructive CSS conditional visibility.
+- Strengthened type safety in `services/observatory/observatory/metrics.py` to satisfy strict Mypy pre-commit typing.
+
 ---
 
 ## [2.0.0] - 2026-10-21

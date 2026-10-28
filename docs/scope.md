@@ -43,14 +43,29 @@
 - [x] **Draww AI Co-pilot Rebrand:** Comprehensive institutional chatbot with live portfolio awareness and citation inspector
 - [x] **Header & Navigation Polish:** Streamlined layout, removed `v1.0 Core` and `Interactive Session` badges, relocated statutory disclaimers cleanly to footer
 
+### New in v2.0 (Multi-LLM Tier, Independent Personas & LLM Observatory)
+- [x] **Independent Persona Microservices:** Dedicated FastAPI microservices for MacroBot (`gemini-2.0-flash`), GrowthBot (`llama-3.3-70b-versatile`), and RiskBot (`llama-3.2-3b-instruct`).
+- [x] **LLM Observatory & MetaBot:** Real-time inference latency (p50/p95), token velocity, and unit economics telemetry matrix.
+- [x] **Dynamic Latency-Driven MetaBot Router:** Interactive AI observer with direct real-time access to Redis sorted sets.
+- [x] **Free-Tier Multi-Cloud Deployment:** Production deployment on Render, Vercel, Supabase, and Upstash.
+- [x] **Docker Cache Optimization:** Two-stage manifest copying resolving WSL2 disk bloat from 40GB to <3GB.
+
+### New in v2.1 (Observatory Microservices Telemetry & Automated CI/CD Sync)
+- [x] **Scheduled GitHub Actions Market Sync (`market-sync.yml`):** Automated settlement sync post-market close (22:30 UTC Mon-Fri) triggering `POST /api/v1/market-data/sync`.
+- [x] **Observatory Microservices Sub-Dashboard:** Dedicated tab tracking live Status (`Up`, `Starting`, `Down`), round-trip latency, request hits, and payload transfer across the 6 core microservices.
+- [x] **Top Cluster Metric Cards:** Real-time Core Microservices (`6/6 Up`) and Cluster Data Transfer (`KB/MB`) alongside model telemetry.
+- [x] **MetaBot Cluster Grounding:** System prompt injected with real-time microservices status and telemetry snapshots.
+- [x] **Avg. Tokens/Response Table Metric:** Clarified matrix header to accurately represent token consumption per response.
+
 ### Infrastructure
-- [x] All 6 services containerized (Docker Compose, multi-stage non-root Dockerfiles)
+- [x] All 10 services containerized (Docker Compose, multi-stage non-root Dockerfiles)
 - [x] One PostgreSQL instance, schema-per-service, Alembic migrations from zero
-- [x] Redis for caching and rate limiting
+- [x] Redis for caching, session memory, rate limiting, and telemetry sorted sets
 - [x] CI green: lint, type-check, unit tests, build images
-- [x] Deployed / deployable to cloud via Fly.io scripts
+- [x] Scheduled GitHub Actions workflow for daily settlement sync
 - [x] SSE streaming for agent runs
 - [x] `/health` and `/ready` on every service
+
 
 ---
 
