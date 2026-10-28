@@ -35,7 +35,7 @@ MODEL_PRICING_PER_1M: dict[str, dict[str, float]] = {
     "mistral/mistral-small-latest": {"in": 0.10, "out": 0.30},
     "cloudflare/@cf/meta/llama-3.2-3b-instruct": {"in": 0.05, "out": 0.06},
     "cloudflare/@cf/meta/llama-3.1-8b-instruct": {"in": 0.10, "out": 0.15},
-    "ollama/llama3.2:3b": {"in": 0.05, "out": 0.06},
+    "ollama/llama3.2:3b": {"in": 0.0, "out": 0.0},
 }
 
 
@@ -468,5 +468,5 @@ class ResilientLLMClient:
             tokens_out=tokens_out,
             cost_estimate_usd=cost,
             is_fallback=is_fallback,
-            is_fixture=False,
+            is_fixture=True,
         )
