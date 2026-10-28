@@ -162,6 +162,11 @@ def create_app() -> FastAPI:
         target = f"{settings.market_data_url}/api/v1/fx"
         return await forward_request(http_client, target, request)
 
+    @app.post("/api/v1/market-data/sync", tags=["market-data"])
+    async def proxy_market_data_sync(request: Request) -> Response:
+        target = f"{settings.market_data_url}/api/v1/market-data/sync"
+        return await forward_request(http_client, target, request)
+
     # Proxy: Quant
     @app.post("/api/v1/optimize", tags=["quant"])
     async def proxy_optimize(request: Request) -> Response:

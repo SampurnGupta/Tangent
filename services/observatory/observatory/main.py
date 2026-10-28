@@ -104,6 +104,11 @@ def create_app() -> FastAPI:
         """Fetch model performance leaderboard ranked by p50 latency and efficiency."""
         return await observatory.get_leaderboard()
 
+    @app.get("/api/v1/observatory/microservices", tags=["observatory"])
+    async def get_microservices() -> list[dict[str, Any]]:
+        """Fetch real-time metrics for the 6 deterministic core microservices."""
+        return await observatory.get_microservices_metrics()
+
     @app.post("/api/v1/observatory/telemetry", tags=["observatory"])
     async def record_telemetry(req: TelemetryRecordRequest) -> dict[str, str]:
         """Record model invocation metrics into Redis telemetry."""

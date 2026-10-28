@@ -83,3 +83,21 @@ def test_fixture_provider_deterministic_seed():
     for pt1, pt2 in zip(series1, series2):
         assert pt1.price_date == pt2.price_date
         assert pt1.close_price == pt2.close_price
+
+
+@pytest.mark.asyncio
+async def test_market_data_sync_endpoint():
+    """Verify POST /api/v1/market-data/sync triggers refresh and returns settlement stats."""
+    from httpx import ASGITransport, AsyncClient
+    from market_data.main import app
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        resp = await client.post("/api/v1/market-data/sync")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["status"] in ["synchronized", "synced", "degraded"]
+        assert "synced_count" in data
+        assert "synced_tickers" in data
+        assert "latency_ms" in data
+        assert "timestamp_utc" in data

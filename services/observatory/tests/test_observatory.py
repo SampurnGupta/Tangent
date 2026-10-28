@@ -51,3 +51,23 @@ async def test_metabot_chat_response():
         assert "model_used" in data
         assert "telemetry_snapshot" in data
         assert len(data["telemetry_snapshot"]) >= 3
+
+
+@pytest.mark.asyncio
+async def test_observatory_microservices_endpoint():
+    """Verify microservices endpoint returns all 6 core microservices with status and metrics."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        resp = await client.get("/api/v1/observatory/microservices")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert isinstance(data, list)
+        assert len(data) == 6
+        service_ids = [svc["id"] for svc in data]
+        for expected in ["gateway", "market-data", "quant", "portfolio", "sentiment", "agent"]:
+            assert expected in service_ids
+        for svc in data:
+            assert svc["status"] in ["Up", "Starting", "Down"]
+            assert "response_latency_ms" in svc
+            assert "request_hits" in svc
+            assert "payload_transfer_kb" in svc

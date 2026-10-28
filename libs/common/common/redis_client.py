@@ -26,6 +26,13 @@ class InMemoryFallbackStorage:
         self._prices: dict[str, tuple[float, list[dict[str, Any]]]] = {}
         self._metrics: dict[str, dict[str, Any]] = {}
         self._calls: list[dict[str, Any]] = []
+        self._service_metrics: dict[str, dict[str, Any]] = {}
+
+    def set_service_metric(self, service_id: str, data: dict[str, Any]) -> None:
+        self._service_metrics[service_id] = data
+
+    def get_service_metric(self, service_id: str) -> Optional[dict[str, Any]]:
+        return self._service_metrics.get(service_id)
 
     def push_session(
         self, key: str, message: dict[str, Any], max_items: int = 20
@@ -403,6 +410,29 @@ class TangentRedisClient:
                 logger.warning("Redis reset_llm_metrics error: %s", ex)
         self._fallback.reset_metrics()
         return True
+
+    async def record_service_metric(self, service_id: str, data: dict[str, Any]) -> None:
+        """Cache service health and telemetry snapshot in Redis."""
+        client = await self._get_client()
+        if client:
+            try:
+                await client.set(f"service:metrics:{service_id}", json.dumps(data), ex=86400)
+                return
+            except Exception as ex:
+                logger.warning("Redis record_service_metric error: %s", ex)
+        self._fallback.set_service_metric(service_id, data)
+
+    async def get_service_metrics(self, service_id: str) -> Optional[dict[str, Any]]:
+        """Retrieve cached service health and telemetry snapshot from Redis."""
+        client = await self._get_client()
+        if client:
+            try:
+                raw = await client.get(f"service:metrics:{service_id}")
+                if raw:
+                    return json.loads(raw)
+            except Exception as ex:
+                logger.warning("Redis get_service_metrics error: %s", ex)
+        return self._fallback.get_service_metric(service_id)
 
     async def close(self) -> None:
         """Close Redis connection pool cleanly."""

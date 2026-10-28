@@ -1,0 +1,46 @@
+name: Market Data Settlement Sync
+
+on:
+  schedule:
+    # 22:30 UTC Monday-Friday (04:00 AM IST next day).
+    # All global exchanges (NSE/BSE at 10:00 UTC, NYSE/NASDAQ at 21:00 UTC) have fully closed
+    # and post-market daily settlement prices are finalized on Yahoo Finance.
+    - cron: '30 22 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Gateway or Market-Data Base URL'
+        required: false
+        default: 'https://tangent-gateway.onrender.com'
+
+jobs:
+  sync-daily-prices:
+    name: Sync Closing Market Prices
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch Settlement Sync Request
+        run: |
+          TARGET_URL="${{ inputs.target_url || 'https://tangent-gateway.onrender.com' }}"
+          ENDPOINT="${TARGET_URL%/}/api/v1/market-data/sync"
+          echo "Triggering Market Data Sync at: $ENDPOINT"
+
+          # Using --max-time 120 and retries to gracefully handle Render container cold starts if sleeping
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\nTIME_TOTAL:%{time_total}s\n" \
+            -X POST "$ENDPOINT" \
+            -H "Content-Type: application/json" \
+            -H "User-Agent: Tangent-GitHub-Actions-Sync/1.0" \
+            --retry 3 \
+            --retry-delay 15 \
+            --retry-connrefused \
+            --max-time 120 || true)
+
+          echo "=== Response Output ==="
+          echo "$RESPONSE"
+
+          # Verify HTTP Status
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d':' -f2)
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "Successfully synchronized daily closing prices."
+          else
+            echo "Sync endpoint returned status $HTTP_STATUS (or service waking up). Check logs above."
+          fi

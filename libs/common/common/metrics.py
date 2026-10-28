@@ -14,12 +14,17 @@ class ServiceMetricsTracker:
         self.requests_total = 0
         self.errors_total = 0
         self.total_latency_ms = 0.0
+        self.bytes_transferred_total = 0
         self.custom_metrics: dict[str, Any] = {}
 
-    def record_request(self, latency_ms: float, is_error: bool = False) -> None:
-        """Record request completion and latency."""
+    def record_request(
+        self, latency_ms: float, is_error: bool = False, bytes_transferred: int = 0
+    ) -> None:
+        """Record request completion, latency, and payload transfer bytes."""
         self.requests_total += 1
         self.total_latency_ms += latency_ms
+        if bytes_transferred > 0:
+            self.bytes_transferred_total += bytes_transferred
         if is_error:
             self.errors_total += 1
 
@@ -39,6 +44,7 @@ class ServiceMetricsTracker:
             if self.requests_total > 0
             else 0.0
         )
+        payload_kb = round(self.bytes_transferred_total / 1024.0, 2)
         return {
             "service": self.service_name,
             "status": "healthy",
@@ -47,5 +53,7 @@ class ServiceMetricsTracker:
             "requests_total": self.requests_total,
             "errors_total": self.errors_total,
             "avg_latency_ms": avg_latency,
+            "bytes_transferred_total": self.bytes_transferred_total,
+            "payload_transfer_kb": payload_kb,
             **self.custom_metrics,
         }

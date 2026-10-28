@@ -1,5 +1,6 @@
 """Market Data microservice API for Tangent."""
 
+import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Any, AsyncGenerator, Optional
@@ -216,6 +217,56 @@ def create_app() -> FastAPI:
             latest_rate=latest,
             as_of=datetime.now(timezone.utc).isoformat(),
         )
+
+    @app.post("/api/v1/market-data/sync", tags=["prices"])
+    async def sync_daily_prices(
+        authorization: Optional[str] = None,
+    ) -> dict[str, Any]:
+        """Trigger daily settlement market sync after exchange close (e.g. from GitHub Actions)."""
+        t0 = time.time()
+        active_provider = provider or CompositeMarketDataProvider(demo_mode=settings.demo_mode)
+        benchmark_tickers = [
+            "RELIANCE.NS",
+            "TCS.NS",
+            "HDFCBANK.NS",
+            "INFY.NS",
+            "GOLDBEES.NS",
+            "SPY",
+            "QQQ",
+        ]
+        now_iso = datetime.now(timezone.utc).isoformat()
+        redis_c = get_redis_client()
+
+        synced = []
+        for ticker in benchmark_tickers:
+            try:
+                pts = active_provider.fetch_prices(ticker, start_date="2025-01-01")
+                if pts:
+                    await redis_c.set_cached_prices(
+                        ticker,
+                        "default_latest_False",
+                        [p.model_dump() for p in pts[-30:]],
+                        ttl_seconds=86400,
+                    )
+                    synced.append(ticker)
+            except Exception as ex:
+                logger.warning("Sync failed for %s: %s", ticker, ex)
+
+        elapsed_ms = round((time.time() - t0) * 1000.0, 2)
+        payload_bytes = len(str(synced).encode("utf-8")) + 256
+        metrics.record_request(latency_ms=elapsed_ms, bytes_transferred=payload_bytes)
+        metrics.set_custom_metric("last_market_sync_utc", now_iso)
+        metrics.set_custom_metric("synced_assets_count", len(synced))
+
+        return {
+            "status": "synchronized",
+            "service": settings.service_name,
+            "timestamp_utc": now_iso,
+            "synced_tickers": synced,
+            "synced_count": len(synced),
+            "latency_ms": elapsed_ms,
+            "source": "fixture" if settings.demo_mode else "yfinance",
+        }
 
     return app
 
